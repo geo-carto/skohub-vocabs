@@ -185,9 +185,9 @@ const NestedList = ({
     // Gatsby Link Component can't handle hash URIs so we use an anchor-tag instead
     const LinkTag = getFragment(item.id) ? "a" : GatsbyLink
 
-    const notation = item.notation && (
-      <span className="notation">{item.notation.join(",")}&nbsp;</span>
-    )
+  //const notation = item.notation && (
+  //    <span className="notation">{item.notation.join(",")}&nbsp;</span>
+  //  )
     const renderPrefLabel = () => {
       // Function for handling highlighting
       function handleHighlight(text, highlight) {
