@@ -34,7 +34,7 @@ const App = ({ pageContext, children, location }) => {
     Object.fromEntries(
       config.searchableAttributes.map((attr) => [
         attr,
-        attr === "prefLabel" ? true : false,
+         attr === "prefLabel" || attr === "altLabel" ? true : false,
       ])
     )
   )
