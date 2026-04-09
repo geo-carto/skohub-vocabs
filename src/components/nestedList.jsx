@@ -188,6 +188,7 @@ const NestedList = ({
   //const notation = item.notation && (
   //    <span className="notation">{item.notation.join(",")}&nbsp;</span>
   //  )
+    const notation = null
     const renderPrefLabel = () => {
       // Function for handling highlighting
       function handleHighlight(text, highlight) {
