@@ -27,7 +27,6 @@ const Concept = ({
         {concept.deprecated ? "Deprecated" : ""}
       </h1>
       <h1>
-        {concept.notation && <span>{concept.notation.join(",")}&nbsp;</span>}
         {title && i18n(language)(title)}
       </h1>
       <ConceptURI id={concept.id} />
@@ -132,6 +131,16 @@ const Concept = ({
           <ul aria-labelledby="hidden-label">
             {i18n(language)(concept.hiddenLabel).map((hiddenLabel, i) => (
               <li key={i}>{hiddenLabel}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {concept.notation && concept.notation.length > 0 && (
+        <div>
+          <h3>Notation</h3>
+          <ul>
+            {concept.notation.map((notation, i) => (
+              <li key={i}>{notation}</li>
             ))}
           </ul>
         </div>
