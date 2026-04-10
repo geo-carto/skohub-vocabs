@@ -11,7 +11,7 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: ${config.colors.skoHubWhite};
+    background: ${config.colors.skoHubLightGrey};
 
     .headerContent {
       padding: 20px 20px 0 20px;
@@ -31,7 +31,7 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        height: 75px;
+        height: 50px;
         width: auto;
       }
 
@@ -39,7 +39,7 @@ const Header = ({ siteTitle }) => {
         display: inline-block;
         vertical-align: middle;
         padding: 0 0 0 15px;
-        font-size: 30px;
+        font-size: 36px;
         line-height: 24px;
         font-weight: 700;
 
