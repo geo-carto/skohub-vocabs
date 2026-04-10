@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Link } from "gatsby"
+import { Link, withPrefix } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
 import { useSkoHubContext } from "../context/Context"
 import { getUserLang } from "../hooks/getUserLanguage"
@@ -29,7 +29,6 @@ const IndexPage = ({ location }) => {
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
-  const baseUrl = process.env.BASEURL || ""
 
   useEffect(() => {
     async function fetchConceptData() {
@@ -153,7 +152,7 @@ const IndexPage = ({ location }) => {
                   }}
                 >
                   <img
-                    src={`${baseUrl}/img/${cat.image}`}
+                    src={withPrefix(`/img/${cat.image}`)}
                     alt={getCategoryLabel(code)}
                     style={{
                       width: "100%",
