@@ -31,15 +31,15 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        width: 30px;
-        height: 30px;
+        height: 75px;
+        width: auto;
       }
 
       .skohubTitle {
         display: inline-block;
         vertical-align: middle;
         padding: 0 0 0 15px;
-        font-size: 24px;
+        font-size: 30px;
         line-height: 24px;
         font-weight: 700;
 
