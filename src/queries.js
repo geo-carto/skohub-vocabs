@@ -132,6 +132,9 @@ module.exports.allConcept = (inScheme, languages) => `
           isReplacedBy {
             id
           }
+          created
+          modified
+          status
         }
       }
     }
@@ -164,6 +167,13 @@ module.exports.allConceptScheme = (languages) => `
             id
           }
           issued
+          created
+          modified
+          creator
+          contributor
+          provenance
+          source
+          versionInfo
           license {
             id
           }

@@ -16,6 +16,13 @@ module.exports = (languages) => `
     hasTopConcept: [Concept] @link(from: "hasTopConcept___NODE"),
     languages: [String],
     issued: String,
+    created: String,
+    modified: String,
+    creator: String,
+    contributor: String,
+    provenance: String,
+    versionInfo: String,
+    source: String,
     preferredNamespaceUri: String,
     preferredNamespacePrefix: String,
     publisher: Concept
@@ -49,7 +56,10 @@ module.exports = (languages) => `
     inSchemeAll: [ConceptScheme],
     hub: String,
     deprecated: Boolean,
-    isReplacedBy: [Concept]
+    isReplacedBy: [Concept],
+    created: String,
+    modified: String,
+    status: String
   }
 
   type LanguageMap {

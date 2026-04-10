@@ -44,7 +44,13 @@ const jsonld = {
       "@type": "xsd:date",
     },
     creator: "dct:creator",
+    contributor: "dct:contributor",
+    provenance: "dct:provenance",
     publisher: "dct:publisher",
+    versionInfo: "owl:versionInfo",
+    status: {
+      "@id": "http://www.w3.org/ns/adms#status",
+    },
     preferredNamespacePrefix: "vann:preferredNamespacePrefix",
     preferredNamespaceUri: "vann:preferredNamespaceUri",
     isBasedOn: "schema:isBasedOn",

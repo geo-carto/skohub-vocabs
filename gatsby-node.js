@@ -150,6 +150,14 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         "dc:description": dc_description,
         "dct:issued": issued,
         "dct:license": license,
+        created,
+        modified,
+        creator,
+        contributor,
+        provenance,
+        source,
+        versionInfo,
+        status,
         // "vann:preferredNamespaceUri": preferredNamespaceUri,
         // "vann:preferredNamespacePrefix": preferredNamespacePrefix,
         ...properties
@@ -215,6 +223,14 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         dc_description,
         issued,
         license,
+        created,
+        modified,
+        creator,
+        contributor,
+        provenance,
+        source,
+        versionInfo,
+        status: (status && typeof status === 'object' && status.id) ? status.id : (status || null),
       }
       if (type === "Concept") {
         Object.assign(node, {})

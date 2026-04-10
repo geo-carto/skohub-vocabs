@@ -55,6 +55,54 @@ const ConceptScheme = ({
               <p>{conceptScheme.issued}</p>
             </div>
           )}
+          {conceptScheme.created && (
+            <div>
+              <h3>Created</h3>
+              <p>{conceptScheme.created}</p>
+            </div>
+          )}
+          {conceptScheme.modified && (
+            <div>
+              <h3>Modified</h3>
+              <p>{conceptScheme.modified}</p>
+            </div>
+          )}
+          {conceptScheme.creator && (
+            <div>
+              <h3>Creator</h3>
+              <p>{conceptScheme.creator}</p>
+            </div>
+          )}
+          {conceptScheme.contributor && (
+            <div>
+              <h3>Contributor</h3>
+              <p>{conceptScheme.contributor}</p>
+            </div>
+          )}
+          {conceptScheme.versionInfo && (
+            <div>
+              <h3>Version</h3>
+              <p>{conceptScheme.versionInfo}</p>
+            </div>
+          )}
+          {conceptScheme.source && (
+            <div>
+              <h3>Source</h3>
+              {conceptScheme.source.startsWith("http") ? (
+                <a target="_blank" rel="noreferrer" href={conceptScheme.source}>
+                  {conceptScheme.source}
+                </a>
+              ) : (
+                <p>{conceptScheme.source}</p>
+              )}
+            </div>
+          )}
+          {conceptScheme.provenance && (
+            <div>
+              <h3>Provenance</h3>
+              <p>{conceptScheme.provenance}</p>
+            </div>
+          )}
           {conceptScheme.license && (
             <div>
               <h3>License</h3>

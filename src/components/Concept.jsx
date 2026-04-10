@@ -23,9 +23,19 @@ const Concept = ({
 
   return (
     <div id={getDomId(concept.id)}>
-      <h1 style={{ color: config.colors.skoHubAction }}>
-        {concept.deprecated ? "Deprecated" : ""}
-      </h1>
+      {concept.deprecated && (
+        <h1
+          style={{
+            color: "#d32f2f",
+            backgroundColor: "#ffebee",
+            padding: "4px 12px",
+            borderRadius: "4px",
+            display: "inline-block",
+          }}
+        >
+          ⚠ Deprecated
+        </h1>
+      )}
       <h1>
         {title && i18n(language)(title)}
       </h1>
@@ -68,7 +78,7 @@ const Concept = ({
       )}
       {concept.changeNote && i18n(language)(concept.changeNote) !== "" && (
         <div className="markdown">
-          <h3 id="changenote">ChangeNote</h3>
+          <h3 id="changenote">Change Note</h3>
           <ul aria-labelledby="changenote">
             {i18n(language)(concept.changeNote).map((changeNote, i) => (
               <li key={i}>
@@ -81,7 +91,7 @@ const Concept = ({
       {concept.editorialNote &&
         i18n(language)(concept.editorialNote) !== "" && (
           <div className="markdown">
-            <h3 id="editorialnote">EditorialNote</h3>
+            <h3 id="editorialnote">Editorial Note</h3>
             <ul aria-labelledby="editorialnote">
               {i18n(language)(concept.editorialNote).map((editorialNote, i) => (
                 <li key={i}>
@@ -93,7 +103,7 @@ const Concept = ({
         )}
       {concept.historyNote && i18n(language)(concept.historyNote) !== "" && (
         <div className="markdown">
-          <h3 id="historynote">HistoryNote</h3>
+          <h3 id="historynote">History Note</h3>
           <ul aria-labelledby="historynote">
             {i18n(language)(concept.historyNote).map((historyNote, i) => (
               <li key={i}>
@@ -105,7 +115,7 @@ const Concept = ({
       )}
       {concept.scopeNote && i18n(language)(concept.scopeNote) !== "" && (
         <div className="markdown">
-          <h3 id="scopenote">ScopeNote</h3>
+          <h3 id="scopenote">Scope Note</h3>
           <ul aria-labelledby="scopenote">
             {i18n(language)(concept.scopeNote).map((scopeNote, i) => (
               <li key={i}>
@@ -238,6 +248,30 @@ const Concept = ({
           </ul>
         </div>
       )}
+      {concept.status && (
+        <div>
+          <h3>Status</h3>
+          {concept.status.startsWith("http") ? (
+            <a target="_blank" rel="noreferrer" href={concept.status}>
+              {concept.status.split("/").pop()}
+            </a>
+          ) : (
+            <p>{concept.status}</p>
+          )}
+        </div>
+      )}
+      {concept.created && (
+        <div>
+          <h3>Created</h3>
+          <p>{concept.created}</p>
+        </div>
+      )}
+      {concept.modified && (
+        <div>
+          <h3>Modified</h3>
+          <p>{concept.modified}</p>
+        </div>
+      )}
       {collections && collections.length > 0 && (
         <div className="collections">
           <h3>in Collections</h3>
@@ -259,10 +293,6 @@ const Concept = ({
           <ul aria-labelledby="in-scheme">
             {concept.inSchemeAll.map((inScheme) => (
               <li key={inScheme.id}>
-                {/* 
-              check if the concept scheme in that language is present
-              otherwise link to first present language
-              */}
                 {Object.keys(conceptSchemes).includes(inScheme.id) ? (
                   <Link to={getFilePath(inScheme.id, "html", customDomain)}>
                     {inScheme.id}
