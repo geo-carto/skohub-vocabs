@@ -174,6 +174,7 @@ module.exports.allConceptScheme = (languages) => `
           provenance
           source
           versionInfo
+          theme
           license {
             id
           }

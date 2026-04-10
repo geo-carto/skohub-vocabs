@@ -158,6 +158,7 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         source,
         versionInfo,
         status,
+        theme,
         // "vann:preferredNamespaceUri": preferredNamespaceUri,
         // "vann:preferredNamespacePrefix": preferredNamespacePrefix,
         ...properties
@@ -231,6 +232,7 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         source,
         versionInfo,
         status: (status && typeof status === 'object' && status.id) ? status.id : (status || null),
+        theme: theme || null,
       }
       if (type === "Concept") {
         Object.assign(node, {})
@@ -449,6 +451,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
       prefLabel: cs.prefLabel,
       description: cs.description,
       dc_description: cs.dc_description,
+      theme: cs.theme || null,
       languages: Array.from(languagesByCS[cs.id]),
     }))
   )

@@ -55,6 +55,7 @@ const jsonld = {
     preferredNamespaceUri: "vann:preferredNamespaceUri",
     isBasedOn: "schema:isBasedOn",
     source: "dct:source",
+    theme: "dcat:theme",
     prefLabel: {
       "@container": "@language",
     },

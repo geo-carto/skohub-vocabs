@@ -139,7 +139,8 @@ const NestedList = ({
 
   const getFilteredItems = () => {
     if (!queryFilter) {
-      return items
+      // Sin búsqueda: ocultar conceptos deprecated
+      return items.filter((item) => !item.deprecated)
     } else if (filteredIds.length) {
       return items.filter(
         (item) =>
@@ -294,7 +295,7 @@ const NestedList = ({
     <ul css={style}>
       {(filteredItems || []).map((item) => (
         <li key={item.id}>
-          {item.narrower && item.narrower.length > 0 && (
+          {item.narrower && (queryFilter ? item.narrower.length > 0 : item.narrower.filter((n) => !n.deprecated).length > 0) && (
             <button
               aria-expanded={isExpanded(item, "true", "false")}
               className={`treeItemIcon inputStyle${isExpanded(
@@ -315,7 +316,7 @@ const NestedList = ({
             {renderItemLink(item)}
             {item.narrower && item.narrower.length > 0 && (
               <NestedList
-                items={item.narrower}
+                items={queryFilter ? item.narrower : item.narrower.filter((n) => !n.deprecated)}
                 current={current}
                 queryFilter={queryFilter}
                 highlight={highlight}
