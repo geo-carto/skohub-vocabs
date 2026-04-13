@@ -33,7 +33,7 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        height: 75px;
+        height: 65px;
         width: auto;
         margin-right: 15px;
       }
@@ -183,7 +183,7 @@ const Header = ({ siteTitle }) => {
           </ul>
         )}
       </div>
-      <div style={{ height: "30px", background: config.colors.skoHubLightColor }} />
+      <div style={{ height: "15px", background: config.colors.skoHubLightColor }} />
     </header>
   )
 }
