@@ -180,14 +180,15 @@ const App = ({ pageContext, children, location }) => {
             color: config.colors.skoHubDarkColor,
           }}>
             
-            <a href={getFilePath(data.currentScheme.id, "html", config.customDomain)}
+            <Link
+              to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               {data.currentScheme?.title?.[language] ||
                data.currentScheme?.prefLabel?.[language] ||
                data.currentScheme?.dc_title?.[language] ||
                data.currentScheme?.id}
-            </a>
+            </Link>
           </div>
         )}
         <nav className="block nav-block">
