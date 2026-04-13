@@ -31,9 +31,9 @@ export const conceptStyle = (colors) => css`
     overflow: auto;
   }
 
-  .nav-block {
+.nav-block {
     flex: 1;
-
+    overflow-y: auto;
     @media only screen and (max-width: 800px) {
       display: block;
       height: 45vh;
@@ -41,10 +41,9 @@ export const conceptStyle = (colors) => css`
       width: 100%;
     }
   }
-
   .main-block {
     flex: 2;
-
+    overflow-y: auto;
     @media only screen and (max-width: 800px) {
       display: block;
       width: 100%;
