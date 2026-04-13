@@ -11,10 +11,10 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: ${config.colors.skoHubLightColor};
+    background: ${config.colors.skoHubWhite};
 
     .headerContent {
-          padding: 0px;
+          padding: 10px 20px;
           display: flex;
           align-items: center;
         }
@@ -33,9 +33,9 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        height: 100%;
+        height: 75px;
         width: auto;
-        max-height: 80px;
+        margin-right: 15px;
       }
 
       .skohubTitle {
@@ -183,6 +183,7 @@ const Header = ({ siteTitle }) => {
           </ul>
         )}
       </div>
+      <div style={{ height: "30px", background: config.colors.skoHubLightColor }} />
     </header>
   )
 }
