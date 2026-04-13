@@ -13,10 +13,18 @@ import SEO from "../components/seo"
 const CATEGORIES = {
   GE: {
     label: { es: "Geología", en: "Geology" },
+    description: {
+      es: "Vocabularios controlados para propiedades geológicas y geomorfológicas incluidas en el modelo de datos estandarizados de cartografía geológica ",
+      en: "Controlled vocabularies for geological and geomorphological properties used in the geological standardized information data model ",
+    },
     image: "categoria-geologia.png",
   },
   TE: {
     label: { es: "Técnicos", en: "Technical" },
+    description: {
+      es: "Vocabularios controlados para propiedades técnicas y administrativas",
+      en: "Controlled vocabularies for technical and administrative propierties",
+    },
     image: "categoria-tecnicos.png",
   },
 }
@@ -93,6 +101,12 @@ const IndexPage = ({ location }) => {
     return cat.label[language] || cat.label["es"] || code
   }
 
+  const getCategoryDescription = (code) => {
+    const cat = CATEGORIES[code]
+    if (!cat || !cat.description) return ""
+    return cat.description[language] || cat.description["es"] || ""
+  }
+
   // Obtener categorías presentes en los datos
   const availableCategories = Object.keys(CATEGORIES).filter((code) =>
     conceptSchemes.some((cs) => cs.theme === code)
@@ -116,6 +130,7 @@ const IndexPage = ({ location }) => {
               gap: "24px",
               justifyContent: "center",
               flexWrap: "wrap",
+              marginTop: "40px",
               marginBottom: "30px",
             }}
           >
@@ -161,12 +176,22 @@ const IndexPage = ({ location }) => {
                       display: "block",
                     }}
                   />
-                  <div style={{ padding: "12px 16px" }}>
-                    <h3 style={{ margin: "0 0 4px 0" }}>
+                  <div style={{ padding: "12px 16px", textAlign: "left" }}>
+                    <h3 style={{ margin: "0 0 6px 0" }}>
                       {getCategoryLabel(code)}
                     </h3>
                     <p
-                      style={{ margin: 0, color: "#666", fontSize: "14px" }}
+                      style={{
+                        margin: "0 0 6px 0",
+                        color: "#555",
+                        fontSize: "13px",
+                        lineHeight: "1.4",
+                      }}
+                    >
+                      {getCategoryDescription(code)}
+                    </p>
+                    <p
+                      style={{ margin: 0, color: "#888", fontSize: "13px" }}
                     >
                       {count}{" "}
                       {language === "en" ? "vocabularies" : "vocabularios"}
