@@ -33,7 +33,7 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        height: 65px;
+        height: 70px;
         width: auto;
         margin-right: 15px;
       }
