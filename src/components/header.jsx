@@ -14,7 +14,7 @@ const Header = ({ siteTitle }) => {
     background: ${config.colors.skoHubLightColor};
 
     .headerContent {
-          padding: 10px 20px;
+          padding: 0px;
           display: flex;
           align-items: center;
         }
@@ -33,8 +33,9 @@ const Header = ({ siteTitle }) => {
       .skohubImg {
         display: inline-block;
         vertical-align: middle;
-        height: 50px;
+        height: 100%;
         width: auto;
+        max-height: 80px;
       }
 
       .skohubTitle {
@@ -149,9 +150,14 @@ const Header = ({ siteTitle }) => {
               <img
                 className="skohubImg"
                 src={`${withPrefix("/img/" + config.logo)}`}
-                alt="SkoHub Logo"
+                alt="Logo"
               />
             )}
+            <img
+              className="skohubImg"
+              src={`${withPrefix("/img/logo-voc.png")}`}
+              alt="Logo Vocabularios"
+            />
             <span className="skohubTitle">{siteTitle}</span>
           </Link>
           
