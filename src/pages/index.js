@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react"
 import { Link, withPrefix } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
@@ -14,16 +15,16 @@ const CATEGORIES = {
   GE: {
     label: { es: "Geología", en: "Geology" },
     description: {
-      es: "Vocabularios controlados para propiedades geológicas y geomorfológicas incluidas en el modelo de datos estandarizados de cartografía geológica ",
-      en: "Controlled vocabularies for geological and geomorphological properties used in the geological standardized information data model ",
+      es: "Vocabularios controlados de geología, geomorfología, estratigrafía, litología y más.",
+      en: "Controlled vocabularies for geology, geomorphology, stratigraphy, lithology and more.",
     },
     image: "categoria-geologia.png",
   },
   TE: {
     label: { es: "Técnicos", en: "Technical" },
     description: {
-      es: "Vocabularios controlados para propiedades técnicas y administrativas",
-      en: "Controlled vocabularies for technical and administrative propierties",
+      es: "Vocabularios técnicos y administrativos: estados, roles, tipos de archivo y más.",
+      en: "Technical and administrative vocabularies: status, roles, file types and more.",
     },
     image: "categoria-tecnicos.png",
   },
@@ -203,33 +204,84 @@ const IndexPage = ({ location }) => {
           </div>
         )}
 
-        {/* Botón volver cuando hay categoría seleccionada */}
+        {/* Título de categoría + Buscador + Botón volver */}
         {selectedCategory && (
-          <div style={{ marginBottom: "20px" }}>
-            <button
-              onClick={() => {
-                setSelectedCategory(null)
-                setSearchTerm("")
-              }}
+          <div>
+            <div
               style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "16px",
-                color: config.colors.skoHubAction,
-                padding: "0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "15px",
+                flexWrap: "wrap",
+                gap: "10px",
               }}
             >
-              ← {language === "en" ? "Back to categories" : "Volver a categorías"}
-            </button>
-            <h2 style={{ marginTop: "10px" }}>
-              {getCategoryLabel(selectedCategory)}
-            </h2>
+              <h2 style={{ margin: 0 }}>
+                {getCategoryLabel(selectedCategory)}
+              </h2>
+              <button
+                onClick={() => {
+                  setSelectedCategory(null)
+                  setSearchTerm("")
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: config.colors.skoHubLightGrey,
+                  border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "14px",
+                  color: config.colors.skoHubDarkColor,
+                  padding: "8px 16px",
+                  fontWeight: "600",
+                  transition: "background 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = config.colors.skoHubMiddleColor
+                  e.currentTarget.style.color = config.colors.skoHubWhite
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = config.colors.skoHubLightGrey
+                  e.currentTarget.style.color = config.colors.skoHubDarkColor
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                {language === "en" ? "Back to categories" : "Volver a categorías"}
+              </button>
+            </div>
+
+            {/* Buscador dentro de la categoría */}
+            {filteredSchemes.length > 4 && (
+              <div style={{ marginBottom: "20px" }}>
+                <input
+                  type="text"
+                  placeholder={
+                    language === "en"
+                      ? "Search vocabularies..."
+                      : "Buscar vocabularios..."
+                  }
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    fontSize: "16px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
 
-        {/* Buscador: solo visible cuando hay categoría seleccionada o no hay categorías */}
-        {(selectedCategory || availableCategories.length === 0) &&
+        {/* Buscador sin categorías */}
+        {!selectedCategory && availableCategories.length === 0 &&
           filteredSchemes.length > 4 && (
             <div style={{ marginBottom: "20px" }}>
               <input
