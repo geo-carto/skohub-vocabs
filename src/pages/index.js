@@ -14,16 +14,16 @@ const CATEGORIES = {
   GE: {
     label: { es: "Geología", en: "Geology" },
     description: {
-      es: "Vocabularios controlados para propiedades geológicas y geomorfológicas del modelo de datos estandarizados para la cartografía geológica.",
-      en: "Controlled vocabularies for geological and geomorphological properites of the geological mapping standardized data model.",
+      es: "Vocabularios controlados de geología, geomorfología, estratigrafía, litología y más.",
+      en: "Controlled vocabularies for geology, geomorphology, stratigraphy, lithology and more.",
     },
     image: "categoria-geologia.png",
   },
   TE: {
     label: { es: "Técnicos", en: "Technical" },
     description: {
-      es: "Vocabularios controlados para propiedades técnicas y administrativas del modelo de datos estandarizados para la cartografía geológica.",
-      en: "Controlled vocabularies for technical and administrative propierties of the geological mapping standardized data model.",
+      es: "Vocabularios técnicos y administrativos: estados, roles, tipos de archivo y más.",
+      en: "Technical and administrative vocabularies: status, roles, file types and more.",
     },
     image: "categoria-tecnicos.png",
   },
@@ -303,9 +303,8 @@ const IndexPage = ({ location }) => {
           <div
             style={{
               display: "flex",
-              gap: "24px",
-              justifyContent: "center",
-              flexWrap: "wrap",
+              flexDirection: "column",
+              gap: "14px",
               marginTop: "40px",
               marginBottom: "30px",
             }}
@@ -320,13 +319,17 @@ const IndexPage = ({ location }) => {
                   key={code}
                   onClick={() => setSelectedCategory(code)}
                   style={{
+                    display: "flex",
+                    alignItems: "center",
                     background: "none",
                     border: "2px solid #ddd",
-                    borderRadius: "12px",
+                    borderRadius: "10px",
                     padding: "0",
                     cursor: "pointer",
                     overflow: "hidden",
-                    width: "300px",
+                    width: "100%",
+                    height: "130px",
+                    textAlign: "left",
                     transition: "border-color 0.2s, box-shadow 0.2s",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                   }}
@@ -346,21 +349,28 @@ const IndexPage = ({ location }) => {
                     src={withPrefix(`/img/${cat.image}`)}
                     alt={getCategoryLabel(code)}
                     style={{
-                      width: "100%",
-                      height: "180px",
+                      width: "160px",
+                      minWidth: "160px",
+                      height: "100%",
                       objectFit: "cover",
                       display: "block",
                     }}
                   />
-                  <div style={{ padding: "12px 16px", textAlign: "left" }}>
-                    <h3 style={{ margin: "0 0 6px 0" }}>
+                  <div style={{ padding: "12px 20px", flex: 1 }}>
+                    <h3
+                      style={{
+                        margin: "0 0 6px 0",
+                        fontSize: "20px",
+                        color: config.colors.skoHubDarkColor,
+                      }}
+                    >
                       {getCategoryLabel(code)}
                     </h3>
                     <p
                       style={{
                         margin: "0 0 6px 0",
                         color: "#555",
-                        fontSize: "13px",
+                        fontSize: "14px",
                         lineHeight: "1.4",
                       }}
                     >
