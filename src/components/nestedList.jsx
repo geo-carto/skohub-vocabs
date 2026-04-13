@@ -257,12 +257,14 @@ const NestedList = ({
       }
 
       // give a warning if no prefLabel in selected language is provided
-      if (!t(item.prefLabel)) {
+/*       if (!t(item.prefLabel)) {
         return (
           <i style={{ color: "red" }}>
             No label for language "{language}" provided
           </i>
-        )
+        ) */
+      if (!t(item.prefLabel)) {
+        return <span>&nbsp;</span>
       } else {
         const htmlText = handleHighlight(t(item.prefLabel), highlight)
         return renderHtml(htmlText)
