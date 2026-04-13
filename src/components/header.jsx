@@ -14,14 +14,16 @@ const Header = ({ siteTitle }) => {
     background: ${config.colors.skoHubLightColor};
 
     .headerContent {
-      padding: 20px 20px 10px 20px;
-      display: flex;
-    }
+          padding: 10px 20px;
+          display: flex;
+          align-items: center;
+        }
 
     .skohubLogo {
-      margin: 0;
-      display: inline-block;
-      width: calc(100% - 80px);
+          margin: 0;
+          display: inline-flex;
+          align-items: center;
+          width: calc(100% - 80px);
 
       a {
         text-decoration: none;
@@ -152,27 +154,7 @@ const Header = ({ siteTitle }) => {
             )}
             <span className="skohubTitle">{siteTitle}</span>
           </Link>
-          {data?.currentScheme?.id && (
-            <div className="conceptSchemes">
-              <div
-                key={data.currentScheme.id}
-                className="conceptScheme"
-                onClick={() => {
-                  updateState({ ...data, currentScheme: data.currentScheme })
-                }}
-              >
-                <Link
-                  to={getFilePath(
-                    data.currentScheme.id,
-                    `html`,
-                    config.customDomain
-                  )}
-                >
-                  {title}
-                </Link>
-              </div>
-            </div>
-          )}
+          
         </div>
         {languages && languages.length > 1 && (
           <ul className="language-menu">
