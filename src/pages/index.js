@@ -14,16 +14,16 @@ const CATEGORIES = {
   GE: {
     label: { es: "Geología", en: "Geology" },
     description: {
-      es: "Vocabularios controlados para propiedades geológicas y geomorfológicas del modelo de datos estandarizados para la cartografía geológica",
-      en: "Controlled vocabularies for geological and geomorphological properites of the geological mapping standardized data model",
+      es: "Vocabularios controlados para propiedades geológicas y geomorfológicas del modelo de datos estandarizados para la cartografía geológica.",
+      en: "Controlled vocabularies for geological and geomorphological properites of the geological mapping standardized data model.",
     },
     image: "categoria-geologia.png",
   },
   TE: {
     label: { es: "Técnicos", en: "Technical" },
     description: {
-      es: "Vocabularios controlados para propiedades técnicas y administrativas",
-      en: "Controlled vocabularies for technical and administrative propierties.",
+      es: "Vocabularios controlados para propiedades técnicas y administrativas del modelo de datos estandarizados para la cartografía geológica.",
+      en: "Controlled vocabularies for technical and administrative propierties of the geological mapping standardized data model.",
     },
     image: "categoria-tecnicos.png",
   },
