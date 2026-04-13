@@ -79,8 +79,8 @@ const Header = ({ siteTitle }) => {
           height: 2rem;
           display: inline-block;
           margin: 2px;
-          color: ${config.colors.skoHubMiddleGrey};
-          border: 1px solid ${config.colors.skoHubMiddleGrey};
+          color: ${config.colors.skoHubDarkGrey};
+          border: 1px solid ${config.colors.skoHubDarkGrey};
           border-radius: 30px;
 
           &:hover {
