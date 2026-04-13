@@ -11,7 +11,7 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: ${config.colors.skoHubLightGrey};
+    background: ${config.colors.skoHubMiddleColor};
 
     .headerContent {
       padding: 20px 20px 0 20px;
