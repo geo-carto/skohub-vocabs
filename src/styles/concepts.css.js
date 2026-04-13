@@ -2,6 +2,7 @@ import { css } from "@emotion/react"
 
 export const conceptStyle = (colors) => css`
   display: flex;
+  flex-wrap: wrap;
   height: 100%;
 
   @media only screen and (max-width: 800px) {
