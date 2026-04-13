@@ -119,10 +119,6 @@ const App = ({ pageContext, children, location }) => {
     }
   }, [data?.languages, data?.selectedLanguage, currentScheme])
 
-  // useEffect(() => {
-  //   data?.conceptSchemeLanguages && setLanguage(data.selectedLanguage)
-  // }, [data?.selectedLanguage])
-
   // Fetch and load the serialized index
   useEffect(() => {
     importIndex(
@@ -137,7 +133,6 @@ const App = ({ pageContext, children, location }) => {
   // Fetch and load the tree
   useEffect(() => {
     data?.currentScheme?.id &&
-      // if node.type would be concept scheme the tree would already have been set
       pageContext.node.type !== "ConceptScheme" &&
       fetch(
         withPrefix(
@@ -170,28 +165,25 @@ const App = ({ pageContext, children, location }) => {
         title={i18n(language)(title)}
         keywords={["Concept", i18n(language)(title)]}
       />
+      {data?.currentScheme?.id && (
+        <div style={{
+          padding: "8px 30px 4px 30px",
+          fontSize: "24px",
+          fontWeight: "700",
+          color: config.colors.skoHubDarkColor,
+        }}>
+          <Link
+            to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            {data.currentScheme?.title?.[language] ||
+             data.currentScheme?.prefLabel?.[language] ||
+             data.currentScheme?.dc_title?.[language] ||
+             data.currentScheme?.id}
+          </Link>
+        </div>
+      )}
       <div className="Concept" css={style}>
-        {data?.currentScheme?.id && (
-          <div style={{
-            width: "100%",
-            padding: "2px 30px 0 30px",
-            marginBottom: "-15px",
-            fontSize: "24px",
-            fontWeight: "700",
-            color: config.colors.skoHubDarkColor,
-          }}>
-            
-            <Link
-              to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              {data.currentScheme?.title?.[language] ||
-               data.currentScheme?.prefLabel?.[language] ||
-               data.currentScheme?.dc_title?.[language] ||
-               data.currentScheme?.id}
-            </Link>
-          </div>
-        )}
         <nav className="block nav-block">
           <Search
             handleQueryInput={(e) => setQuery(e.target.value || null)}
