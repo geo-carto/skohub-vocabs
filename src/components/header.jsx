@@ -14,7 +14,7 @@ const Header = ({ siteTitle }) => {
     background: ${config.colors.skoHubLightColor};
 
     .headerContent {
-      padding: 20px 20px 0 20px;
+      padding: 20px 20px 10px 20px;
       display: flex;
     }
 
