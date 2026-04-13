@@ -180,7 +180,7 @@ const App = ({ pageContext, children, location }) => {
             color: config.colors.skoHubDarkColor,
           }}>
             
-              href={getFilePath(data.currentScheme.id, "html", config.customDomain)}
+            <a href={getFilePath(data.currentScheme.id, "html", config.customDomain)}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               {data.currentScheme?.title?.[language] ||
