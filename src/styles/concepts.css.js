@@ -143,6 +143,7 @@ export const conceptStyle = (colors) => css`
     display: flex;
     flex-direction: row;
     align-items: center;
+    color: ${colors.skoHubMiddleColor};
 
     button {
       border: 2px solid transparent;

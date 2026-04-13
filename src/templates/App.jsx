@@ -174,8 +174,8 @@ const App = ({ pageContext, children, location }) => {
         {data?.currentScheme?.id && (
           <div style={{
             width: "100%",
-            padding: "10px 30px",
-            fontSize: "20px",
+            padding: "5px 30px 0 30px",
+            fontSize: "24px",
             fontWeight: "700",
             color: config.colors.skoHubDarkColor,
           }}>
