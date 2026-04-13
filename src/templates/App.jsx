@@ -171,6 +171,25 @@ const App = ({ pageContext, children, location }) => {
         keywords={["Concept", i18n(language)(title)]}
       />
       <div className="Concept" css={style}>
+        {data?.currentScheme?.id && (
+          <div style={{
+            width: "100%",
+            padding: "10px 30px",
+            fontSize: "20px",
+            fontWeight: "700",
+            color: config.colors.skoHubDarkColor,
+          }}>
+            
+              href={getFilePath(data.currentScheme.id, "html", config.customDomain)}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              {data.currentScheme?.title?.[language] ||
+               data.currentScheme?.prefLabel?.[language] ||
+               data.currentScheme?.dc_title?.[language] ||
+               data.currentScheme?.id}
+            </a>
+          </div>
+        )}
         <nav className="block nav-block">
           <Search
             handleQueryInput={(e) => setQuery(e.target.value || null)}
