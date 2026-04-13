@@ -16,7 +16,7 @@ import { conceptStyle } from "../styles/concepts.css.js"
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import { getUserLang } from "../hooks/getUserLanguage"
 import { useSkoHubContext } from "../context/Context.jsx"
-import { withPrefix } from "gatsby"
+import { withPrefix, Link } from "gatsby"
 import { handleKeypresses, importIndex } from "./helpers"
 
 const App = ({ pageContext, children, location }) => {
