@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
 
     main {
       flex: 1;
-      overflow: auto;
+      overflow: hidden;
       padding: 5px 20px 20px 20px;
 
       @media only screen and (max-width: 1024px) {
