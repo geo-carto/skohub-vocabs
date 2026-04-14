@@ -26,7 +26,7 @@ const Layout = ({ children }) => {
       min-height: 0;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;
       padding: 5px 20px 20px 20px;
 
       @media only screen and (max-width: 800px) {
