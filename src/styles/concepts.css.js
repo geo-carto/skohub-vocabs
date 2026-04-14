@@ -2,12 +2,13 @@ import { css } from "@emotion/react"
 
 export const conceptStyle = (colors) => css`
   display: flex;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 
   @media only screen and (max-width: 800px) {
     display: block;
-    flex-direction: column;
+    flex: none;
     height: auto;
   }
 

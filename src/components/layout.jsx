@@ -23,11 +23,16 @@ const Layout = ({ children }) => {
 
     main {
       flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
       padding: 5px 20px 20px 20px;
 
-      @media only screen and (max-width: 1024px) {
+      @media only screen and (max-width: 800px) {
+        display: block;
         overflow: visible;
+        height: auto;
       }
     }
 
@@ -127,7 +132,7 @@ const Layout = ({ children }) => {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
 
-            @media only screen and (max-width: 1024px) {
+            @media only screen and (max-width: 800px) {
               overflow: auto;
             }
           }
