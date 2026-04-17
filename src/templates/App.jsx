@@ -168,18 +168,46 @@ const App = ({ pageContext, children, location }) => {
       {data?.currentScheme?.id && (
         <div style={{
           padding: "8px 30px 4px 30px",
-          fontSize: "24px",
-          fontWeight: "700",
-          color: config.colors.skoHubDarkColor,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}>
           <Link
             to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
-            style={{ textDecoration: "none", color: "inherit" }}
+            style={{
+              textDecoration: "none",
+              color: config.colors.skoHubDarkColor,
+              fontSize: "24px",
+              fontWeight: "700",
+            }}
           >
             {data.currentScheme?.title?.[language] ||
              data.currentScheme?.prefLabel?.[language] ||
              data.currentScheme?.dc_title?.[language] ||
              data.currentScheme?.id}
+          </Link>
+          <Link
+            to="/"
+            onClick={() => updateState({ ...data, currentScheme: {} })}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: config.colors.skoHubLightGrey,
+              border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "14px",
+              color: config.colors.skoHubDarkColor,
+              padding: "8px 16px",
+              fontWeight: "600",
+              textDecoration: "none",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            {language === "en" ? "Back to categories" : "Volver a categorías"}
           </Link>
         </div>
       )}

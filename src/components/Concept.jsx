@@ -145,16 +145,6 @@ const Concept = ({
           </ul>
         </div>
       )}
-      {concept.notation && concept.notation.length > 0 && (
-        <div>
-          <h3>Notation</h3>
-          <ul>
-            {concept.notation.map((notation, i) => (
-              <li key={i}>{notation}</li>
-            ))}
-          </ul>
-        </div>
-      )}
       {concept.example && (
         <div className="markdown">
           <h3>Example</h3>
@@ -270,6 +260,16 @@ const Concept = ({
         <div>
           <h3>Modified</h3>
           <p>{concept.modified}</p>
+        </div>
+      )}
+      {concept.notation && concept.notation.length > 0 && (
+        <div>
+          <h3>Notation</h3>
+          <ul>
+            {concept.notation.map((notation, i) => (
+              <li key={i}>{notation}</li>
+            ))}
+          </ul>
         </div>
       )}
       {collections && collections.length > 0 && (

@@ -518,32 +518,19 @@ const IndexPage = ({ location }) => {
                   i18n(language)(b.prefLabel || b.title || b.dc_title) || b.id
                 return titleA.localeCompare(titleB)
               })
-              .map((conceptScheme) => (
-                <Link
+              .map((conceptScheme) => {
+                const schemeSlug = conceptScheme.id.split("/").pop()
+                return (
+                <div
                   key={conceptScheme.id}
-                  onClick={() =>
-                    updateState({
-                      ...data,
-                      conceptSchemeLanguages: [...conceptScheme.languages],
-                      currentScheme: conceptScheme,
-                      selectedLanguage: conceptScheme.languages.includes(
-                        language
-                      )
-                        ? language
-                        : conceptScheme.languages[0],
-                    })
-                  }
-                  to={getFilePath(conceptScheme.id, `html`, customDomain)}
                   style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "stretch",
                     border: "1px solid #e0e0e0",
                     borderRadius: "8px",
                     overflow: "hidden",
-                    textDecoration: "none",
-                    color: "inherit",
                     transition: "box-shadow 0.2s, border-color 0.2s",
-                    height: "100px",
+                    minHeight: "100px",
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.borderColor =
@@ -557,57 +544,112 @@ const IndexPage = ({ location }) => {
                   }}
                 >
                   {/* Icono */}
-                  <div
+                  <Link
+                    onClick={() =>
+                      updateState({
+                        ...data,
+                        conceptSchemeLanguages: [...conceptScheme.languages],
+                        currentScheme: conceptScheme,
+                        selectedLanguage: conceptScheme.languages.includes(
+                          language
+                        )
+                          ? language
+                          : conceptScheme.languages[0],
+                      })
+                    }
+                    to={getFilePath(conceptScheme.id, `html`, customDomain)}
                     style={{
                       width: "100px",
                       minWidth: "100px",
-                      height: "100%",
                       background: config.colors.skoHubLightGrey,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      textDecoration: "none",
                     }}
                   >
                     <VocabIcon
                       vocabId={conceptScheme.id}
                       colors={config.colors}
                     />
-                  </div>
+                  </Link>
                   {/* Contenido */}
                   <div
                     style={{
                       flex: 1,
                       padding: "10px 16px",
                       overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: "16px",
-                        fontWeight: "700",
-                        lineHeight: "1.3",
-                        marginBottom: "4px",
-                        color: config.colors.skoHubDarkColor,
-                      }}
+                    <Link
+                      onClick={() =>
+                        updateState({
+                          ...data,
+                          conceptSchemeLanguages: [...conceptScheme.languages],
+                          currentScheme: conceptScheme,
+                          selectedLanguage: conceptScheme.languages.includes(
+                            language
+                          )
+                            ? language
+                            : conceptScheme.languages[0],
+                        })
+                      }
+                      to={getFilePath(conceptScheme.id, `html`, customDomain)}
+                      style={{ textDecoration: "none", color: "inherit" }}
                     >
-                      {getTitle(conceptScheme)}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        color: "#666",
-                        lineHeight: "1.4",
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {getDescription(conceptScheme)}
+                      <div
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: "700",
+                          lineHeight: "1.3",
+                          marginBottom: "4px",
+                          color: config.colors.skoHubDarkColor,
+                        }}
+                      >
+                        {getTitle(conceptScheme)}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          color: "#666",
+                          lineHeight: "1.4",
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {getDescription(conceptScheme)}
+                      </div>
+                    </Link>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
+                      {["ttl", "rdf", "jsonld"].map((fmt) => (
+                        <a
+                          key={fmt}
+                          href={getFilePath(conceptScheme.id, fmt === "rdf" ? "rdf" : fmt === "jsonld" ? "jsonld" : "ttl", customDomain)}
+                          download
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            fontSize: "11px",
+                            padding: "2px 8px",
+                            borderRadius: "3px",
+                            border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+                            color: config.colors.skoHubDarkColor,
+                            textDecoration: "none",
+                            background: config.colors.skoHubLightGrey,
+                          }}
+                        >
+                          {fmt.toUpperCase()}
+                        </a>
+                      ))}
                     </div>
                   </div>
-                </Link>
-              ))}
+                </div>
+                )
+              })}
           </div>
         )}
       </div>
