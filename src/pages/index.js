@@ -467,7 +467,7 @@ const IndexPage = ({ location }) => {
                 src={withPrefix("/img/logo-gi-carto.png")}
                 alt="Logo"
                 style={{
-                  height: "60px",
+                  height: "90px",
                   width: "auto",
                 }}
               />
