@@ -392,19 +392,8 @@ const IndexPage = ({ location }) => {
         {/* Título de categoría + Buscador + Botón volver */}
         {selectedCategory && (
           <div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "15px",
-                flexWrap: "wrap",
-                gap: "10px",
-              }}
-            >
-              <h2 style={{ margin: 0 }}>
-                {getCategoryLabel(selectedCategory)}
-              </h2>
+            {/* Botón volver */}
+            <div style={{ marginBottom: "10px", textAlign: "right" }}>
               <button
                 onClick={() => {
                   setSelectedCategory(null)
@@ -451,6 +440,37 @@ const IndexPage = ({ location }) => {
                   ? "Back to categories"
                   : "Volver a categorías"}
               </button>
+            </div>
+
+            {/* Título + descripción + logo */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "15px",
+              gap: "20px",
+            }}>
+              <div style={{ flex: 1 }}>
+                <h2 style={{ margin: "0 0 6px 0" }}>
+                  {getCategoryLabel(selectedCategory)}
+                </h2>
+                <p style={{
+                  margin: 0,
+                  color: "#555",
+                  fontSize: "14px",
+                  lineHeight: "1.4",
+                }}>
+                  {getCategoryDescription(selectedCategory)}
+                </p>
+              </div>
+              <img
+                src={withPrefix("/img/logo-gi-carto.png")}
+                alt="Logo"
+                style={{
+                  height: "60px",
+                  width: "auto",
+                }}
+              />
             </div>
 
             {/* Buscador dentro de la categoría */}
@@ -625,27 +645,44 @@ const IndexPage = ({ location }) => {
                         {getDescription(conceptScheme)}
                       </div>
                     </Link>
-                    <div style={{ display: "flex", gap: "6px", marginTop: "6px" }}>
-                      {["ttl", "rdf", "jsonld"].map((fmt) => (
+                  </div>
+                  {/* Botones de descarga */}
+                  <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                    padding: "10px 12px",
+                    justifyContent: "center",
+                    borderLeft: "1px solid #e0e0e0",
+                  }}>
+                    {[
+                      { label: "TTL", ext: "ttl" },
+                      { label: "RDF/XML", ext: "rdf" },
+                      { label: "JSON-LD", ext: "jsonld" },
+                    ].map(({ label, ext }) => {
+                      const slug = conceptScheme.id.split("/").pop()
+                      return (
                         <a
-                          key={fmt}
-                          href={getFilePath(conceptScheme.id, fmt === "rdf" ? "rdf" : fmt === "jsonld" ? "jsonld" : "ttl", customDomain)}
+                          key={ext}
+                          href={`${customDomain ? customDomain : "/"}downloads/${slug}.${ext}`}
                           download
                           onClick={(e) => e.stopPropagation()}
                           style={{
                             fontSize: "11px",
-                            padding: "2px 8px",
+                            padding: "3px 10px",
                             borderRadius: "3px",
                             border: `1px solid ${config.colors.skoHubMiddleGrey}`,
                             color: config.colors.skoHubDarkColor,
                             textDecoration: "none",
                             background: config.colors.skoHubLightGrey,
+                            textAlign: "center",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {fmt.toUpperCase()}
+                          {label}
                         </a>
-                      ))}
-                    </div>
+                      )
+                    })}
                   </div>
                 </div>
                 )
