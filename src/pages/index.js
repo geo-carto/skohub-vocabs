@@ -653,7 +653,7 @@ const IndexPage = ({ location }) => {
                     gap: "4px",
                     padding: "10px 12px",
                     justifyContent: "center",
-                    borderLeft: "1px solid #e0e0e0",
+                    // borderLeft: "1px solid #e0e0e0",
                   }}>
                     {[
                       { label: "TTL", ext: "ttl" },
