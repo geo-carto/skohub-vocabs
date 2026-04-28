@@ -70,7 +70,9 @@ const getTurtleFiles = function (dirPath, arrayOfFiles) {
 
   files.forEach(function (file) {
     if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getTurtleFiles(dirPath + "/" + file, arrayOfFiles)
+      if (file !== "downloads") {
+        arrayOfFiles = getTurtleFiles(dirPath + "/" + file, arrayOfFiles)
+      }
     } else {
       file.endsWith(".ttl") &&
         arrayOfFiles.push(path.join(__dirname, dirPath, "/", file))
