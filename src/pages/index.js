@@ -46,6 +46,7 @@ const VOCAB_ICONS = {
   "geomorfologia-actividad": "/img/vocab-geomorfologia-actividad.png",
   "geomorfologia-tipo-antropogenico": "/img/vocab-geomorfologia-tipo-antropogenico.png",
   "geomorfologia-tipo-natural": "/img/vocab-geomorfologia-tipo-natural.png",
+  "geomorfologia-tipo-natural-amp": "/img/vocab-geomorfologia-tipo-natural-amp.png",
   "mappedfobservationmethod": "/img/vocab-mappedfobservationmethod.png",
   "marco-de-cartografiado": "/img/vocab-marco-de-cartografiado.png",
   "material-igme": "/img/vocab-material-igme.png",
@@ -56,13 +57,14 @@ const VOCAB_ICONS = {
   "pliegue-tipo": "/img/vocab-pliegue-tipo.png",
   "rango-estratigrafico": "/img/vocab-rango-estratigrafico.png",
   "falla-tipo": "/img/vocab-falla-tipo.png",
-  "superficie-de-estratificacion": "/img/vocab-superficie-de-estratificacion.png",
+  "superficies-de-estratificacion": "/img/vocab-superficies-de-estratificacion.png",
   "evento-ambiente": "/img/vocab-evento-ambiente.png",
   "unidad-geologica-tipo": "/img/vocab-unidad-geologica-tipo.png",
   "unidad-geologica-composicion": "/img/vocab-unidad-geologica-composicion.png",
-  "undiad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
+  "undidad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
   "unidad-geologica-morfologia": "/img/vocab-unidad-geologica-morfologia.png",
   "alteracion-distribucion": "/img/vocab-alteracion-distribucion.png",
+  "polaridad": "/img/vocab-polaridad.png",
 
 
   // --- TE: Técnicos ---
@@ -307,7 +309,7 @@ const IndexPage = ({ location }) => {
 
         {/* Título de categoría + Buscador + Botón volver */}
         {selectedCategory && (
-          <div>
+          <div style={{ width: "100%" }}>
             {/* Botón volver */}
             <div style={{ marginBottom: "10px", textAlign: "right" }}>
               <button
@@ -383,7 +385,7 @@ const IndexPage = ({ location }) => {
                 src={withPrefix("/img/logo-gi-carto.png")}
                 alt="Logo"
                 style={{
-                  height: "90px",
+                  height: "110px",
                   width: "auto",
                 }}
               />
@@ -441,7 +443,7 @@ const IndexPage = ({ location }) => {
 
         {/* Lista de vocabularios como tarjetas */}
         {(selectedCategory || availableCategories.length === 0) && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
             {filteredSchemes
               .filter((conceptScheme) => {
                 const title = getTitle(conceptScheme)
@@ -541,7 +543,7 @@ const IndexPage = ({ location }) => {
                           fontSize: "16px",
                           fontWeight: "700",
                           lineHeight: "1.3",
-                          marginBottom: "4px",
+                          marginBottom: "6px",
                           color: config.colors.skoHubDarkColor,
                         }}
                       >
@@ -549,7 +551,7 @@ const IndexPage = ({ location }) => {
                       </div>
                       <div
                         style={{
-                          fontSize: "13px",
+                          fontSize: "14px",
                           color: "#666",
                           lineHeight: "1.4",
                           overflow: "hidden",
