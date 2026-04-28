@@ -11,7 +11,7 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: url(${withPrefix("/img/header-fondo.png")}) center/cover no-repeat;
+    background: url(${withPrefix("/img/header-fondo.png")}) center bottom/cover no-repeat;
 
     .headerContent {
           padding: 10px 20px;
