@@ -545,7 +545,6 @@ const IndexPage = ({ location }) => {
                           lineHeight: "1.3",
                           marginBottom: "6px",
                           color: config.colors.skoHubDarkColor,
-                          textTransform: "uppercase",
                         }}
                       >
                         {getTitle(conceptScheme)}
