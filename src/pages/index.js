@@ -55,12 +55,23 @@ const VOCAB_ICONS = {
   "metodo-determinacion": "/img/vocab-metodo-determinacion.png",
   "pliegue-tipo": "/img/vocab-pliegue-tipo.png",
   "rango-estratigrafico": "/img/vocab-rango-estratigrafico.png",
+  "falla-tipo": "/img/vocab-falla-tipo.png",
+  "superficie-de-estratificacion": "/img/vocab-superficie-de-estratificacion.png",
+  "evento-ambiente": "/img/vocab-evento-ambiente.png",
+  "unidad-geologica-tipo": "/img/vocab-unidad-geologica-tipo.png",
+  "unidad-geologica-composicion": "/img/vocab-unidad-geologica-composicion.png",
+  "undiad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
+  "unidad-geologica-morfologia": "/img/vocab-unidad-geologica-morfologia.png",
+  "alteracion-distribucion": "/img/vocab-alteracion-distribucion.png",
+
+
   // --- TE: Técnicos ---
   "contribucion-rol": "/img/vocab-contribucion-rol.png",
   "convencion-codigo": "/img/vocab-convencion-codigo.png",
   "file-type": "/img/vocab-file-type.png",
   "responsible-party-role": "/img/vocab-responsible-party-role.png",
   "void-reason": "/img/vocab-void-reason.png",
+  "estado": "/img/vocab-estado.png"
 }
 
 // Icono por defecto para vocabularios sin icono específico
