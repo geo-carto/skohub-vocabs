@@ -11,7 +11,7 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: ${config.colors.skoHubWhite};
+    background: url(${withPrefix("/img/header-fondo.png")}) center/cover no-repeat;
 
     .headerContent {
           padding: 10px 20px;
@@ -183,7 +183,6 @@ const Header = ({ siteTitle }) => {
           </ul>
         )}
       </div>
-      <div style={{ height: "15px", background: config.colors.skoHubLightColor }} />
     </header>
   )
 }

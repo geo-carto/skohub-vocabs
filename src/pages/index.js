@@ -61,7 +61,7 @@ const VOCAB_ICONS = {
   "evento-ambiente": "/img/vocab-evento-ambiente.png",
   "unidad-geologica-tipo": "/img/vocab-unidad-geologica-tipo.png",
   "unidad-geologica-composicion": "/img/vocab-unidad-geologica-composicion.png",
-  "undidad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
+  "unidad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
   "unidad-geologica-morfologia": "/img/vocab-unidad-geologica-morfologia.png",
   "alteracion-distribucion": "/img/vocab-alteracion-distribucion.png",
   "polaridad": "/img/vocab-polaridad.png",
@@ -545,6 +545,7 @@ const IndexPage = ({ location }) => {
                           lineHeight: "1.3",
                           marginBottom: "6px",
                           color: config.colors.skoHubDarkColor,
+                          textTransform: "uppercase",
                         }}
                       >
                         {getTitle(conceptScheme)}
