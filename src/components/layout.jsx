@@ -81,9 +81,10 @@ const Layout = ({ children }) => {
               url(${withPrefix("/fonts/" + config.fonts.regular.name + ".ttf")}) format("truetype");
           }
 
-          /* bold font */
+          /* bold variant declared under the regular family name so any element
+             at font-weight 700 automatically uses this font */
           @font-face {
-            font-family: ${config.fonts.bold.font_family};
+            font-family: ${config.fonts.regular.font_family};
             font-style: ${config.fonts.bold.font_style};
             font-weight: ${config.fonts.bold.font_weight};
             ${config.fonts.bold.font_stretch ? `font-stretch: ${config.fonts.bold.font_stretch};` : ""}
@@ -91,11 +92,6 @@ const Layout = ({ children }) => {
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff2")}) format("woff2"),
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff")}) format("woff"),
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".ttf")}) format("truetype");
-          }
-
-          h1, h2, h3, h4, h5, h6, strong, b {
-            font-family: ${config.fonts.bold.font_family}, sans-serif;
-            font-stretch: ${config.fonts.bold.font_stretch || "normal"};
           }
 
           html {
