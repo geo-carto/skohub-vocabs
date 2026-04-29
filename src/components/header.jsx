@@ -42,7 +42,7 @@ const Header = ({ siteTitle }) => {
         display: inline-block;
         vertical-align: middle;
         padding: 0 0 0 15px;
-        font-size: 36px;
+        font-size: 38px;
         line-height: 24px;
         font-weight: 700;
 

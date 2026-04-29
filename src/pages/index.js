@@ -278,7 +278,7 @@ const IndexPage = ({ location }) => {
                     <h3
                       style={{
                         margin: "0 0 6px 0",
-                        fontSize: "20px",
+                        fontSize: "26px",
                         color: config.colors.skoHubDarkColor,
                       }}
                     >
@@ -540,7 +540,7 @@ const IndexPage = ({ location }) => {
                     >
                       <div
                         style={{
-                          fontSize: "16px",
+                          fontSize: "20px",
                           fontWeight: "700",
                           lineHeight: "1.3",
                           marginBottom: "6px",
