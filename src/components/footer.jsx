@@ -12,7 +12,7 @@ const Footer = () => {
     color: ${config.colors.skoHubWhite};
 
     .footerContent {
-      padding: 20px;
+      padding: 15px;
       text-align: right;
 
       @media only screen and (max-width: 800px) {

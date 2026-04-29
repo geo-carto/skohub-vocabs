@@ -311,7 +311,7 @@ const IndexPage = ({ location }) => {
         {selectedCategory && (
           <div style={{ width: "100%" }}>
             {/* Botón volver */}
-            <div style={{ marginBottom: "10px", textAlign: "right" }}>
+            <div style={{ marginTop: "10px", marginBottom: "10px", textAlign: "right" }}>
               <button
                 onClick={() => {
                   setSelectedCategory(null)
@@ -369,7 +369,7 @@ const IndexPage = ({ location }) => {
               gap: "20px",
             }}>
               <div style={{ flex: 1 }}>
-                <h2 style={{ margin: "0 0 6px 0" }}>
+                <h2 style={{ margin: "0 0 10px 0" }}>
                   {getCategoryLabel(selectedCategory)}
                 </h2>
                 <p style={{
