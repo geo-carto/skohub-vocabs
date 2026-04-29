@@ -81,15 +81,21 @@ const Layout = ({ children }) => {
               url(${withPrefix("/fonts/" + config.fonts.regular.name + ".ttf")}) format("truetype");
           }
 
-          /* ubuntu-700 - latin */
+          /* bold font */
           @font-face {
             font-family: ${config.fonts.bold.font_family};
             font-style: ${config.fonts.bold.font_style};
             font-weight: ${config.fonts.bold.font_weight};
-            src: 
+            ${config.fonts.bold.font_stretch ? `font-stretch: ${config.fonts.bold.font_stretch};` : ""}
+            src:
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff2")}) format("woff2"),
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff")}) format("woff"),
               url(${withPrefix("/fonts/" + config.fonts.bold.name + ".ttf")}) format("truetype");
+          }
+
+          h1, h2, h3, h4, h5, h6, strong, b {
+            font-family: ${config.fonts.bold.font_family}, sans-serif;
+            font-stretch: ${config.fonts.bold.font_stretch || "normal"};
           }
 
           html {
