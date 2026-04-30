@@ -124,6 +124,14 @@ const IndexPage = ({ location }) => {
   const [language, setLanguage] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
@@ -239,6 +247,7 @@ const IndexPage = ({ location }) => {
                   style={{
                     display: "flex",
                     alignItems: "center",
+                    flexDirection: isMobile ? "column" : "row",
                     background: "none",
                     border: "2px solid #ddd",
                     borderRadius: "10px",
@@ -246,10 +255,11 @@ const IndexPage = ({ location }) => {
                     cursor: "pointer",
                     overflow: "hidden",
                     width: "100%",
-                    height: "130px",
+                    height: isMobile ? "auto" : "130px",
                     textAlign: "left",
                     transition: "border-color 0.2s, box-shadow 0.2s",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    fontFamily: "inherit",
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.borderColor =
@@ -267,9 +277,9 @@ const IndexPage = ({ location }) => {
                     src={withPrefix(`/img/${cat.image}`)}
                     alt={getCategoryLabel(code)}
                     style={{
-                      width: "160px",
-                      minWidth: "160px",
-                      height: "100%",
+                      width: isMobile ? "100%" : "160px",
+                      minWidth: isMobile ? "unset" : "160px",
+                      height: isMobile ? "120px" : "100%",
                       objectFit: "cover",
                       display: "block",
                     }}
@@ -369,7 +379,7 @@ const IndexPage = ({ location }) => {
               gap: "20px",
             }}>
               <div style={{ flex: 1 }}>
-                <h2 style={{ margin: "0 0 10px 0" }}>
+                <h2 style={{ margin: "0 0 10px 0", fontSize: "30px", textTransform: "uppercase" }}>
                   {getCategoryLabel(selectedCategory)}
                 </h2>
                 <p style={{
@@ -381,14 +391,16 @@ const IndexPage = ({ location }) => {
                   {getCategoryDescription(selectedCategory)}
                 </p>
               </div>
-              <img
-                src={withPrefix("/img/logo-gi-carto.png")}
-                alt="Logo"
-                style={{
-                  height: "110px",
-                  width: "auto",
-                }}
-              />
+              {!isMobile && (
+                <img
+                  src={withPrefix("/img/logo-gi-carto.png")}
+                  alt="Logo"
+                  style={{
+                    height: "110px",
+                    width: "auto",
+                  }}
+                />
+              )}
             </div>
 
             {/* Buscador dentro de la categoría */}
@@ -463,12 +475,13 @@ const IndexPage = ({ location }) => {
                   key={conceptScheme.id}
                   style={{
                     display: "flex",
+                    flexDirection: isMobile ? "column" : "row",
                     alignItems: "stretch",
                     border: "1px solid #e0e0e0",
                     borderRadius: "8px",
                     overflow: "hidden",
                     transition: "box-shadow 0.2s, border-color 0.2s",
-                    minHeight: "100px",
+                    minHeight: isMobile ? "unset" : "100px",
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.borderColor =
@@ -497,8 +510,9 @@ const IndexPage = ({ location }) => {
                     }
                     to={getFilePath(conceptScheme.id, `html`, customDomain)}
                     style={{
-                      width: "100px",
-                      minWidth: "100px",
+                      width: isMobile ? "100%" : "100px",
+                      minWidth: isMobile ? "unset" : "100px",
+                      height: isMobile ? "100px" : "auto",
                       background: config.colors.skoHubLightGrey,
                       display: "flex",
                       alignItems: "center",
@@ -567,11 +581,11 @@ const IndexPage = ({ location }) => {
                   {/* Botones de descarga */}
                   <div style={{
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: isMobile ? "row" : "column",
                     gap: "4px",
-                    padding: "10px 12px",
-                    justifyContent: "center",
-                    // borderLeft: "1px solid #e0e0e0",
+                    padding: isMobile ? "8px 12px" : "10px 12px",
+                    justifyContent: isMobile ? "flex-start" : "center",
+                    flexWrap: "wrap",
                   }}>
                     {[
                       { label: "TTL", ext: "ttl" },
