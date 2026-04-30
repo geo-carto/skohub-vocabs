@@ -119,6 +119,12 @@ const Layout = ({ children }) => {
             height: 100%; /* needed for proper layout */
           }
 
+          @media only screen and (max-width: 800px) {
+            html, body {
+              height: auto;
+            }
+          }
+
           body {
             padding: 0;
             margin: 0;

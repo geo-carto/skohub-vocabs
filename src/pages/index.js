@@ -191,8 +191,7 @@ const pageStyles = css`
     min-height: 100px;
 
     @media (max-width: 640px) {
-      flex-direction: column;
-      min-height: unset;
+      min-height: 80px;
     }
   }
 
@@ -206,9 +205,8 @@ const pageStyles = css`
     text-decoration: none;
 
     @media (max-width: 640px) {
-      width: 100%;
-      min-width: unset;
-      height: 70px;
+      width: 70px;
+      min-width: 70px;
     }
   }
 
@@ -221,9 +219,8 @@ const pageStyles = css`
     flex-wrap: wrap;
 
     @media (max-width: 640px) {
-      flex-direction: row;
-      padding: 8px 12px;
-      justify-content: flex-start;
+      padding: 6px 8px;
+      gap: 3px;
     }
   }
 `
@@ -644,7 +641,7 @@ const IndexPage = ({ location }) => {
                           style={{
                             fontSize: "14px",
                             color: "#666",
-                            lineHeight: "1.4",
+                            lineHeight: "1.6",
                             overflow: "hidden",
                             display: "-webkit-box",
                             WebkitLineClamp: 2,

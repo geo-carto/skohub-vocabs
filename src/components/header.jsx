@@ -36,6 +36,11 @@ const Header = ({ siteTitle }) => {
         height: 70px;
         width: auto;
         margin-right: 15px;
+
+        @media only screen and (max-width: 800px) {
+          height: 45px;
+          margin-right: 8px;
+        }
       }
 
       .skohubTitle {
