@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { css } from "@emotion/react"
 import { Link, withPrefix } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
 import { useSkoHubContext } from "../context/Context"
@@ -47,7 +48,7 @@ const VOCAB_ICONS = {
   "geomorfologia-tipo-antropogenico": "/img/vocab-geomorfologia-tipo-antropogenico.png",
   "geomorfologia-tipo-natural": "/img/vocab-geomorfologia-tipo-natural.png",
   "geomorfologia-tipo-natural-amp": "/img/vocab-geomorfologia-tipo-natural-amp.png",
-  "mappedfobservationmethod": "/img/vocab-mappedfobservationmethod.png",
+  "metodo-observacion-objeto-cartografiado": "/img/vocab-metodo-observacion-objeto-cartografiado.png",
   "marco-de-cartografiado": "/img/vocab-marco-de-cartografiado.png",
   "material-igme": "/img/vocab-material-igme.png",
   "medida-estructural": "/img/vocab-medida-estructural.png",
@@ -70,36 +71,43 @@ const VOCAB_ICONS = {
   // --- TE: Técnicos ---
   "contribucion-rol": "/img/vocab-contribucion-rol.png",
   "convencion-codigo": "/img/vocab-convencion-codigo.png",
-  "file-type": "/img/vocab-file-type.png",
+  "archivo-tipo": "/img/vocab-archivo-tipo.png",
   "responsible-party-role": "/img/vocab-responsible-party-role.png",
-  "void-reason": "/img/vocab-void-reason.png",
-  "estado": "/img/vocab-estado.png"
+  "valor-razon-vacio": "/img/vocab-valor-razon-vacio.png",
+  "estado": "/img/vocab-estado.png",
 }
 
 // Icono por defecto para vocabularios sin icono específico
 const DEFAULT_ICON = (
-  <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="6" y="6" width="28" height="28" rx="4"/><line x1="12" y1="14" x2="28" y2="14"/><line x1="12" y1="20" x2="28" y2="20"/><line x1="12" y1="26" x2="22" y2="26"/></svg>
+  <svg
+    viewBox="0 0 40 40"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+  >
+    <rect x="6" y="6" width="28" height="28" rx="4" />
+    <line x1="12" y1="14" x2="28" y2="14" />
+    <line x1="12" y1="20" x2="28" y2="20" />
+    <line x1="12" y1="26" x2="22" y2="26" />
+  </svg>
 )
 
 // Componente que renderiza un icono SVG o una imagen PNG
 // Para cambiar a PNG: pon la ruta en VOCAB_ICONS, ej: "litologia": "/img/vocab-litologia.png"
 const VocabIcon = ({ vocabId, colors }) => {
-  // Extraer el slug del ID (última parte de la URI)
   const slug = vocabId.split("/").pop()
   const icon = VOCAB_ICONS[slug]
 
   if (typeof icon === "string") {
-    // Es una ruta a imagen PNG
     return (
       <img
         src={withPrefix(icon)}
         alt=""
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />
     )
   }
 
-  // Es un SVG inline
   return (
     <div
       style={{
@@ -111,12 +119,114 @@ const VocabIcon = ({ vocabId, colors }) => {
         color: colors.skoHubMiddleColor,
       }}
     >
-      <div style={{ width: "50px", height: "50px" }}>
-        {icon || DEFAULT_ICON}
-      </div>
+      <div style={{ width: "50px", height: "50px" }}>{icon || DEFAULT_ICON}</div>
     </div>
   )
 }
+
+// ─── Estilos responsive ───────────────────────────────────────────────
+const pageStyles = css`
+  .cat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 40px;
+    margin-bottom: 30px;
+  }
+
+  .cat-button {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    background: none;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    width: 100%;
+    height: 130px;
+    text-align: left;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    font-family: inherit;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      height: auto;
+    }
+  }
+
+  .cat-button-img {
+    width: 160px;
+    min-width: 160px;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      min-width: unset;
+      height: 120px;
+    }
+  }
+
+  .cat-logo {
+    height: 110px;
+    width: auto;
+
+    @media (max-width: 640px) {
+      display: none;
+    }
+  }
+
+  .vocab-card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    min-height: 100px;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      min-height: unset;
+    }
+  }
+
+  .vocab-icon {
+    width: 100px;
+    min-width: 100px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      min-width: unset;
+      height: 70px;
+    }
+  }
+
+  .vocab-downloads {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      flex-direction: row;
+      padding: 8px 12px;
+      justify-content: flex-start;
+    }
+  }
+`
 
 // ─── Componente principal ─────────────────────────────────────────────
 const IndexPage = ({ location }) => {
@@ -124,14 +234,7 @@ const IndexPage = ({ location }) => {
   const [language, setLanguage] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [isMobile, setIsMobile] = useState(false)
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640)
-    check()
-    window.addEventListener("resize", check)
-    return () => window.removeEventListener("resize", check)
-  }, [])
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
@@ -209,12 +312,10 @@ const IndexPage = ({ location }) => {
     return cat.description[language] || cat.description["es"] || ""
   }
 
-  // Obtener categorías presentes en los datos
   const availableCategories = Object.keys(CATEGORIES).filter((code) =>
     conceptSchemes.some((cs) => cs.theme === code)
   )
 
-  // Filtrar vocabularios por categoría seleccionada
   const filteredSchemes = selectedCategory
     ? conceptSchemes.filter((cs) => cs.theme === selectedCategory)
     : conceptSchemes
@@ -223,18 +324,10 @@ const IndexPage = ({ location }) => {
     <Layout language={language}>
       <SEO title="Concept Schemes" keywords={["conceptSchemes"]} />
 
-      <div className="centerPage block">
+      <div className="centerPage block" css={pageStyles}>
         {/* Vista de categorías */}
         {!selectedCategory && availableCategories.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "14px",
-              marginTop: "40px",
-              marginBottom: "30px",
-            }}
-          >
+          <div className="cat-list">
             {availableCategories.map((code) => {
               const cat = CATEGORIES[code]
               const count = conceptSchemes.filter(
@@ -244,23 +337,7 @@ const IndexPage = ({ location }) => {
                 <button
                   key={code}
                   onClick={() => setSelectedCategory(code)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    flexDirection: isMobile ? "column" : "row",
-                    background: "none",
-                    border: "2px solid #ddd",
-                    borderRadius: "10px",
-                    padding: "0",
-                    cursor: "pointer",
-                    overflow: "hidden",
-                    width: "100%",
-                    height: isMobile ? "auto" : "130px",
-                    textAlign: "left",
-                    transition: "border-color 0.2s, box-shadow 0.2s",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    fontFamily: "inherit",
-                  }}
+                  className="cat-button"
                   onMouseOver={(e) => {
                     e.currentTarget.style.borderColor =
                       config.colors.skoHubAction
@@ -276,13 +353,7 @@ const IndexPage = ({ location }) => {
                   <img
                     src={withPrefix(`/img/${cat.image}`)}
                     alt={getCategoryLabel(code)}
-                    style={{
-                      width: isMobile ? "100%" : "160px",
-                      minWidth: isMobile ? "unset" : "160px",
-                      height: isMobile ? "120px" : "100%",
-                      objectFit: "cover",
-                      display: "block",
-                    }}
+                    className="cat-button-img"
                   />
                   <div style={{ padding: "12px 20px", flex: 1 }}>
                     <h3
@@ -304,9 +375,7 @@ const IndexPage = ({ location }) => {
                     >
                       {getCategoryDescription(code)}
                     </p>
-                    <p
-                      style={{ margin: 0, color: "#888", fontSize: "13px" }}
-                    >
+                    <p style={{ margin: 0, color: "#888", fontSize: "13px" }}>
                       {count}{" "}
                       {language === "en" ? "vocabularies" : "vocabularios"}
                     </p>
@@ -321,7 +390,13 @@ const IndexPage = ({ location }) => {
         {selectedCategory && (
           <div style={{ width: "100%" }}>
             {/* Botón volver */}
-            <div style={{ marginTop: "10px", marginBottom: "10px", textAlign: "right" }}>
+            <div
+              style={{
+                marginTop: "10px",
+                marginBottom: "10px",
+                textAlign: "right",
+              }}
+            >
               <button
                 onClick={() => {
                   setSelectedCategory(null)
@@ -371,36 +446,41 @@ const IndexPage = ({ location }) => {
             </div>
 
             {/* Título + descripción + logo */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "15px",
-              gap: "20px",
-            }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "15px",
+                gap: "20px",
+              }}
+            >
               <div style={{ flex: 1 }}>
-                <h2 style={{ margin: "0 0 10px 0", fontSize: "30px", textTransform: "uppercase" }}>
+                <h2
+                  style={{
+                    margin: "0 0 10px 0",
+                    fontSize: "30px",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {getCategoryLabel(selectedCategory)}
                 </h2>
-                <p style={{
-                  margin: 0,
-                  color: "#555",
-                  fontSize: "14px",
-                  lineHeight: "1.4",
-                }}>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "#555",
+                    fontSize: "14px",
+                    lineHeight: "1.4",
+                  }}
+                >
                   {getCategoryDescription(selectedCategory)}
                 </p>
               </div>
-              {!isMobile && (
-                <img
-                  src={withPrefix("/img/logo-gi-carto.png")}
-                  alt="Logo"
-                  style={{
-                    height: "110px",
-                    width: "auto",
-                  }}
-                />
-              )}
+              <img
+                src={withPrefix("/img/logo-gi-carto.png")}
+                alt="Logo"
+                className="cat-logo"
+              />
             </div>
 
             {/* Buscador dentro de la categoría */}
@@ -455,7 +535,14 @@ const IndexPage = ({ location }) => {
 
         {/* Lista de vocabularios como tarjetas */}
         {(selectedCategory || availableCategories.length === 0) && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              width: "100%",
+            }}
+          >
             {filteredSchemes
               .filter((conceptScheme) => {
                 const title = getTitle(conceptScheme)
@@ -469,78 +556,29 @@ const IndexPage = ({ location }) => {
                 return titleA.localeCompare(titleB)
               })
               .map((conceptScheme) => {
-                const schemeSlug = conceptScheme.id.split("/").pop()
                 return (
-                <div
-                  key={conceptScheme.id}
-                  style={{
-                    display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
-                    alignItems: "stretch",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    overflow: "hidden",
-                    transition: "box-shadow 0.2s, border-color 0.2s",
-                    minHeight: isMobile ? "unset" : "100px",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor =
-                      config.colors.skoHubAction
-                    e.currentTarget.style.boxShadow =
-                      "0 2px 8px rgba(0,0,0,0.1)"
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = "#e0e0e0"
-                    e.currentTarget.style.boxShadow = "none"
-                  }}
-                >
-                  {/* Icono */}
-                  <Link
-                    onClick={() =>
-                      updateState({
-                        ...data,
-                        conceptSchemeLanguages: [...conceptScheme.languages],
-                        currentScheme: conceptScheme,
-                        selectedLanguage: conceptScheme.languages.includes(
-                          language
-                        )
-                          ? language
-                          : conceptScheme.languages[0],
-                      })
-                    }
-                    to={getFilePath(conceptScheme.id, `html`, customDomain)}
-                    style={{
-                      width: isMobile ? "100%" : "100px",
-                      minWidth: isMobile ? "unset" : "100px",
-                      height: isMobile ? "100px" : "auto",
-                      background: config.colors.skoHubLightGrey,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      textDecoration: "none",
-                    }}
-                  >
-                    <VocabIcon
-                      vocabId={conceptScheme.id}
-                      colors={config.colors}
-                    />
-                  </Link>
-                  {/* Contenido */}
                   <div
-                    style={{
-                      flex: 1,
-                      padding: "10px 16px",
-                      overflow: "hidden",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
+                    key={conceptScheme.id}
+                    className="vocab-card"
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.borderColor =
+                        config.colors.skoHubAction
+                      e.currentTarget.style.boxShadow =
+                        "0 2px 8px rgba(0,0,0,0.1)"
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.borderColor = "#e0e0e0"
+                      e.currentTarget.style.boxShadow = "none"
                     }}
                   >
+                    {/* Icono */}
                     <Link
                       onClick={() =>
                         updateState({
                           ...data,
-                          conceptSchemeLanguages: [...conceptScheme.languages],
+                          conceptSchemeLanguages: [
+                            ...conceptScheme.languages,
+                          ],
                           currentScheme: conceptScheme,
                           selectedLanguage: conceptScheme.languages.includes(
                             language
@@ -550,73 +588,105 @@ const IndexPage = ({ location }) => {
                         })
                       }
                       to={getFilePath(conceptScheme.id, `html`, customDomain)}
-                      style={{ textDecoration: "none", color: "inherit" }}
+                      className="vocab-icon"
+                      style={{ background: config.colors.skoHubLightGrey }}
                     >
-                      <div
-                        style={{
-                          fontSize: "20px",
-                          fontWeight: "700",
-                          lineHeight: "1.3",
-                          marginBottom: "6px",
-                          color: config.colors.skoHubDarkColor,
-                        }}
-                      >
-                        {getTitle(conceptScheme)}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "14px",
-                          color: "#666",
-                          lineHeight: "1.4",
-                          overflow: "hidden",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {getDescription(conceptScheme)}
-                      </div>
+                      <VocabIcon
+                        vocabId={conceptScheme.id}
+                        colors={config.colors}
+                      />
                     </Link>
-                  </div>
-                  {/* Botones de descarga */}
-                  <div style={{
-                    display: "flex",
-                    flexDirection: isMobile ? "row" : "column",
-                    gap: "4px",
-                    padding: isMobile ? "8px 12px" : "10px 12px",
-                    justifyContent: isMobile ? "flex-start" : "center",
-                    flexWrap: "wrap",
-                  }}>
-                    {[
-                      { label: "TTL", ext: "ttl" },
-                      { label: "RDF/XML", ext: "rdf" },
-                      { label: "JSON-LD", ext: "jsonld" },
-                    ].map(({ label, ext }) => {
-                      const slug = conceptScheme.id.split("/").pop()
-                      return (
-                        <a
-                          key={ext}
-                          href={`${customDomain ? customDomain : "/"}downloads/${slug}.${ext}`}
-                          download
-                          onClick={(e) => e.stopPropagation()}
+                    {/* Contenido */}
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "10px 16px",
+                        overflow: "hidden",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Link
+                        onClick={() =>
+                          updateState({
+                            ...data,
+                            conceptSchemeLanguages: [
+                              ...conceptScheme.languages,
+                            ],
+                            currentScheme: conceptScheme,
+                            selectedLanguage: conceptScheme.languages.includes(
+                              language
+                            )
+                              ? language
+                              : conceptScheme.languages[0],
+                          })
+                        }
+                        to={getFilePath(
+                          conceptScheme.id,
+                          `html`,
+                          customDomain
+                        )}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <div
                           style={{
-                            fontSize: "11px",
-                            padding: "3px 10px",
-                            borderRadius: "3px",
-                            border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+                            fontSize: "20px",
+                            fontWeight: "700",
+                            lineHeight: "1.3",
+                            marginBottom: "6px",
                             color: config.colors.skoHubDarkColor,
-                            textDecoration: "none",
-                            background: config.colors.skoHubLightGrey,
-                            textAlign: "center",
-                            whiteSpace: "nowrap",
                           }}
                         >
-                          {label}
-                        </a>
-                      )
-                    })}
+                          {getTitle(conceptScheme)}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            color: "#666",
+                            lineHeight: "1.4",
+                            overflow: "hidden",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {getDescription(conceptScheme)}
+                        </div>
+                      </Link>
+                    </div>
+                    {/* Botones de descarga */}
+                    <div className="vocab-downloads">
+                      {[
+                        { label: "TTL", ext: "ttl" },
+                        { label: "RDF/XML", ext: "rdf" },
+                        { label: "JSON-LD", ext: "jsonld" },
+                      ].map(({ label, ext }) => {
+                        const slug = conceptScheme.id.split("/").pop()
+                        return (
+                          <a
+                            key={ext}
+                            href={`${customDomain ? customDomain : "/"}downloads/${slug}.${ext}`}
+                            download
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              fontSize: "11px",
+                              padding: "3px 10px",
+                              borderRadius: "3px",
+                              border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+                              color: config.colors.skoHubDarkColor,
+                              textDecoration: "none",
+                              background: config.colors.skoHubLightGrey,
+                              textAlign: "center",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {label}
+                          </a>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
                 )
               })}
           </div>
