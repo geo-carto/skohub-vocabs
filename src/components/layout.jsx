@@ -21,6 +21,12 @@ const Layout = ({ children }) => {
     display: flex;
     flex-direction: column;
 
+    @media only screen and (max-width: 800px) {
+      display: block;
+      height: auto;
+      min-height: 100vh;
+    }
+
     main {
       flex: 1;
       min-height: 0;
@@ -33,6 +39,7 @@ const Layout = ({ children }) => {
         display: block;
         overflow: visible;
         height: auto;
+        flex: none;
       }
     }
 
