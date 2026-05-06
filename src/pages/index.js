@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { css } from "@emotion/react"
-import { Link, withPrefix } from "gatsby"
+import { withPrefix, navigate } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
 import { useSkoHubContext } from "../context/Context"
 import { getUserLang } from "../hooks/getUserLanguage"
@@ -8,9 +8,8 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes.js"
 
 import Layout from "../components/layout"
 import SEO from "../components/seo"
+import GraphModal from "../components/GraphModal"
 
-// ─── Configuración de categorías ──────────────────────────────────────
-// Para añadir nuevas categorías, simplemente añade una entrada aquí
 const CATEGORIES = {
   GE: {
     label: { es: "Geología", en: "Geology" },
@@ -24,15 +23,13 @@ const CATEGORIES = {
     label: { es: "Técnicos", en: "Technical" },
     description: {
       es: "Vocabularios controlados de propiedades técnicas y administrativas del modelo de datos estandarizados de cartografía geológica.",
-      en: "Controlled vocabularies of technical and administrative propierties of the geological mapping standardized data model. ",
+      en: "Controlled vocabularies of technical and administrative propierties of the geological mapping standardized data model.",
     },
     image: "categoria-tecnicos.png",
   },
 }
 
-// ─── Iconos PNG por vocabulario ───────────────────────────────────────
 const VOCAB_ICONS = {
-  // --- GE: Geología ---
   "afloramiento-caracter": "/img/vocab-afloramiento-caracter.png",
   "alteracion-grado": "/img/vocab-alteracion-grado.png",
   "alteracion-producto": "/img/vocab-alteracion-producto.png",
@@ -65,26 +62,17 @@ const VOCAB_ICONS = {
   "unidad-geologica-rol-parte": "/img/vocab-unidad-geologica-rol-parte.png",
   "unidad-geologica-morfologia": "/img/vocab-unidad-geologica-morfologia.png",
   "alteracion-distribucion": "/img/vocab-alteracion-distribucion.png",
-  "polaridad": "/img/vocab-polaridad.png",
-
-
-  // --- TE: Técnicos ---
+  polaridad: "/img/vocab-polaridad.png",
   "contribucion-rol": "/img/vocab-contribucion-rol.png",
   "convencion-codigo": "/img/vocab-convencion-codigo.png",
   "archivo-tipo": "/img/vocab-archivo-tipo.png",
   "responsible-party-role": "/img/vocab-responsible-party-role.png",
   "valor-razon-vacio": "/img/vocab-valor-razon-vacio.png",
-  "estado": "/img/vocab-estado.png",
+  estado: "/img/vocab-estado.png",
 }
 
-// Icono por defecto para vocabularios sin icono específico
 const DEFAULT_ICON = (
-  <svg
-    viewBox="0 0 40 40"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-  >
+  <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
     <rect x="6" y="6" width="28" height="28" rx="4" />
     <line x1="12" y1="14" x2="28" y2="14" />
     <line x1="12" y1="20" x2="28" y2="20" />
@@ -92,12 +80,9 @@ const DEFAULT_ICON = (
   </svg>
 )
 
-// Componente que renderiza un icono SVG o una imagen PNG
-// Para cambiar a PNG: pon la ruta en VOCAB_ICONS, ej: "litologia": "/img/vocab-litologia.png"
 const VocabIcon = ({ vocabId, colors }) => {
   const slug = vocabId.split("/").pop()
   const icon = VOCAB_ICONS[slug]
-
   if (typeof icon === "string") {
     return (
       <img
@@ -107,7 +92,6 @@ const VocabIcon = ({ vocabId, colors }) => {
       />
     )
   }
-
   return (
     <div
       style={{
@@ -124,71 +108,290 @@ const VocabIcon = ({ vocabId, colors }) => {
   )
 }
 
-// ─── Estilos responsive ───────────────────────────────────────────────
 const pageStyles = css`
+  .page-grid {
+    display: grid;
+    grid-template-columns: 1fr 540px;
+    gap: 24px;
+    align-items: stretch;
+    padding-top: 12px;
+    padding-bottom: 40px;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: rgb(244, 244, 244);
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    padding: 40px 36px;
+    margin-bottom: 14px;
+    height: 310px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    @media (max-width: 640px) {
+      height: auto;
+      padding: 24px 20px;
+    }
+  }
+
+  .hero-text {
+    max-width: 66%;
+
+    @media (max-width: 640px) {
+      max-width: 100%;
+    }
+
+    h1 {
+      font-size: 58px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 16px 0;
+    }
+
+    h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 18px 0;
+    }
+
+    p {
+      font-size: 15px;
+      line-height: 1.65;
+      margin: 0;
+      color: rgb(80, 60, 40);
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 38px; }
+      h2 { font-size: 18px; }
+    }
+  }
+
+  /* ── Stats ── */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 14px;
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgb(255, 255, 255);
+
+    .stat-item {
+      padding: 5px 10px;
+      gap: 8px;
+
+      .stat-icon-bg { width: 34px; height: 34px; min-width: 34px; }
+      .stat-icon { width: 18px; height: 18px; }
+      .stat-value { font-size: 22px; }
+      .stat-label { font-size: 12px; }
+    }
+
+    @media (max-width: 640px) {
+      flex-wrap: wrap;
+    }
+  }
+
+  .stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border-right: 1px solid rgb(220, 205, 185);
+
+    &:last-child {
+      border-right: none;
+    }
+
+    .stat-icon-bg {
+      flex-shrink: 0;
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      border-radius: 50%;
+      background: rgb(235, 215, 190);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon {
+      width: 28px;
+      height: 28px;
+      color: rgb(35, 15, 5);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: rgb(130, 110, 90);
+      line-height: 1.3;
+    }
+
+    @media (max-width: 640px) {
+      flex: 1 1 50%;
+      border-bottom: 1px solid rgb(220, 205, 185);
+    }
+  }
+
+  /* ── Search ── */
+  .search-wrapper {
+    margin-bottom: 20px;
+    position: relative;
+
+    svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgb(130, 110, 90);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      font-size: 15px;
+      border: 1px solid rgb(220, 205, 185);
+      border-radius: 8px;
+      background: rgb(255, 255, 255);
+      font-family: inherit;
+      color: inherit;
+
+      &:focus {
+        outline: none;
+        border-color: rgb(196, 95, 40);
+      }
+
+      &::placeholder {
+        color: rgb(175, 155, 130);
+      }
+    }
+  }
+
+  /* ── Categories ── */
   .cat-list {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-top: 40px;
-    margin-bottom: 30px;
   }
 
-  .cat-button {
+  .cat-card {
     display: flex;
-    align-items: center;
-    flex-direction: row;
-    background: none;
-    border: 2px solid #ddd;
+    align-items: stretch;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(220, 205, 185);
     border-radius: 10px;
-    padding: 0;
-    cursor: pointer;
     overflow: hidden;
-    width: 100%;
-    height: 130px;
-    text-align: left;
+    cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    text-align: left;
     font-family: inherit;
+    width: 100%;
+
+    &:hover {
+      border-color: rgb(196, 95, 40);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
 
     @media (max-width: 640px) {
       flex-direction: column;
-      height: auto;
     }
   }
 
-  .cat-button-img {
-    width: 160px;
-    min-width: 160px;
-    height: 100%;
-    object-fit: cover;
+  .cat-card-img {
+    width: 220px;
+    min-width: 220px;
+    height: auto;
     display: block;
 
     @media (max-width: 640px) {
       width: 100%;
       min-width: unset;
-      height: 120px;
     }
   }
 
-  .cat-logo {
-    height: 110px;
-    width: auto;
+  .cat-card-body {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .cat-card-title {
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .cat-card-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgb(80, 60, 40);
+    margin: 0;
+  }
+
+  .cat-card-count {
+    display: inline-block;
+    font-size: 13px;
+    color: rgb(130, 110, 90);
+    background: rgb(245, 240, 232);
+    border-radius: 20px;
+    padding: 3px 12px;
+    align-self: flex-start;
+  }
+
+  .cat-card-arrow {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    color: rgb(130, 110, 90);
 
     @media (max-width: 640px) {
       display: none;
     }
   }
 
+  /* ── Vocab list ── */
+  .vocab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
   .vocab-card {
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    border: 1px solid #e0e0e0;
+    border: 1px solid rgb(220, 205, 185);
     border-radius: 8px;
     overflow: hidden;
     transition: box-shadow 0.2s, border-color 0.2s;
     min-height: 100px;
+    background: rgb(255, 255, 255);
+
+    &:hover {
+      border-color: rgb(196, 95, 40);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
 
     @media (max-width: 640px) {
       min-height: 80px;
@@ -223,18 +426,768 @@ const pageStyles = css`
       gap: 3px;
     }
   }
+
+  /* ── Back button ── */
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 16px;
+    font-weight: 600;
+    transition: background 0.2s;
+    font-family: inherit;
+    margin-bottom: 16px;
+  }
+
+  /* ── Category header ── */
+  .cat-header {
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 30px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      text-transform: uppercase;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgb(80, 60, 40);
+      margin: 0;
+    }
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-start;
+
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  /* Carousel */
+  .carousel-panel {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    height: 310px;
+
+    .carousel-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.5s ease;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+
+      button {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.5);
+        transition: background 0.2s;
+
+        &.active { background: white; }
+      }
+    }
+
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.7);
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: rgb(35, 15, 5);
+      padding: 0;
+
+      &:hover { background: white; }
+      &.prev { left: 8px; }
+      &.next { right: 8px; }
+    }
+  }
+
+  .sidebar-panel {
+    background: white;
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .sidebar-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgb(244, 244, 244);
+    border-bottom: 1px solid rgb(220, 205, 185);
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgb(35, 15, 5);
+    }
+
+    .panel-link {
+      font-size: 12px;
+      color: rgb(196, 95, 40);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .sidebar-panel-body {
+    padding: 4px 0;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    font-size: 15px;
+    gap: 8px;
+
+    .item-title {
+      flex: 1;
+      color: rgb(35, 15, 5);
+    }
+
+    .item-date {
+      font-size: 11px;
+      color: rgb(130, 110, 90);
+      white-space: nowrap;
+    }
+
+    .badge-nuevo {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgb(45, 140, 80);
+      color: white;
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+
+    .badge-destacado {
+      font-size: 10px;
+      font-weight: 700;
+      background: rgb(196, 95, 40);
+      color: white;
+      border-radius: 4px;
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+  }
+
+  .sidebar-item-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 15px;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      background: rgb(235, 225, 210);
+    }
+
+    .item-info {
+      flex: 1;
+
+      .item-title {
+        color: rgb(35, 15, 5);
+        margin-bottom: 2px;
+      }
+
+      .item-desc {
+        font-size: 11px;
+        color: rgb(130, 110, 90);
+      }
+    }
+  }
+
+  .sidebar-see-all {
+    display: block;
+    padding: 4px 12px 8px;
+    font-size: 11px;
+    color: rgb(196, 95, 40);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sidebar-suggestion {
+    padding: 10px 12px;
+    font-size: 15px;
+
+    p {
+      margin: 0 0 10px 0;
+      color: rgb(80, 60, 40);
+      line-height: 1.4;
+    }
+  }
+
+  .sidebar-suggestion-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: rgb(196, 95, 40);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* ═══════════════════════════════════════
+     CATEGORY PAGE (3-column layout)
+  ═══════════════════════════════════════ */
+
+  .cat-page {
+    padding-top: 16px;
+    padding-bottom: 40px;
+  }
+
+  .cat-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    .breadcrumb-path {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+
+      button {
+        background: none;
+        border: none;
+        color: rgb(196, 95, 40);
+        cursor: pointer;
+        font-size: 14px;
+        padding: 0;
+        font-family: inherit;
+        &:hover { text-decoration: underline; }
+      }
+      .sep { color: rgb(175, 155, 130); }
+      .current { color: rgb(35, 15, 5); }
+    }
+
+    .back-btn-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      font-size: 13px;
+      border: 1px solid rgb(220, 205, 185);
+      border-radius: 20px;
+      background: white;
+      color: rgb(35, 15, 5);
+      cursor: pointer;
+      font-family: inherit;
+      &:hover { border-color: rgb(196, 95, 40); color: rgb(196, 95, 40); }
+    }
+  }
+
+  .cat-top-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 18px;
+    margin-bottom: 20px;
+
+    @media (max-width: 900px) { grid-template-columns: 1fr; }
+  }
+
+  .cat-hero-panel {
+    background: rgb(244, 244, 244);
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 12px;
+    padding: 14px 22px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 20px;
+
+    .cat-hero-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      h2 {
+        font-size: 34px;
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        line-height: 1.1;
+      }
+      p {
+        font-size: 13px;
+        line-height: 1.55;
+        color: rgb(80, 60, 40);
+        margin: 0;
+      }
+    }
+
+    .cat-hero-logo-wrap {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .cat-hero-logo {
+      height: 100%;
+      width: auto;
+      max-width: 140px;
+      object-fit: contain;
+      opacity: 0.9;
+    }
+  }
+
+  .cat-stats-panel {
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    display: flex;
+    align-items: stretch;
+
+    .stat-item {
+      flex: 1;
+      padding: 10px 14px;
+      border-right: 1px solid rgb(220, 205, 185);
+      border-bottom: none;
+
+      &:last-child { border-right: none; }
+
+      .stat-value { font-size: 26px; }
+      .stat-icon-bg { width: 40px; height: 40px; min-width: 40px; }
+      .stat-icon { width: 22px; height: 22px; }
+    }
+  }
+
+  /* Timeline */
+  .timeline-panel-body {
+    padding: 10px 12px;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 14px;
+
+    &:last-child {
+      padding-bottom: 0;
+
+      .timeline-line { display: none; }
+    }
+
+    .timeline-dot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+
+      .timeline-dot {
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+        border-radius: 50%;
+        background: rgb(196, 95, 40);
+        margin-top: 3px;
+      }
+
+      .timeline-line {
+        width: 2px;
+        flex: 1;
+        background: rgb(220, 205, 185);
+        margin-top: 4px;
+        min-height: 18px;
+      }
+    }
+
+    .timeline-content {
+      flex: 1;
+
+      .timeline-title {
+        font-size: 13px;
+        color: rgb(35, 15, 5);
+        line-height: 1.3;
+      }
+
+      .timeline-date {
+        font-size: 11px;
+        color: rgb(130, 110, 90);
+        margin-top: 2px;
+      }
+
+      .timeline-new {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        background: rgb(45, 140, 80);
+        color: white;
+        border-radius: 3px;
+        padding: 1px 5px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+    }
+  }
+
+  /* 3-column grid */
+  .cat-content-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr 310px;
+    gap: 18px;
+    align-items: start;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 220px 1fr;
+      .cat-sidebar-col { display: none; }
+    }
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      .cat-filters-col { display: none; }
+    }
+  }
+
+  /* Filters column */
+  .cat-filters-col {
+    background: rgb(244, 244, 244);
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid rgb(220, 205, 185);
+
+    .filter-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .filter-clear {
+      font-size: 12px;
+      color: rgb(196, 95, 40);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  .filter-search {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgb(220, 205, 185);
+    position: relative;
+
+    svg {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgb(130, 110, 90);
+      pointer-events: none;
+    }
+    input {
+      width: 100%;
+      padding: 8px 10px 8px 32px;
+      font-size: 14px;
+      border: 1px solid rgb(220, 205, 185);
+      border-radius: 6px;
+      background: white;
+      font-family: inherit;
+      color: inherit;
+      &:focus { outline: none; border-color: rgb(196, 95, 40); }
+      &::placeholder { color: rgb(175, 155, 130); }
+    }
+  }
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 7px;
+  }
+
+  .filter-section {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgb(220, 205, 185);
+    &:last-child { border-bottom: none; }
+
+    select {
+      width: 100%;
+      padding: 7px 28px 7px 10px;
+      font-size: 14px;
+      border: 1px solid rgb(220, 205, 185);
+      border-radius: 6px;
+      background-color: white;
+      color: inherit;
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23826e5a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      &:focus { outline: none; border-color: rgb(196, 95, 40); }
+    }
+  }
+
+  /* Vocab cards v2 */
+  .vocab-card-v2 {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid rgb(220, 205, 185);
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      border-color: rgb(196, 95, 40);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  .vocab-card-thumb {
+    width: 110px;
+    min-width: 110px;
+    background: rgb(244, 244, 244);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    flex-shrink: 0;
+    border-right: 1px solid rgb(220, 205, 185);
+  }
+
+  .vocab-card-body {
+    flex: 1;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+
+    .vocab-title-link {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: rgb(35, 15, 5);
+      text-decoration: none;
+      &:hover { color: rgb(196, 95, 40); }
+    }
+    .vocab-desc {
+      font-size: 15px;
+      line-height: 1.5;
+      color: rgb(80, 60, 40);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      margin: 0;
+    }
+    .vocab-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: auto;
+      padding-top: 6px;
+      border-top: 1px solid rgb(235, 225, 210);
+      flex-wrap: wrap;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 14px;
+        color: rgb(130, 110, 90);
+      }
+      .status-valid {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: rgb(220, 245, 230);
+        color: rgb(30, 120, 60);
+      }
+
+      .btn-ver-grafo {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        padding: 2px 10px;
+        border-radius: 20px;
+        border: 1px solid rgb(220, 205, 185);
+        background: white;
+        color: rgb(80, 60, 40);
+        cursor: pointer;
+        font-family: inherit;
+        transition: border-color 0.15s, color 0.15s;
+
+        &:hover {
+          border-color: rgb(196, 95, 40);
+          color: rgb(196, 95, 40);
+        }
+      }
+    }
+  }
+
+  .vocab-card-dl-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Category sidebar */
+  .cat-sidebar-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .consultado-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+
+    .rank-num {
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border-radius: 50%;
+      background: rgb(220, 205, 185);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    .rank-title {
+      flex: 1;
+      color: rgb(35, 15, 5);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .rank-visits {
+      font-size: 11px;
+      color: rgb(130, 110, 90);
+      white-space: nowrap;
+    }
+  }
+
+  .ayuda-body {
+    padding: 10px 12px;
+
+    p {
+      margin: 0 0 10px 0;
+      color: rgb(80, 60, 40);
+      line-height: 1.5;
+      font-size: 13px;
+    }
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: rgb(196, 95, 40);
+      text-decoration: none;
+      &:hover { text-decoration: underline; }
+    }
+  }
 `
 
-// ─── Componente principal ─────────────────────────────────────────────
 const IndexPage = ({ location }) => {
   const [conceptSchemes, setConceptSchemes] = useState([])
   const [language, setLanguage] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState(null)
+  const [filterIdioma, setFilterIdioma] = useState("")
+  const [filterEstado, setFilterEstado] = useState("")
+  const [sortBy, setSortBy] = useState("az")
+  const [graphVocab, setGraphVocab] = useState(null)
 
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
+  const homeConfig = config?.home || {}
 
   useEffect(() => {
     async function fetchConceptData() {
@@ -249,7 +1202,12 @@ const IndexPage = ({ location }) => {
     fetchConceptData()
   }, [])
 
-  // set language stuff
+  useEffect(() => {
+    if (location.state?.category) {
+      setSelectedCategory(location.state.category)
+    }
+  }, [])
+
   useEffect(() => {
     const languageFromUrl = getLanguageFromUrl(location)
     if (languageFromUrl && !data.selectedLanguage) {
@@ -279,23 +1237,11 @@ const IndexPage = ({ location }) => {
     }
   }, [data?.languages, data?.selectedLanguage])
 
-  const getTitle = (conceptScheme) => {
-    const title =
-      i18n(language)(
-        conceptScheme?.title ||
-          conceptScheme?.prefLabel ||
-          conceptScheme?.dc_title
-      ) || conceptScheme.id
-    return title || conceptScheme.id
-  }
+  const getTitle = (cs) =>
+    i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
 
-  const getDescription = (conceptScheme) => {
-    return (
-      i18n(language)(
-        conceptScheme?.description || conceptScheme?.dc_description
-      ) || ""
-    )
-  }
+  const getDescription = (cs) =>
+    i18n(language)(cs?.description || cs?.dc_description) || ""
 
   const getCategoryLabel = (code) => {
     const cat = CATEGORIES[code]
@@ -317,378 +1263,619 @@ const IndexPage = ({ location }) => {
     ? conceptSchemes.filter((cs) => cs.theme === selectedCategory)
     : conceptSchemes
 
+  const allLanguages = Array.from(
+    new Set(conceptSchemes.flatMap((cs) => cs.languages))
+  )
+
+  const catLanguages = Array.from(
+    new Set(filteredSchemes.flatMap((cs) => cs.languages))
+  )
+
+  const totalTerms = conceptSchemes.reduce((sum, cs) => sum + (cs.termCount || 0), 0)
+
+  const catTerms = filteredSchemes.reduce((sum, cs) => sum + (cs.termCount || 0), 0)
+
+  const lastModified = (() => {
+    const dates = conceptSchemes.map((cs) => cs.modified).filter(Boolean)
+    if (!dates.length) return null
+    const max = dates.sort().at(-1)
+    return new Date(max).toLocaleDateString(language === "en" ? "en-GB" : "es-ES", {
+      day: "numeric", month: "short", year: "numeric",
+    })
+  })()
+
+  const resetFilters = () => { setSearchTerm(""); setFilterIdioma(""); setFilterEstado(""); setSortBy("az") }
+
+  const displayedSchemes = filteredSchemes
+    .filter((cs) => !filterIdioma || cs.languages.includes(filterIdioma))
+    .filter((cs) => !searchTerm || getTitle(cs).toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => {
+      const tA = getTitle(a), tB = getTitle(b)
+      return sortBy === "za" ? tB.localeCompare(tA) : tA.localeCompare(tB)
+    })
+
+  const Sidebar = () => {
+    const slides = homeConfig.carrusel || []
+    const [slideIdx, setSlideIdx] = React.useState(0)
+
+    React.useEffect(() => {
+      if (slides.length <= 1) return
+      const timer = setInterval(() => {
+        setSlideIdx(i => (i + 1) % slides.length)
+      }, 5000)
+      return () => clearInterval(timer)
+    }, [slides.length])
+
+    return (
+    <aside className="sidebar">
+      {/* Carrusel */}
+      {slides.length > 0 && (
+        <div className="carousel-panel">
+          <img
+            src={withPrefix(`/img/${slides[slideIdx].imagen}`)}
+            alt=""
+            className="carousel-img"
+          />
+          {slides.length > 1 && (
+            <>
+              <button className="carousel-arrow prev" onClick={() => setSlideIdx(i => (i - 1 + slides.length) % slides.length)}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button className="carousel-arrow next" onClick={() => setSlideIdx(i => (i + 1) % slides.length)}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <div className="carousel-dots">
+                {slides.map((_, i) => (
+                  <button key={i} className={i === slideIdx ? "active" : ""} onClick={() => setSlideIdx(i)} />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {/* Últimas actualizaciones */}
+      {homeConfig.novedades?.length > 0 && (
+        <div className="sidebar-panel">
+          <div className="sidebar-panel-header">
+            <span className="panel-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {language === "en" ? "Latest updates" : "Últimas actualizaciones"}
+            </span>
+          </div>
+          <div className="timeline-panel-body">
+            {homeConfig.novedades.map((item, i) => (
+              <div key={i} className="timeline-item">
+                <div className="timeline-dot-col">
+                  <div className="timeline-dot" />
+                  <div className="timeline-line" />
+                </div>
+                <div className="timeline-content">
+                  <div className="timeline-title">
+                    {item.titulo}
+                    {item.nuevo && <span className="timeline-new">NUEVO</span>}
+                  </div>
+                  {item.fecha && <div className="timeline-date">{item.fecha}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Documentación */}
+      {homeConfig.documentacion?.length > 0 && (
+        <div className="sidebar-panel">
+          <div className="sidebar-panel-header">
+            <span className="panel-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              {language === "en" ? "Documentation" : "Documentación"}
+            </span>
+          </div>
+          <div className="sidebar-panel-body">
+            {homeConfig.documentacion.map((item, i) => (
+              <a key={i} href={item.url} className="sidebar-item-link">
+                <div className="item-info">
+                  <div className="item-title">{item.titulo}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{color:"rgb(130,110,90)"}}><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Enlaces */}
+      {homeConfig.enlaces?.length > 0 && (
+        <div className="sidebar-panel">
+          <div className="sidebar-panel-header">
+            <span className="panel-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              {language === "en" ? "Related Links" : "Enlaces Relacionados"}
+            </span>
+          </div>
+          <div className="sidebar-panel-body">
+            {homeConfig.enlaces.map((item, i) => (
+              <a key={i} href={item.url} className="sidebar-item-link" target="_blank" rel="noopener noreferrer">
+                <span className="item-title" style={{color:"rgb(196,95,40)"}}>{item.titulo}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{minWidth:12, color:"rgb(130,110,90)"}}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sugerencias */}
+      <div className="sidebar-panel">
+        <div className="sidebar-panel-header">
+          <span className="panel-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
+          </span>
+        </div>
+        <div className="sidebar-suggestion">
+          <p>{language === "en" ? "Your feedback helps us improve the repository." : "Tu opinión nos ayuda a mejorar el repositorio."}</p>
+          <a href="mailto:vocabularios.cientificos@igme.es" className="sidebar-suggestion-btn">
+            {language === "en" ? "Send suggestion →" : "Enviar sugerencia →"}
+          </a>
+        </div>
+      </div>
+    </aside>
+  )
+  }
+
   return (
     <Layout language={language}>
       <SEO title="Concept Schemes" keywords={["conceptSchemes"]} />
 
-      <div className="centerPage block" css={pageStyles}>
-        {/* Vista de categorías */}
-        {!selectedCategory && availableCategories.length > 0 && (
-          <div className="cat-list">
-            {availableCategories.map((code) => {
-              const cat = CATEGORIES[code]
-              const count = conceptSchemes.filter(
-                (cs) => cs.theme === code
-              ).length
-              return (
-                <button
-                  key={code}
-                  onClick={() => setSelectedCategory(code)}
-                  className="cat-button"
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor =
-                      config.colors.skoHubAction
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 16px rgba(0,0,0,0.15)"
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = "#ddd"
-                    e.currentTarget.style.boxShadow =
-                      "0 2px 8px rgba(0,0,0,0.08)"
-                  }}
-                >
-                  <img
-                    src={withPrefix(`/img/${cat.image}`)}
-                    alt={getCategoryLabel(code)}
-                    className="cat-button-img"
-                  />
-                  <div style={{ padding: "12px 20px", flex: 1 }}>
-                    <h3
-                      style={{
-                        margin: "0 0 6px 0",
-                        fontSize: "26px",
-                        color: config.colors.skoHubDarkColor,
-                      }}
-                    >
-                      {getCategoryLabel(code)}
-                    </h3>
-                    <p
-                      style={{
-                        margin: "0 0 6px 0",
-                        color: "#555",
-                        fontSize: "14px",
-                        lineHeight: "1.4",
-                      }}
-                    >
-                      {getCategoryDescription(code)}
-                    </p>
-                    <p style={{ margin: 0, color: "#888", fontSize: "13px" }}>
-                      {count}{" "}
-                      {language === "en" ? "vocabularies" : "vocabularios"}
-                    </p>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-        )}
-
-        {/* Título de categoría + Buscador + Botón volver */}
-        {selectedCategory && (
-          <div style={{ width: "100%" }}>
-            {/* Botón volver */}
-            <div
-              style={{
-                marginTop: "10px",
-                marginBottom: "10px",
-                textAlign: "right",
-              }}
-            >
-              <button
-                onClick={() => {
-                  setSelectedCategory(null)
-                  setSearchTerm("")
-                }}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  background: config.colors.skoHubLightGrey,
-                  border: `1px solid ${config.colors.skoHubMiddleGrey}`,
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                  color: config.colors.skoHubDarkColor,
-                  padding: "8px 16px",
-                  fontWeight: "600",
-                  transition: "background 0.2s",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background =
-                    config.colors.skoHubMiddleColor
-                  e.currentTarget.style.color = config.colors.skoHubWhite
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background =
-                    config.colors.skoHubLightGrey
-                  e.currentTarget.style.color = config.colors.skoHubDarkColor
-                }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-                {language === "en"
-                  ? "Back to categories"
-                  : "Volver a categorías"}
+      <div css={pageStyles} style={{ width: "100%", padding: "0", boxSizing: "border-box" }}>
+      {selectedCategory ? (
+        /* ══════════════════════════════════════
+           CATEGORY PAGE — 3-column layout
+        ══════════════════════════════════════ */
+        <div className="cat-page">
+          {/* Breadcrumb */}
+          <div className="cat-breadcrumb">
+            <div className="breadcrumb-path">
+              <button onClick={() => { setSelectedCategory(null); resetFilters() }}>
+                {language === "en" ? "Home" : "Inicio"}
               </button>
+              <span className="sep">›</span>
+              <span className="current">{getCategoryLabel(selectedCategory)}</span>
             </div>
+            <button className="back-btn-top" onClick={() => { setSelectedCategory(null); resetFilters() }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              {language === "en" ? "Back" : "Volver atrás"}
+            </button>
+          </div>
 
-            {/* Título + descripción + logo */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "15px",
-                gap: "20px",
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <h2
-                  style={{
-                    margin: "0 0 10px 0",
-                    fontSize: "30px",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {getCategoryLabel(selectedCategory)}
-                </h2>
-                <p
-                  style={{
-                    margin: 0,
-                    color: "#555",
-                    fontSize: "14px",
-                    lineHeight: "1.4",
-                  }}
-                >
-                  {getCategoryDescription(selectedCategory)}
-                </p>
+          {/* Hero + Stats — two separate panels */}
+          <div className="cat-top-row">
+            {/* Hero panel */}
+            <div className="cat-hero-panel">
+              <div className="cat-hero-text">
+                <h2 style={{ color: config.colors.skoHubDarkColor }}>{getCategoryLabel(selectedCategory)}</h2>
+                <p>{getCategoryDescription(selectedCategory)}</p>
               </div>
-              <img
-                src={withPrefix("/img/logo-gi-carto.png")}
-                alt="Logo"
-                className="cat-logo"
-              />
+              <div className="cat-hero-logo-wrap">
+                <img src={withPrefix("/img/logo-gi-carto.png")} alt="" className="cat-hero-logo" />
+              </div>
+            </div>
+            {/* Stats panel */}
+            <div className="cat-stats-panel">
+              <div className="stat-item">
+                <span className="stat-icon-bg"><svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+                <div>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{filteredSchemes.length}</div>
+                  <div className="stat-label">{language === "en" ? "vocabularies" : "vocabularios"}</div>
+                </div>
+              </div>
+              {catTerms > 0 && (
+                <div className="stat-item">
+                  <span className="stat-icon-bg"><svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+                  <div>
+                    <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{catTerms.toLocaleString(language === "en" ? "en-GB" : "es-ES")}</div>
+                    <div className="stat-label">{language === "en" ? "terms" : "términos"}</div>
+                  </div>
+                </div>
+              )}
+              <div className="stat-item">
+                <span className="stat-icon-bg"><svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+                <div>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{catLanguages.length}</div>
+                  <div className="stat-label">{language === "en" ? "languages" : "idiomas"}</div>
+                  <div className="stat-label">{catLanguages.join(" · ")}</div>
+                </div>
+              </div>
+              <div className="stat-item">
+                <span className="stat-icon-bg"><svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                <div>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>3</div>
+                  <div className="stat-label">{language === "en" ? "formats" : "formatos"}</div>
+                </div>
+              </div>
+              {homeConfig.ultima_actualizacion && (
+                <div className="stat-item">
+                  <span className="stat-icon-bg"><svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+                  <div>
+                    <div className="stat-label">{language === "en" ? "Last update" : "Última actualización"}</div>
+                    <div style={{ fontSize: "15px", color: config.colors.skoHubDarkColor, marginTop: "2px" }}>{homeConfig.ultima_actualizacion}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 3-column: Filters | List | Sidebar */}
+          <div className="cat-content-grid">
+
+            {/* Left: Filters */}
+            <div className="cat-filters-col">
+              <div className="filter-header">
+                <span className="filter-title">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                  {language === "en" ? "Filters" : "Filtros"}
+                </span>
+                <button className="filter-clear" onClick={resetFilters}>
+                  {language === "en" ? "Clear all" : "Limpiar todo"}
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+                </button>
+              </div>
+              <div className="filter-search">
+                <div className="filter-label">
+                  <svg style={{ position: "static" }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/></svg>
+                  {language === "en" ? "Vocabulary name" : "Nombre vocabulario"}
+                </div>
+                <div style={{ position: "relative" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" placeholder={language === "en" ? "Search by text..." : "Buscar por texto..."} value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+                </div>
+              </div>
+              <div className="filter-section">
+                <div className="filter-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  {language === "en" ? "Format" : "Formato"}
+                </div>
+                <select value="" onChange={() => {}}>
+                  <option value="">{language === "en" ? "All" : "Todos"}</option>
+                  <option value="ttl">TTL</option>
+                  <option value="rdf">RDF/XML</option>
+                  <option value="jsonld">JSON-LD</option>
+                </select>
+              </div>
+              <div className="filter-section">
+                <div className="filter-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  {language === "en" ? "Language" : "Idioma"}
+                </div>
+                <select value={filterIdioma} onChange={e => setFilterIdioma(e.target.value)}>
+                  <option value="">{language === "en" ? "All" : "Todos"}</option>
+                  <option value="es">{language === "en" ? "Spanish" : "Español"}</option>
+                  <option value="en">{language === "en" ? "English" : "Inglés"}</option>
+                </select>
+              </div>
+              <div className="filter-section">
+                <div className="filter-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  {language === "en" ? "Status" : "Estado"}
+                </div>
+                <select value={filterEstado} onChange={e => setFilterEstado(e.target.value)}>
+                  <option value="">{language === "en" ? "All" : "Todos"}</option>
+                  <option value="valido">{language === "en" ? "Valid" : "Válido"}</option>
+                  <option value="retirado">{language === "en" ? "Retired" : "Retirado"}</option>
+                  <option value="sustituido">{language === "en" ? "Superseded" : "Sustituido"}</option>
+                  <option value="propuesto">{language === "en" ? "Proposed" : "Propuesto"}</option>
+                  <option value="invalido">{language === "en" ? "Invalid" : "Inválido"}</option>
+                </select>
+              </div>
+              <div className="filter-section">
+                <div className="filter-label">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                  {language === "en" ? "Sort by" : "Ordenar por"}
+                </div>
+                <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                  <option value="az">A → Z</option>
+                  <option value="za">Z → A</option>
+                </select>
+              </div>
             </div>
 
-            {/* Buscador dentro de la categoría */}
-            {filteredSchemes.length > 4 && (
-              <div style={{ marginBottom: "20px" }}>
+            {/* Center: Vocab list */}
+            <div className="vocab-list">
+              {displayedSchemes.map((cs) => (
+                <div key={cs.id} className="vocab-card-v2"
+                  onClick={() => {
+                    updateState({ ...data, conceptSchemeLanguages: [...cs.languages], currentScheme: cs, selectedLanguage: cs.languages.includes(language) ? language : cs.languages[0] })
+                    navigate(getFilePath(cs.id, "html", customDomain))
+                  }}
+                >
+                  <div className="vocab-card-thumb">
+                    <VocabIcon vocabId={cs.id} colors={config.colors} />
+                  </div>
+                  <div className="vocab-card-body">
+                    <span className="vocab-title-link">
+                      {getTitle(cs)}
+                    </span>
+                    <p className="vocab-desc">{getDescription(cs)}</p>
+                    <div className="vocab-meta-row">
+                      <span className="meta-item">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        {cs.languages.map(l => l === "es" ? "Es" : l === "en" ? "En" : l.toUpperCase()).join(" · ")}
+                      </span>
+                      {cs.termCount > 0 && (
+                        <span className="meta-item">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                          {cs.termCount.toLocaleString(language === "en" ? "en-GB" : "es-ES")} {language === "en" ? "terms" : "términos"}
+                        </span>
+                      )}
+                      {cs.modified && (
+                        <span className="meta-item">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          {new Date(cs.modified).toLocaleDateString(language === "en" ? "en-GB" : "es-ES", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      )}
+                      <button
+                        className="btn-ver-grafo"
+                        onClick={(e) => { e.stopPropagation(); setGraphVocab(cs) }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="5" cy="12" r="3"/><circle cx="19" cy="5" r="3"/><circle cx="19" cy="19" r="3"/>
+                          <line x1="8" y1="11" x2="16" y2="6"/><line x1="8" y1="13" x2="16" y2="18"/>
+                        </svg>
+                        {language === "en" ? "View graph" : "Ver grafo"}
+                      </button>
+                      <span className="status-valid">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        {language === "en" ? "Valid" : "Válido"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="vocab-card-dl-col">
+                    {[{ label: "TTL", ext: "ttl" }, { label: "RDF/XML", ext: "rdf" }, { label: "JSON-LD", ext: "jsonld" }].map(({ label, ext }) => {
+                      const slug = cs.id.split("/").pop()
+                      return (
+                        <a key={ext} href={`${customDomain || "/"}downloads/${slug}.${ext}`} download onClick={e => e.stopPropagation()}
+                          style={{ fontSize: "11px", padding: "1px 8px", borderRadius: "3px", border: `1px solid ${config.colors.skoHubMiddleGrey}`, color: config.colors.skoHubDarkColor, textDecoration: "none", background: "rgb(244,244,244)", textAlign: "center", whiteSpace: "nowrap" }}>
+                          {label}
+                        </a>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Right: Sidebar */}
+            <div className="cat-sidebar-col">
+              {/* Últimas actualizaciones — timeline */}
+              {homeConfig.novedades?.length > 0 && (
+                <div className="sidebar-panel">
+                  <div className="sidebar-panel-header">
+                    <span className="panel-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {language === "en" ? "Latest updates" : "Últimas actualizaciones"}
+                    </span>
+                  </div>
+                  <div className="timeline-panel-body">
+                    {homeConfig.novedades.map((item, i) => (
+                      <div key={i} className="timeline-item">
+                        <div className="timeline-dot-col">
+                          <div className="timeline-dot" />
+                          <div className="timeline-line" />
+                        </div>
+                        <div className="timeline-content">
+                          <div className="timeline-title">
+                            {item.titulo}
+                            {item.nuevo && <span className="timeline-new">NUEVO</span>}
+                          </div>
+                          <div className="timeline-date">{item.fecha}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Destacados */}
+              {homeConfig.destacados?.length > 0 && (
+                <div className="sidebar-panel">
+                  <div className="sidebar-panel-header">
+                    <span className="panel-title">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      {language === "en" ? "Featured" : "Vocabularios destacados"}
+                    </span>
+                  </div>
+                  <div className="sidebar-panel-body">
+                    {homeConfig.destacados.map((item, i) => {
+                      const matched = conceptSchemes.find(cs => {
+                        const t = cs.title?.[language] || cs.title?.es || cs.title?.en ||
+                          cs.prefLabel?.[language] || cs.prefLabel?.es || cs.prefLabel?.en || ""
+                        return t.toLowerCase() === item.titulo.toLowerCase()
+                      })
+                      return matched ? (
+                        <a
+                          key={i}
+                          className="sidebar-item-link"
+                          href={getFilePath(matched.id, "html", config.customDomain)}
+                          onClick={() => updateState({ ...data, conceptSchemeLanguages: [...matched.languages], currentScheme: matched, selectedLanguage: matched.languages.includes(language) ? language : matched.languages[0] })}
+                        >
+                          <div className="item-info">
+                            <span className="badge-destacado" style={{ marginRight: "8px" }}>★</span>
+                            <span className="item-title">{item.titulo}</span>
+                          </div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: "rgb(130,110,90)", flexShrink: 0 }}><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                      ) : (
+                        <div key={i} className="sidebar-item">
+                          <span className="badge-destacado">★</span>
+                          <span className="item-title">{item.titulo}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+              {/* Ayuda */}
+              <div className="sidebar-panel">
+                <div className="sidebar-panel-header">
+                  <span className="panel-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    {language === "en" ? "Help" : "Ayuda"}
+                  </span>
+                </div>
+                <div className="ayuda-body">
+                  <p>{language === "en" ? "Find documentation and guides for using vocabularies." : "Encuentra documentación y guías para el uso de vocabularios."}</p>
+                  {homeConfig.documentacion?.[0] && (
+                    <a href={homeConfig.documentacion[0].url}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      {language === "en" ? "See guides →" : "Ver guías →"}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      ) : (
+        /* ══════════════════════════════════════
+           HOME PAGE — 2-column grid
+        ══════════════════════════════════════ */
+        <div className="page-grid">
+
+          {/* ── Columna principal ── */}
+          <div>
+            {/* Hero — solo en página de categorías */}
+            {!selectedCategory && (
+              <div className="hero" style={{ backgroundImage: `url(${withPrefix('/img/fondo-hero.png')})` }}>
+                <div className="hero-text">
+                  <h1 style={{ color: config.colors.skoHubDarkColor }}>
+                    {config.title || "Repositorio de Vocabularios"}
+                  </h1>
+                  {homeConfig.subtitle && (
+                    <h2 style={{ color: config.colors.skoHubDarkColor }}>
+                      {language === "en" && homeConfig.subtitle_en ? homeConfig.subtitle_en : homeConfig.subtitle}
+                    </h2>
+                  )}
+                  {homeConfig.description && (
+                    <p>{language === "en" && homeConfig.description_en ? homeConfig.description_en : homeConfig.description}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Stats bar */}
+            {!selectedCategory && conceptSchemes.length > 0 && (
+              <div className="stats-bar">
+                <div className="stat-item">
+                  <span className="stat-icon-bg">
+                    <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  </span>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{conceptSchemes.length}</div>
+                  <div className="stat-label">{language === "en" ? "vocabularies" : "vocabularios"}</div>
+                </div>
+                {totalTerms > 0 && (
+                  <div className="stat-item">
+                    <span className="stat-icon-bg">
+                      <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </span>
+                    <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{totalTerms.toLocaleString(language === "en" ? "en-GB" : "es-ES")}</div>
+                    <div className="stat-label">{language === "en" ? "terms" : "términos"}</div>
+                  </div>
+                )}
+                <div className="stat-item">
+                  <span className="stat-icon-bg">
+                    <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  </span>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>{allLanguages.length}</div>
+                  <div>
+                    <div className="stat-label">{language === "en" ? "languages" : "idiomas"}</div>
+                    <div className="stat-label">{allLanguages.join(" · ")}</div>
+                  </div>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-icon-bg">
+                    <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  </span>
+                  <div className="stat-value" style={{ color: config.colors.skoHubDarkColor }}>3</div>
+                  <div className="stat-label">{language === "en" ? "formats" : "formatos"}</div>
+                </div>
+                {(lastModified || homeConfig.ultima_actualizacion) && (
+                  <div className="stat-item">
+                    <span className="stat-icon-bg">
+                      <svg className="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </span>
+                    <div>
+                      <div className="stat-label">{language === "en" ? "Last update" : "Última actualización"}</div>
+                      <div style={{ fontSize: "15px", color: config.colors.skoHubDarkColor, marginTop: "2px" }}>{lastModified || homeConfig.ultima_actualizacion}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Search */}
+            {!selectedCategory && availableCategories.length === 0 && filteredSchemes.length > 4 && (
+              <div className="search-wrapper">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input
                   type="text"
-                  placeholder={
-                    language === "en"
-                      ? "Search vocabularies..."
-                      : "Buscar vocabularios..."
-                  }
+                  placeholder={language === "en" ? "Search vocabularies..." : "Buscar vocabularios, conceptos o colecciones..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    fontSize: "16px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                  }}
                 />
               </div>
             )}
-          </div>
-        )}
 
-        {/* Buscador sin categorías */}
-        {!selectedCategory &&
-          availableCategories.length === 0 &&
-          filteredSchemes.length > 4 && (
-            <div style={{ marginBottom: "20px" }}>
-              <input
-                type="text"
-                placeholder={
-                  language === "en"
-                    ? "Search vocabularies..."
-                    : "Buscar vocabularios..."
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  fontSize: "16px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-            </div>
-          )}
-
-        {/* Lista de vocabularios como tarjetas */}
-        {(selectedCategory || availableCategories.length === 0) && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "10px",
-              width: "100%",
-            }}
-          >
-            {filteredSchemes
-              .filter((conceptScheme) => {
-                const title = getTitle(conceptScheme)
-                return title.toLowerCase().includes(searchTerm.toLowerCase())
-              })
-              .sort((a, b) => {
-                const titleA =
-                  i18n(language)(a.prefLabel || a.title || a.dc_title) || a.id
-                const titleB =
-                  i18n(language)(b.prefLabel || b.title || b.dc_title) || b.id
-                return titleA.localeCompare(titleB)
-              })
-              .map((conceptScheme) => {
-                return (
-                  <div
-                    key={conceptScheme.id}
-                    className="vocab-card"
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.borderColor =
-                        config.colors.skoHubAction
-                      e.currentTarget.style.boxShadow =
-                        "0 2px 8px rgba(0,0,0,0.1)"
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.borderColor = "#e0e0e0"
-                      e.currentTarget.style.boxShadow = "none"
-                    }}
-                  >
-                    {/* Icono */}
-                    <Link
-                      onClick={() =>
-                        updateState({
-                          ...data,
-                          conceptSchemeLanguages: [
-                            ...conceptScheme.languages,
-                          ],
-                          currentScheme: conceptScheme,
-                          selectedLanguage: conceptScheme.languages.includes(
-                            language
-                          )
-                            ? language
-                            : conceptScheme.languages[0],
-                        })
-                      }
-                      to={getFilePath(conceptScheme.id, `html`, customDomain)}
-                      className="vocab-icon"
-                      style={{ background: config.colors.skoHubLightGrey }}
+            {/* Categories */}
+            {!selectedCategory && availableCategories.length > 0 && (
+              <div className="cat-list">
+                {availableCategories.map((code) => {
+                  const cat = CATEGORIES[code]
+                  const count = conceptSchemes.filter((cs) => cs.theme === code).length
+                  return (
+                    <button
+                      key={code}
+                      className="cat-card"
+                      onClick={() => setSelectedCategory(code)}
                     >
-                      <VocabIcon
-                        vocabId={conceptScheme.id}
-                        colors={config.colors}
+                      <img
+                        src={withPrefix(`/img/${cat.image}`)}
+                        alt={getCategoryLabel(code)}
+                        className="cat-card-img"
                       />
-                    </Link>
-                    {/* Contenido */}
-                    <div
-                      style={{
-                        flex: 1,
-                        padding: "10px 16px",
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Link
-                        onClick={() =>
-                          updateState({
-                            ...data,
-                            conceptSchemeLanguages: [
-                              ...conceptScheme.languages,
-                            ],
-                            currentScheme: conceptScheme,
-                            selectedLanguage: conceptScheme.languages.includes(
-                              language
-                            )
-                              ? language
-                              : conceptScheme.languages[0],
-                          })
-                        }
-                        to={getFilePath(
-                          conceptScheme.id,
-                          `html`,
-                          customDomain
-                        )}
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        <div
-                          style={{
-                            fontSize: "20px",
-                            fontWeight: "700",
-                            lineHeight: "1.3",
-                            marginBottom: "6px",
-                            color: config.colors.skoHubDarkColor,
-                          }}
-                        >
-                          {getTitle(conceptScheme)}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "14px",
-                            color: "#666",
-                            lineHeight: "1.6",
-                            overflow: "hidden",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                          }}
-                        >
-                          {getDescription(conceptScheme)}
-                        </div>
-                      </Link>
-                    </div>
-                    {/* Botones de descarga */}
-                    <div className="vocab-downloads">
-                      {[
-                        { label: "TTL", ext: "ttl" },
-                        { label: "RDF/XML", ext: "rdf" },
-                        { label: "JSON-LD", ext: "jsonld" },
-                      ].map(({ label, ext }) => {
-                        const slug = conceptScheme.id.split("/").pop()
-                        return (
-                          <a
-                            key={ext}
-                            href={`${customDomain ? customDomain : "/"}downloads/${slug}.${ext}`}
-                            download
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              fontSize: "11px",
-                              padding: "3px 10px",
-                              borderRadius: "3px",
-                              border: `1px solid ${config.colors.skoHubMiddleGrey}`,
-                              color: config.colors.skoHubDarkColor,
-                              textDecoration: "none",
-                              background: config.colors.skoHubLightGrey,
-                              textAlign: "center",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {label}
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
+                      <div className="cat-card-body">
+                        <h3 className="cat-card-title" style={{ color: config.colors.skoHubDarkColor }}>
+                          {getCategoryLabel(code)}
+                        </h3>
+                        <p className="cat-card-desc">{getCategoryDescription(code)}</p>
+                        <span className="cat-card-count">
+                          {count} {language === "en" ? "vocabularies" : "vocabularios"}
+                        </span>
+                      </div>
+                      <div className="cat-card-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
           </div>
-        )}
+
+          {/* ── Sidebar ── */}
+          <Sidebar />
+        </div>
+      )}
       </div>
+      {graphVocab && (
+        <GraphModal
+          vocabId={graphVocab.id}
+          customDomain={customDomain}
+          language={language}
+          title={getTitle(graphVocab)}
+          onClose={() => setGraphVocab(null)}
+        />
+      )}
     </Layout>
   )
 }

@@ -19,9 +19,7 @@ export const conceptStyle = (colors) => css`
 
   .block {
     background-color: ${colors.skoHubWhite};
-    box-shadow: 0px 10px 20px ${colors.skoHubMiddleGrey};
     padding: 30px;
-    border-radius: 30px;
 
     @media only screen and (max-width: 1024px) {
       padding: 15px;
@@ -32,14 +30,18 @@ export const conceptStyle = (colors) => css`
     overflow: auto;
   }
 
-.nav-block {
+  .nav-block {
     flex: 1;
     overflow-y: auto;
+    border-right: 1px solid ${colors.skoHubMiddleGrey};
+
     @media only screen and (max-width: 800px) {
       display: block;
       height: 45vh;
       padding: 15px 15px 30px 15px;
       width: 100%;
+      border-right: none;
+      border-bottom: 1px solid ${colors.skoHubMiddleGrey};
     }
   }
   .main-block {
@@ -86,17 +88,24 @@ export const conceptStyle = (colors) => css`
       padding: 10px 20px;
     }
 
-    .json-png {
+    .concept-top-actions {
       position: absolute;
       right: 30px;
       top: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
 
       @media only screen and (max-width: 1024px) {
         position: relative;
-        left: 0;
         right: 0;
         top: 0;
+        margin-bottom: 10px;
       }
+    }
+
+    .json-png {
+      display: inline-flex;
     }
 
     h1 {
@@ -143,7 +152,7 @@ export const conceptStyle = (colors) => css`
     display: flex;
     flex-direction: row;
     align-items: center;
-    color: ${colors.skoHubMiddleColor};
+    color: ${colors.skoHubAction};
 
     button {
       border: 2px solid transparent;

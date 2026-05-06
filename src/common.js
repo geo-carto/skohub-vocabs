@@ -140,6 +140,7 @@ function loadConfig(configFile, defaultFile) {
     colors: userConfig.ui.colors || defaults.ui.colors,
     fonts: userConfig.ui.fonts || defaults.ui.fonts,
     footer: userConfig.ui.footer || defaults.ui.footer,
+    home: userConfig.ui.home || null,
     searchableAttributes:
       userConfig.searchableAttributes || defaults.searchableAttributes,
     customDomain: userConfig.custom_domain || "",

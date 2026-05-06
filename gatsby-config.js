@@ -16,6 +16,7 @@ module.exports = {
     searchableAttributes: config.searchableAttributes,
     customDomain: config.customDomain,
     failOnValidation: config.failOnValidation,
+    home: config.home,
   },
   pathPrefix: `${process.env.BASEURL || ""}`,
   plugins: [

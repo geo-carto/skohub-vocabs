@@ -3,6 +3,7 @@ import Concept from "./Concept"
 import { i18n, getDomId, getFilePath } from "../common"
 import JsonLink from "./JsonLink"
 import ConceptURI from "./ConceptURI"
+import GraphModal from "./GraphModal"
 import { useSkoHubContext } from "../context/Context"
 import { useEffect, useState } from "react"
 import { useLocation } from "@gatsbyjs/reach-router"
@@ -12,6 +13,7 @@ const ConceptScheme = ({
 }) => {
   const { data } = useSkoHubContext()
   const [language, setLanguage] = useState("")
+  const [graphOpen, setGraphOpen] = useState(false)
   useEffect(() => {
     setLanguage(data.selectedLanguage)
   }, [data?.selectedLanguage])
@@ -35,7 +37,48 @@ const ConceptScheme = ({
         <div>
           <h1>{title && i18n(language)(title)}</h1>
           <ConceptURI id={conceptScheme.id} />
-          <JsonLink to={getFilePath(conceptScheme.id, "json", customDomain)} />
+          <div className="concept-top-actions">
+            <button
+              onClick={() => setGraphOpen(true)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                padding: "5px 12px",
+                border: "1px solid rgb(220,205,185)",
+                borderRadius: "20px",
+                background: "white",
+                cursor: "pointer",
+                fontSize: "13px",
+                fontFamily: "inherit",
+                color: "rgb(80,60,40)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgb(196,95,40)"
+                e.currentTarget.style.color = "rgb(196,95,40)"
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgb(220,205,185)"
+                e.currentTarget.style.color = "rgb(80,60,40)"
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="5" cy="12" r="3"/><circle cx="19" cy="5" r="3"/><circle cx="19" cy="19" r="3"/>
+                <line x1="8" y1="11" x2="16" y2="6"/><line x1="8" y1="13" x2="16" y2="18"/>
+              </svg>
+              {language === "en" ? "View graph" : "Ver grafo"}
+            </button>
+            <JsonLink to={getFilePath(conceptScheme.id, "json", customDomain)} />
+          </div>
+          {graphOpen && (
+            <GraphModal
+              vocabId={conceptScheme.id}
+              customDomain={customDomain}
+              language={language}
+              title={title && i18n(language)(title)}
+              onClose={() => setGraphOpen(false)}
+            />
+          )}
           {description && (
             <div className="markdown">
               <Markdown>{i18n(language)(description)}</Markdown>
@@ -70,13 +113,25 @@ const ConceptScheme = ({
           {conceptScheme.creator && (
             <div>
               <h3>Creator</h3>
-              <p>{conceptScheme.creator}</p>
+              {conceptScheme.creator.startsWith("http") ? (
+                <a target="_blank" rel="noreferrer" href={conceptScheme.creator}>
+                  {conceptScheme.creator}
+                </a>
+              ) : (
+                <p>{conceptScheme.creator}</p>
+              )}
             </div>
           )}
           {conceptScheme.contributor && (
             <div>
               <h3>Contributor</h3>
-              <p>{conceptScheme.contributor}</p>
+              {conceptScheme.contributor.startsWith("http") ? (
+                <a target="_blank" rel="noreferrer" href={conceptScheme.contributor}>
+                  {conceptScheme.contributor}
+                </a>
+              ) : (
+                <p>{conceptScheme.contributor}</p>
+              )}
             </div>
           )}
           {conceptScheme.versionInfo && (

@@ -11,19 +11,20 @@ const Header = ({ siteTitle }) => {
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: url(${withPrefix("/img/header-fondo.png")}) center bottom/cover no-repeat;
+    background: url(${withPrefix("/img/header-fondo.png")}) center bottom/cover
+      no-repeat;
 
     .headerContent {
-          padding: 10px 20px;
-          display: flex;
-          align-items: center;
-        }
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+    }
 
     .skohubLogo {
-          margin: 0;
-          display: inline-flex;
-          align-items: center;
-          width: calc(100% - 80px);
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      width: calc(100% - 80px);
 
       a {
         text-decoration: none;
@@ -163,9 +164,7 @@ const Header = ({ siteTitle }) => {
               src={`${withPrefix("/img/logo-voc.png")}`}
               alt="Logo Vocabularios"
             />
-            <span className="skohubTitle">{siteTitle}</span>
           </Link>
-          
         </div>
         {languages && languages.length > 1 && (
           <ul className="language-menu">

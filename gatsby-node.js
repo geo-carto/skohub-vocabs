@@ -233,7 +233,10 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         provenance,
         source,
         versionInfo,
-        status: (status && typeof status === 'object' && status.id) ? status.id : (status || null),
+        status:
+          status && typeof status === "object" && status.id
+            ? status.id
+            : status || null,
         theme: theme || null,
       }
       if (type === "Concept") {
@@ -257,6 +260,47 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
 exports.sourceNodes = async ({ actions }) => {
   const { createTypes } = actions
   createTypes(types(languages))
+}
+
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions
+  createTypes(`
+    type SiteHomeNovedades {
+      titulo: String
+      fecha: String
+      nuevo: Boolean
+    }
+    type SiteHomeCarrusel {
+      imagen: String
+    }
+    type SiteHomeDestacados {
+      titulo: String
+    }
+    type SiteHomeDocumentacion {
+      titulo: String
+      descripcion: String
+      url: String
+    }
+    type SiteHomeEnlaces {
+      titulo: String
+      url: String
+      target: String
+      rel: String
+    }
+    type SiteHome {
+      subtitle: String
+      description: String
+      ultima_actualizacion: String
+      novedades: [SiteHomeNovedades]
+      carrusel: [SiteHomeCarrusel]
+      destacados: [SiteHomeDestacados]
+      documentacion: [SiteHomeDocumentacion]
+      enlaces: [SiteHomeEnlaces]
+    }
+    type SiteSiteMetadata {
+      home: SiteHome
+    }
+  `)
 }
 
 exports.createPages = async ({ graphql, actions: { createPage } }) => {
@@ -307,6 +351,8 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
 
   conceptSchemes.errors && console.error(conceptSchemes.errors)
 
+  const conceptCountByCS = {}
+
   await Promise.all(
     conceptSchemes.data.allConceptScheme.edges.map(
       async ({ node: conceptScheme }) => {
@@ -330,6 +376,9 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
         const conceptsInScheme = await graphql(
           queries.allConcept(conceptScheme.id, languages)
         )
+        conceptCountByCS[conceptScheme.id] = conceptsInScheme.data.allConcept.edges.filter(
+          ({ node }) => node.type === "Concept"
+        ).length
         // embed concept scheme data
         const embeddedConcepts = [
           {
@@ -455,6 +504,8 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
       dc_description: cs.dc_description,
       theme: cs.theme || null,
       languages: Array.from(languagesByCS[cs.id]),
+      termCount: conceptCountByCS[cs.id] || 0,
+      modified: cs.modified || null,
     }))
   )
   createData({

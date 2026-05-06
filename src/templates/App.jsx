@@ -17,6 +17,11 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import { getUserLang } from "../hooks/getUserLanguage"
 import { useSkoHubContext } from "../context/Context.jsx"
 import { withPrefix, Link } from "gatsby"
+
+const CATEGORIES = {
+  GE: { es: "Geología", en: "Geology" },
+  TE: { es: "Técnicos", en: "Technical" },
+}
 import { handleKeypresses, importIndex } from "./helpers"
 
 const App = ({ pageContext, children, location }) => {
@@ -34,7 +39,7 @@ const App = ({ pageContext, children, location }) => {
     Object.fromEntries(
       config.searchableAttributes.map((attr) => [
         attr,
-         attr === "prefLabel" || attr === "altLabel" ? true : false,
+        attr === "prefLabel" || attr === "altLabel" ? true : false,
       ])
     )
   )
@@ -166,49 +171,85 @@ const App = ({ pageContext, children, location }) => {
         keywords={["Concept", i18n(language)(title)]}
       />
       {data?.currentScheme?.id && (
-        <div style={{
-          padding: "8px 30px 4px 30px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}>
-          <Link
-            to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
-            style={{
-              textDecoration: "none",
-              color: config.colors.skoHubDarkColor,
-              fontSize: "24px",
-              fontWeight: "700",
-            }}
-          >
-            {data.currentScheme?.title?.[language] ||
-             data.currentScheme?.prefLabel?.[language] ||
-             data.currentScheme?.dc_title?.[language] ||
-             data.currentScheme?.id}
-          </Link>
-          <Link
-            to="/"
-            onClick={() => updateState({ ...data, currentScheme: {} })}
+        <div
+          style={{
+            padding: "10px 30px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "4px",
+          }}
+        >
+          {/* Breadcrumb */}
+          <nav style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", flexWrap: "wrap" }}>
+            <Link
+              to="/"
+              onClick={() => updateState({ ...data, currentScheme: {} })}
+              style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
+            >
+              {language === "en" ? "Home" : "Inicio"}
+            </Link>
+            {data.currentScheme?.theme && CATEGORIES[data.currentScheme.theme] && (
+              <>
+                <span style={{ color: config.colors.skoHubMiddleGrey }}>›</span>
+                <Link
+                  to="/"
+                  state={{ category: data.currentScheme.theme }}
+                  onClick={() => updateState({ ...data, currentScheme: {} })}
+                  style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
+                >
+                  {CATEGORIES[data.currentScheme.theme][language] ||
+                    CATEGORIES[data.currentScheme.theme].es}
+                </Link>
+              </>
+            )}
+            <span style={{ color: config.colors.skoHubMiddleGrey }}>›</span>
+            {pageContext.node.type === "ConceptScheme" ? (
+              <span style={{ color: config.colors.skoHubAction, textDecoration: "none" }}>
+                {data.currentScheme?.title?.[language] ||
+                  data.currentScheme?.prefLabel?.[language] ||
+                  data.currentScheme?.dc_title?.[language] ||
+                  data.currentScheme?.id}
+              </span>
+            ) : (
+              <Link
+                to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
+                style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
+              >
+                {data.currentScheme?.title?.[language] ||
+                  data.currentScheme?.prefLabel?.[language] ||
+                  data.currentScheme?.dc_title?.[language] ||
+                  data.currentScheme?.id}
+              </Link>
+            )}
+          </nav>
+          {/* Back button */}
+          <button
+            onClick={() => window.history.back()}
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              background: config.colors.skoHubLightGrey,
+              background: "white",
               border: `1px solid ${config.colors.skoHubMiddleGrey}`,
-              borderRadius: "6px",
+              borderRadius: "20px",
               cursor: "pointer",
-              fontSize: "14px",
+              fontSize: "13px",
               color: config.colors.skoHubDarkColor,
-              padding: "8px 16px",
-              fontWeight: "600",
-              textDecoration: "none",
+              padding: "7px 16px",
+              fontWeight: "400",
+              fontFamily: "inherit",
+              flexShrink: 0,
+              transition: "border-color 0.2s, color 0.2s",
             }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = config.colors.skoHubAction; e.currentTarget.style.color = config.colors.skoHubAction }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = config.colors.skoHubMiddleGrey; e.currentTarget.style.color = config.colors.skoHubDarkColor }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"></polyline>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
             </svg>
-            {language === "en" ? "Back to categories" : "Volver a categorías"}
-          </Link>
+            {language === "en" ? "Back" : "Volver atrás"}
+          </button>
         </div>
       )}
       <div className="Concept" css={style}>

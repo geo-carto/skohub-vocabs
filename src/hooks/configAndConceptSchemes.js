@@ -85,6 +85,33 @@ export const getConfigAndConceptSchemes = () => {
           searchableAttributes
           customDomain
           failOnValidation
+          home {
+            subtitle
+            subtitle_en
+            description
+            description_en
+            ultima_actualizacion
+            novedades {
+              titulo
+              fecha
+              nuevo
+            }
+            carrusel {
+              imagen
+            }
+            destacados {
+              titulo
+            }
+            documentacion {
+              titulo
+              descripcion
+              url
+            }
+            enlaces {
+              titulo
+              url
+            }
+          }
         }
       }
       allConceptScheme {

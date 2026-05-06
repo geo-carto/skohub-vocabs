@@ -186,9 +186,9 @@ const NestedList = ({
     // Gatsby Link Component can't handle hash URIs so we use an anchor-tag instead
     const LinkTag = getFragment(item.id) ? "a" : GatsbyLink
 
-  //const notation = item.notation && (
-  //    <span className="notation">{item.notation.join(",")}&nbsp;</span>
-  //  )
+    //const notation = item.notation && (
+    //    <span className="notation">{item.notation.join(",")}&nbsp;</span>
+    //  )
     const notation = null
     const renderPrefLabel = () => {
       // Function for handling highlighting
@@ -257,7 +257,7 @@ const NestedList = ({
       }
 
       // give a warning if no prefLabel in selected language is provided
-/*       if (!t(item.prefLabel)) {
+      /*       if (!t(item.prefLabel)) {
         return (
           <i style={{ color: "red" }}>
             No label for language "{language}" provided
@@ -297,28 +297,35 @@ const NestedList = ({
     <ul css={style}>
       {(filteredItems || []).map((item) => (
         <li key={item.id}>
-          {item.narrower && (queryFilter ? item.narrower.length > 0 : item.narrower.filter((n) => !n.deprecated).length > 0) && (
-            <button
-              aria-expanded={isExpanded(item, "true", "false")}
-              className={`treeItemIcon inputStyle${isExpanded(
-                item,
-                "",
-                " collapsed"
-              )}`}
-              onClick={(e) => {
-                e.target.classList.toggle("collapsed")
-                e.target.setAttribute(
-                  "aria-expanded",
-                  e.target.classList.contains("collapsed") ? "false" : "true"
-                )
-              }}
-            ></button>
-          )}
+          {item.narrower &&
+            (queryFilter
+              ? item.narrower.length > 0
+              : item.narrower.filter((n) => !n.deprecated).length > 0) && (
+              <button
+                aria-expanded={isExpanded(item, "true", "false")}
+                className={`treeItemIcon inputStyle${isExpanded(
+                  item,
+                  "",
+                  " collapsed"
+                )}`}
+                onClick={(e) => {
+                  e.target.classList.toggle("collapsed")
+                  e.target.setAttribute(
+                    "aria-expanded",
+                    e.target.classList.contains("collapsed") ? "false" : "true"
+                  )
+                }}
+              ></button>
+            )}
           <div>
             {renderItemLink(item)}
             {item.narrower && item.narrower.length > 0 && (
               <NestedList
-                items={queryFilter ? item.narrower : item.narrower.filter((n) => !n.deprecated)}
+                items={
+                  queryFilter
+                    ? item.narrower
+                    : item.narrower.filter((n) => !n.deprecated)
+                }
                 current={current}
                 queryFilter={queryFilter}
                 highlight={highlight}

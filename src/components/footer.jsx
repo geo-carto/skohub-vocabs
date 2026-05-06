@@ -8,7 +8,7 @@ const Footer = () => {
   const { config } = getConfigAndConceptSchemes()
 
   const style = css`
-    background: ${config.colors.skoHubMiddleColor};
+    background: #6e4d4d;
     color: ${config.colors.skoHubWhite};
 
     .footerContent {

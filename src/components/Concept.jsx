@@ -5,14 +5,16 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes.js"
 import { useSkoHubContext } from "../context/Context.jsx"
 import { i18n, getDomId, getFilePath } from "../common"
 import ConceptURI from "./ConceptURI.jsx"
+import ConceptEgoModal from "./ConceptEgoModal.jsx"
 import { useEffect, useState } from "react"
 
 const Concept = ({
   pageContext: { node: concept, collections, customDomain },
 }) => {
-  const { config, conceptSchemes } = getConfigAndConceptSchemes()
+  const { conceptSchemes } = getConfigAndConceptSchemes()
   const { data } = useSkoHubContext()
   const [language, setLanguage] = useState("")
+  const [graphOpen, setGraphOpen] = useState(false)
   const definition =
     concept?.definition || concept?.description || concept?.dcdescription
   const title = concept?.prefLabel || concept?.title || concept?.dctitle
@@ -36,11 +38,49 @@ const Concept = ({
           ⚠ Deprecated
         </h1>
       )}
-      <h1>
-        {title && i18n(language)(title)}
-      </h1>
+      <h1>{title && i18n(language)(title)}</h1>
       <ConceptURI id={concept.id} />
-      <JsonLink to={getFilePath(concept.id, "json", customDomain)} />
+      <div className="concept-top-actions">
+        <button
+          onClick={() => setGraphOpen(true)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "5px 12px",
+            border: "1px solid rgb(220,205,185)",
+            borderRadius: "20px",
+            background: "white",
+            cursor: "pointer",
+            fontSize: "13px",
+            fontFamily: "inherit",
+            color: "rgb(80,60,40)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "rgb(196,95,40)"
+            e.currentTarget.style.color = "rgb(196,95,40)"
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "rgb(220,205,185)"
+            e.currentTarget.style.color = "rgb(80,60,40)"
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="5" cy="12" r="3"/><circle cx="19" cy="5" r="3"/><circle cx="19" cy="19" r="3"/>
+            <line x1="8" y1="11" x2="16" y2="6"/><line x1="8" y1="13" x2="16" y2="18"/>
+          </svg>
+          {language === "en" ? "View graph" : "Ver grafo"}
+        </button>
+        <JsonLink to={getFilePath(concept.id, "json", customDomain)} />
+      </div>
+      {graphOpen && (
+        <ConceptEgoModal
+          concept={concept}
+          language={language}
+          customDomain={customDomain}
+          onClose={() => setGraphOpen(false)}
+        />
+      )}
       {concept.isReplacedBy && concept.isReplacedBy.length > 0 && (
         <div>
           <h3>Is replaced by</h3>

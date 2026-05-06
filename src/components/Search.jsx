@@ -15,6 +15,7 @@ const Search = ({ handleQueryInput, labels, onLabelClick }) => {
         width: 100%;
         padding: 10px;
         margin-right: 10px;
+        background: white !important;
       }
       button {
         border: none;

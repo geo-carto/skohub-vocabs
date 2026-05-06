@@ -33,7 +33,7 @@ const Layout = ({ children }) => {
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      padding: 5px 20px 20px 20px;
+      padding: 5px 22px 20px 22px;
 
       @media only screen and (max-width: 800px) {
         display: block;
@@ -141,8 +141,8 @@ const Layout = ({ children }) => {
             font-family: ${config.fonts.regular.font_family}, ${config.fonts.bold.font_family}, sans-serif;
             font-weight: 400;
             word-wrap: break-word;
-            font-size: 16px;
-            line-height: 20px;
+            font-size: 17px;
+            line-height: 24px;
             color: ${config.colors.skoHubDarkColor};
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -206,8 +206,8 @@ const Layout = ({ children }) => {
             }
 
             &[type="button"] {
-              background: ${config.colors.skoHubLightGrey};
-              border: 1px solid ${config.colors.skoHubLightGrey};
+              background: ${config.colors.skoHubLightColor};
+              border: 1px solid ${config.colors.skoHubLightColor};
               font-weight: 700;
 
               &:hover {
