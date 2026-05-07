@@ -17,12 +17,12 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import { getUserLang } from "../hooks/getUserLanguage"
 import { useSkoHubContext } from "../context/Context.jsx"
 import { withPrefix, Link } from "gatsby"
+import { handleKeypresses, importIndex } from "./helpers"
 
 const CATEGORIES = {
   GE: { es: "Geología", en: "Geology" },
   TE: { es: "Técnicos", en: "Technical" },
 }
-import { handleKeypresses, importIndex } from "./helpers"
 
 const App = ({ pageContext, children, location }) => {
   const { data, updateState } = useSkoHubContext()
@@ -181,31 +181,53 @@ const App = ({ pageContext, children, location }) => {
           }}
         >
           {/* Breadcrumb */}
-          <nav style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "13px", flexWrap: "wrap" }}>
+          <nav
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              fontSize: "13px",
+              flexWrap: "wrap",
+            }}
+          >
             <Link
               to="/"
               onClick={() => updateState({ ...data, currentScheme: {} })}
-              style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
+              style={{
+                color: config.colors.skoHubAction,
+                textDecoration: "none",
+              }}
             >
               {language === "en" ? "Home" : "Inicio"}
             </Link>
-            {data.currentScheme?.theme && CATEGORIES[data.currentScheme.theme] && (
-              <>
-                <span style={{ color: config.colors.skoHubMiddleGrey }}>›</span>
-                <Link
-                  to="/"
-                  state={{ category: data.currentScheme.theme }}
-                  onClick={() => updateState({ ...data, currentScheme: {} })}
-                  style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
-                >
-                  {CATEGORIES[data.currentScheme.theme][language] ||
-                    CATEGORIES[data.currentScheme.theme].es}
-                </Link>
-              </>
-            )}
+            {data.currentScheme?.theme &&
+              CATEGORIES[data.currentScheme.theme] && (
+                <>
+                  <span style={{ color: config.colors.skoHubMiddleGrey }}>
+                    ›
+                  </span>
+                  <Link
+                    to="/"
+                    state={{ category: data.currentScheme.theme }}
+                    onClick={() => updateState({ ...data, currentScheme: {} })}
+                    style={{
+                      color: config.colors.skoHubAction,
+                      textDecoration: "none",
+                    }}
+                  >
+                    {CATEGORIES[data.currentScheme.theme][language] ||
+                      CATEGORIES[data.currentScheme.theme].es}
+                  </Link>
+                </>
+              )}
             <span style={{ color: config.colors.skoHubMiddleGrey }}>›</span>
             {pageContext.node.type === "ConceptScheme" ? (
-              <span style={{ color: config.colors.skoHubAction, textDecoration: "none" }}>
+              <span
+                style={{
+                  color: config.colors.skoHubAction,
+                  textDecoration: "none",
+                }}
+              >
                 {data.currentScheme?.title?.[language] ||
                   data.currentScheme?.prefLabel?.[language] ||
                   data.currentScheme?.dc_title?.[language] ||
@@ -213,8 +235,15 @@ const App = ({ pageContext, children, location }) => {
               </span>
             ) : (
               <Link
-                to={getFilePath(data.currentScheme.id, "html", config.customDomain)}
-                style={{ color: config.colors.skoHubAction, textDecoration: "none" }}
+                to={getFilePath(
+                  data.currentScheme.id,
+                  "html",
+                  config.customDomain
+                )}
+                style={{
+                  color: config.colors.skoHubAction,
+                  textDecoration: "none",
+                }}
               >
                 {data.currentScheme?.title?.[language] ||
                   data.currentScheme?.prefLabel?.[language] ||
@@ -242,11 +271,26 @@ const App = ({ pageContext, children, location }) => {
               flexShrink: 0,
               transition: "border-color 0.2s, color 0.2s",
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = config.colors.skoHubAction; e.currentTarget.style.color = config.colors.skoHubAction }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = config.colors.skoHubMiddleGrey; e.currentTarget.style.color = config.colors.skoHubDarkColor }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = config.colors.skoHubAction
+              e.currentTarget.style.color = config.colors.skoHubAction
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = config.colors.skoHubMiddleGrey
+              e.currentTarget.style.color = config.colors.skoHubDarkColor
+            }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
             </svg>
             {language === "en" ? "Back" : "Volver atrás"}
           </button>

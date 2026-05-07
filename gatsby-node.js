@@ -289,7 +289,9 @@ exports.createSchemaCustomization = ({ actions }) => {
     }
     type SiteHome {
       subtitle: String
+      subtitle_en: String
       description: String
+      description_en: String
       ultima_actualizacion: String
       novedades: [SiteHomeNovedades]
       carrusel: [SiteHomeCarrusel]
@@ -376,9 +378,10 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
         const conceptsInScheme = await graphql(
           queries.allConcept(conceptScheme.id, languages)
         )
-        conceptCountByCS[conceptScheme.id] = conceptsInScheme.data.allConcept.edges.filter(
-          ({ node }) => node.type === "Concept"
-        ).length
+        conceptCountByCS[conceptScheme.id] =
+          conceptsInScheme.data.allConcept.edges.filter(
+            ({ node }) => node.type === "Concept"
+          ).length
         // embed concept scheme data
         const embeddedConcepts = [
           {
