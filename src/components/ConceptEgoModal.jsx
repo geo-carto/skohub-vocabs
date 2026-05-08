@@ -10,6 +10,7 @@ const SEMANTIC_PROPS = [
   "broadMatch",
   "narrowMatch",
 ]
+const GRAPH_FONT_FAMILY = "roboto, Roboto, sans-serif"
 
 const PRED_COLORS = {
   broader: "rgb(165,85,55)",
@@ -377,6 +378,7 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
   const [depthBroader, setDepthBroader] = useState(1)
   const [depthNarrow, setDepthNarrow] = useState(1)
   const [showMatches, setShowMatches] = useState(false)
+  const [showLabels, setShowLabels] = useState(true)
   const [nodeOverrides, setNodeOverrides] = useState({})
   const [maxDepths, setMaxDepths] = useState({ maxBroader: 5, maxNarrow: 5 })
 
@@ -652,6 +654,35 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
             >
               {`External Matches${matchCount > 0 ? ` (${matchCount})` : ""}`}
             </button>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: "rgb(35,15,5)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              {language === "en" ? "OPTIONS:" : "OPCIONES:"}
+            </span>
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              style={{
+                padding: "3px 10px",
+                borderRadius: "12px",
+                fontFamily: "inherit",
+                fontSize: 11,
+                border: `1.5px solid ${
+                  showLabels ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                }`,
+                background: showLabels ? "rgb(255,245,235)" : "white",
+                color: showLabels ? "rgb(196,95,40)" : "rgb(100,80,60)",
+                cursor: "pointer",
+                transition: "all 0.12s",
+              }}
+            >
+              {language === "en" ? "Labels" : "Etiquetas"}
+            </button>
           </div>
 
           <button
@@ -803,7 +834,7 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                         dy={-5}
                         textAnchor="middle"
                         fontSize={10}
-                        fontFamily="sans-serif"
+                        fontFamily={GRAPH_FONT_FAMILY}
                         fontStyle="italic"
                         fill={col}
                         transform={`rotate(${
@@ -851,33 +882,34 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                         stroke="white"
                         strokeWidth={isCenter ? 2.5 : 1.5}
                       />
-                      {isCenter ? (
-                        <text
-                          x={pos.x}
-                          y={pos.y}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fontSize={11}
-                          fontWeight={700}
-                          fontFamily="sans-serif"
-                          fill="rgb(20,10,0)"
-                          style={{ pointerEvents: "none" }}
-                        >
-                          {label}
-                        </text>
-                      ) : (
-                        <text
-                          x={pos.x}
-                          y={pos.y - (r + 8)}
-                          textAnchor="middle"
-                          fontSize={11}
-                          fontFamily="sans-serif"
-                          fill="rgb(20,10,0)"
-                          style={{ pointerEvents: "none" }}
-                        >
-                          {label}
-                        </text>
-                      )}
+                      {showLabels &&
+                        (isCenter ? (
+                          <text
+                            x={pos.x}
+                            y={pos.y}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={11}
+                            fontWeight={700}
+                            fontFamily="inherit"
+                            fill="rgb(20,10,0)"
+                            style={{ pointerEvents: "none" }}
+                          >
+                            {label}
+                          </text>
+                        ) : (
+                          <text
+                            x={pos.x}
+                            y={pos.y - (r + 8)}
+                            textAnchor="middle"
+                            fontSize={11}
+                            fontFamily={GRAPH_FONT_FAMILY}
+                            fill="rgb(20,10,0)"
+                            style={{ pointerEvents: "none" }}
+                          >
+                            {label}
+                          </text>
+                        ))}
                     </g>
                   )
                 })}
@@ -940,7 +972,7 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                  fontFamily: "sans-serif",
+                  fontFamily: GRAPH_FONT_FAMILY,
                 }}
               >
                 {b.label}

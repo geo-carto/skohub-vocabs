@@ -27,7 +27,7 @@ const LAYOUTS = [
   { id: "ego", es: "Ego", en: "Ego" },
 ]
 
-const LINK_LAYOUTS = new Set(["force", "radial", "tree-v", "tree-h"])
+const LINK_LAYOUTS = new Set(["force", "tree-v", "tree-h"])
 const RECT_LAYOUTS = new Set(["treemap"])
 
 // ─── Edge type definitions ────────────────────────────────────
@@ -98,6 +98,7 @@ const SEMANTIC_PROPS = [
   "broadMatch",
   "narrowMatch",
 ]
+const GRAPH_FONT_FAMILY = "roboto, Roboto, sans-serif"
 
 // ─── Warm monochromatic palette (like ego), subtle branch offset ─
 const BRANCH_OFFSETS = [0, 15, -12, 22, -18, 28, -22, 12]
@@ -109,6 +110,25 @@ function branchDepthFill(branchIdx, depth) {
     240,
     50 + f
   )},${Math.min(220, 20 + f)})`
+}
+
+function lightBranchDepthFill(branchIdx, depth) {
+  const br =
+    branchIdx >= 0 ? BRANCH_OFFSETS[branchIdx % BRANCH_OFFSETS.length] : 0
+  const palette = [
+    [155, 52, 42],
+    [185, 70, 58],
+    [207, 105, 86],
+    [226, 148, 125],
+    [239, 188, 168],
+    [247, 218, 202],
+    [250, 235, 224],
+  ]
+  const [r, g, b] = palette[Math.min(depth, palette.length - 1)]
+  return `rgb(${Math.max(135, Math.min(255, r + br * 0.4))},${Math.max(
+    45,
+    Math.min(248, g + br * 0.15)
+  )},${Math.max(38, Math.min(240, b + br * 0.12))})`
 }
 
 // ─── Label helpers ────────────────────────────────────────────
@@ -212,7 +232,8 @@ function getLabel(c, lang) {
 }
 
 function ids(arr) {
-  return (arr || [])
+  if (!arr) return []
+  return (Array.isArray(arr) ? arr : [arr])
     .map((x) => (typeof x === "string" ? x : x?.id))
     .filter(Boolean)
 }
@@ -279,9 +300,9 @@ function arcPath(x0, x1, y0, y1, cx, cy) {
 
 // ─── Ego layout helpers ───────────────────────────────────────
 const EGO_PRED_COLORS = {
-  broader: "rgb(165,85,55)",
-  narrower: "rgb(165,55,55)",
-  related: "rgb(65,115,185)",
+  broader: "rgb(202, 171, 117)",
+  narrower: "rgb(204, 87, 87)",
+  related: "rgb(99, 147, 214)",
   exactMatch: "rgb(50,145,90)",
   closeMatch: "rgb(85,160,110)",
   relatedMatch: "rgb(135,65,175)",
@@ -289,8 +310,49 @@ const EGO_PRED_COLORS = {
   narrowMatch: "rgb(50,120,120)",
 }
 const EGO_RING_RADII = [0, 155, 265, 368, 466, 560, 650, 737, 820]
+const EXTERNAL_SOURCE_COLORS = [
+  "rgb(82,154,205)",
+  "rgb(43,105,166)",
+  "rgb(123,177,216)",
+  "rgb(30,86,138)",
+  "rgb(150,196,226)",
+]
+
+function getExternalSourceInfo(uri) {
+  let label = "Externo"
+  let key = "external"
+  try {
+    const url = new URL(uri)
+    const host = url.hostname.replace(/^www\./, "")
+    if (host.includes("inspire.ec.europa.eu")) {
+      label = "INSPIRE"
+      key = "inspire"
+    } else if (host.includes("geosciml.org")) {
+      label = "GeoSciML"
+      key = "geosciml"
+    } else if (host.includes("resource.geosciml.org")) {
+      label = "GeoSciML"
+      key = "geosciml"
+    } else {
+      label = host.split(".").slice(0, 2).join(".")
+      key = host
+    }
+  } catch {
+    key = uri.split("/")[2] || uri
+    label = key
+  }
+  const hash = [...key].reduce((sum, ch) => sum + ch.charCodeAt(0), 0)
+  return {
+    key,
+    label,
+    color: EXTERNAL_SOURCE_COLORS[hash % EXTERNAL_SOURCE_COLORS.length],
+  }
+}
 
 function egoGetNodeFill(direction, ringDepth) {
+  if (direction?.startsWith("external:")) {
+    return direction.slice("external:".length)
+  }
   const f = (ringDepth - 1) * 20
   switch (direction) {
     case "center":
@@ -360,13 +422,17 @@ function buildEgoSubgraph(
   d3Root,
   depthBroader,
   depthNarrow,
-  showMatches
+  showMatches,
+  matchDataById = {},
+  showBroaderEdges = true,
+  showNarrowerEdges = true
 ) {
   const nodeMap = new Map(),
     egoEdges = [],
     edgeSet = new Set()
   const labelOf = (id) =>
     nodeInfo.find((n) => n.id === id)?.label || id.split("/").pop() || id
+  const nodeInfoById = new Map(nodeInfo.map((node) => [node.id, node]))
   nodeMap.set(focalId, {
     id: focalId,
     label: labelOf(focalId),
@@ -380,79 +446,105 @@ function buildEgoSubgraph(
       egoEdges.push({ s, t, pred })
     }
   }
-  // broader BFS: narrower edge t=id means s is broader
-  {
-    const vis = new Set([focalId]),
-      q = [{ id: focalId, d: 0 }]
-    while (q.length) {
-      const { id, d } = q.shift()
-      if (d >= depthBroader) continue
-      for (const e of edgesAll) {
-        if (e.type === "narrower" && e.t === id) {
-          if (!nodeMap.has(e.s))
-            nodeMap.set(e.s, {
-              id: e.s,
-              label: labelOf(e.s),
-              ringDepth: d + 1,
-              direction: "broader",
-            })
-          addE(id, e.s, "broader")
-          if (!vis.has(e.s)) {
-            vis.add(e.s)
-            q.push({ id: e.s, d: d + 1 })
-          }
-        }
+  const visited = new Set([focalId])
+  const q = [{ id: focalId, up: 0, down: 0 }]
+  while (q.length) {
+    const { id, up, down } = q.shift()
+    for (const e of edgesAll) {
+      if (e.type !== "narrower") continue
+      const next =
+        e.s === id && down < depthNarrow
+          ? { id: e.t, up, down: down + 1 }
+          : e.t === id && up < depthBroader
+          ? { id: e.s, up: up + 1, down }
+          : null
+      if (!next || visited.has(next.id)) continue
+      visited.add(next.id)
+      const info = nodeInfoById.get(next.id)
+      nodeMap.set(next.id, {
+        id: next.id,
+        label: labelOf(next.id),
+        ringDepth: info?.depth ?? Math.max(next.up, next.down),
+        direction: next.up > 0 ? "broader" : "narrower",
+      })
+      q.push(next)
+    }
+  }
+  for (const e of edgesAll) {
+    if (e.type === "narrower" && nodeMap.has(e.s) && nodeMap.has(e.t)) {
+      if (showNarrowerEdges) addE(e.s, e.t, "narrower")
+      if (showBroaderEdges) addE(e.t, e.s, "broader")
+    }
+  }
+  const focalInfo = nodeInfoById.get(focalId)
+  if (focalInfo?.isRoot) {
+    for (const info of nodeInfo) {
+      if (info.depth <= depthNarrow && !nodeMap.has(info.id)) {
+        nodeMap.set(info.id, {
+          id: info.id,
+          label: labelOf(info.id),
+          ringDepth: info.depth,
+          direction: info.isRoot ? "center" : "narrower",
+        })
+      }
+    }
+    for (const e of edgesAll) {
+      if (e.type === "narrower" && nodeMap.has(e.s) && nodeMap.has(e.t)) {
+        if (showNarrowerEdges) addE(e.s, e.t, "narrower")
+        if (showBroaderEdges) addE(e.t, e.s, "broader")
       }
     }
   }
-  // narrower BFS: narrower edge s=id means t is narrower
-  {
-    const vis = new Set([focalId]),
-      q = [{ id: focalId, d: 0 }]
-    while (q.length) {
-      const { id, d } = q.shift()
-      if (d >= depthNarrow) continue
-      for (const e of edgesAll) {
-        if (e.type === "narrower" && e.s === id) {
-          if (!nodeMap.has(e.t))
-            nodeMap.set(e.t, {
-              id: e.t,
-              label: labelOf(e.t),
-              ringDepth: d + 1,
-              direction: "narrower",
-            })
-          addE(id, e.t, "narrower")
-          if (!vis.has(e.t)) {
-            vis.add(e.t)
-            q.push({ id: e.t, d: d + 1 })
-          }
-        }
-      }
-    }
+  if (!nodeMap.has(focalId)) {
+    nodeMap.set(focalId, {
+      id: focalId,
+      label: labelOf(focalId),
+      ringDepth: 0,
+      direction: "center",
+    })
+  } else {
+    nodeMap.set(focalId, {
+      ...nodeMap.get(focalId),
+      ringDepth: 0,
+      direction: "center",
+    })
   }
-  // matches from d3 hierarchy data (includes external URIs)
-  if (showMatches && d3Root) {
-    const d3n = d3Root.descendants().find((n) => n.data.id === focalId)
-    if (d3n) {
-      const idsOf = (a) =>
-        !a
-          ? []
-          : (Array.isArray(a) ? a : [a])
-              .map((x) => (typeof x === "string" ? x : x?.id))
-              .filter(Boolean)
+  // matches can come from embedded scheme JSON or from each visible concept JSON.
+  if (showMatches) {
+    const internalIds = new Set(nodeInfo.map((n) => n.id))
+    const visibleInternalIds = [...nodeMap.keys()].filter((id) =>
+      internalIds.has(id)
+    )
+    for (const sourceId of visibleInternalIds) {
+      const d3n = d3Root?.descendants().find((n) => n.data.id === sourceId)
+      const matchData = matchDataById[sourceId] || {}
+      const sourceNode = nodeMap.get(sourceId)
       for (const prop of SEMANTIC_PROPS) {
-        for (const tid of idsOf(d3n.data[`_${prop}`])) {
-          if (!nodeMap.has(tid))
+        const tids = new Set([
+          ...ids(d3n?.data?.[`_${prop}`]),
+          ...ids(matchData?.[prop]),
+        ])
+        for (const tid of tids) {
+          const source = getExternalSourceInfo(tid)
+          if (!nodeMap.has(tid)) {
+            const isInternalTarget = internalIds.has(tid)
+            const plainLabel =
+              nodeInfo.find((n) => n.id === tid)?.label ||
+              tid.split("/").pop() ||
+              tid
             nodeMap.set(tid, {
               id: tid,
-              label:
-                nodeInfo.find((n) => n.id === tid)?.label ||
-                tid.split("/").pop() ||
-                tid,
-              ringDepth: 1,
-              direction: prop === "related" ? "related" : "external-match",
+              label: isInternalTarget
+                ? plainLabel
+                : `${source.label}: ${plainLabel}`,
+              ringDepth: (sourceNode?.ringDepth ?? 0) + 1,
+              direction: isInternalTarget
+                ? "related"
+                : `external:${source.color}`,
+              externalSource: isInternalTarget ? null : source,
             })
-          addE(focalId, tid, prop)
+          }
+          addE(sourceId, tid, prop)
         }
       }
     }
@@ -531,8 +623,8 @@ function EgoDepthBtns({ label, value, max, onChange }) {
           key={d}
           onClick={() => onChange(d)}
           style={{
-            width: 20,
-            height: 20,
+            width: 22,
+            height: 22,
             borderRadius: "50%",
             fontFamily: "inherit",
             padding: 0,
@@ -542,7 +634,7 @@ function EgoDepthBtns({ label, value, max, onChange }) {
             background: d === value ? "rgb(196,95,40)" : "white",
             color: d === value ? "white" : "rgb(80,60,40)",
             cursor: "pointer",
-            fontSize: 10,
+            fontSize: 9,
             fontWeight: d === value ? 700 : 400,
             display: "flex",
             alignItems: "center",
@@ -573,6 +665,9 @@ const GraphModal = ({
   const [err, setErr] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
   const [layoutType, setLayoutType] = useState("force")
+  const [showLabels, setShowLabels] = useState(true)
+  const [labelOverrides, setLabelOverrides] = useState({})
+  const [egoLabelOverrides, setEgoLabelOverrides] = useState({})
   const [enabledEdgeTypes, setEnabledEdgeTypes] = useState(
     new Set(["narrower"])
   )
@@ -580,8 +675,13 @@ const GraphModal = ({
   const [scale, setScale] = useState(1)
   const [egoDepthBroader, setEgoDepthBroader] = useState(1)
   const [egoDepthNarrow, setEgoDepthNarrow] = useState(1)
+  const [egoShowBroader, setEgoShowBroader] = useState(false)
+  const [egoShowNarrower, setEgoShowNarrower] = useState(true)
+  const [egoShowEdgeLabels, setEgoShowEdgeLabels] = useState(true)
+  const [labelFontSize, setLabelFontSize] = useState(11)
   const [egoShowMatches, setEgoShowMatches] = useState(false)
   const [egoFocalId, setEgoFocalId] = useState(null)
+  const [egoMatchDataById, setEgoMatchDataById] = useState({})
   const [egoSubgraph, setEgoSubgraph] = useState({ nodes: [], edges: [] })
   const [egoPositions, setEgoPositions] = useState({})
   const [egoMaxDepths, setEgoMaxDepths] = useState({
@@ -601,6 +701,9 @@ const GraphModal = ({
   const dragRef = useRef(null)
   const didMoveRef = useRef(false)
   const layoutRef = useRef("force")
+  const labelOverridesRef = useRef({})
+  const egoLabelOverridesRef = useRef({})
+  const egoMatchCacheRef = useRef({})
   const egoSubgraphRef = useRef({ nodes: [], edges: [] })
   const egoPositionsRef = useRef({})
   const egoOverridesRef = useRef({}) // user-dragged positions, preserved across depth changes
@@ -637,18 +740,29 @@ const GraphModal = ({
         "link",
         forceLink(links)
           .id((d) => d.id)
-          .distance((d) => (d.type === "narrower" ? 90 : 150))
+          .distance((d) => (d.type === "narrower" ? 130 : 190))
           .strength((d) => (d.type === "narrower" ? 0.7 : 0.3))
       )
-      .force("charge", forceManyBody().strength(-350))
+      .force("charge", forceManyBody().strength(-400))
       .force("center", forceCenter(cx, cy).strength(0.05))
-      .force("collide", forceCollide(14).strength(0.5))
-      .alphaDecay(0.025)
+      .force("collide", forceCollide(14).strength(0.6))
+      .alphaDecay(0.035)
+      .stop()
+
+    // Pre-compute 80 ticks so nodes start in a near-settled layout immediately
+    sim.tick(80)
+    const prePos = sim.nodes().map((n) => ({ id: n.id, x: n.x, y: n.y }))
+    positionsRef.current = prePos
+    setPositions(prePos)
+
+    sim
       .on("tick", () => {
         const arr = sim.nodes().map((n) => ({ id: n.id, x: n.x, y: n.y }))
         positionsRef.current = arr
         setPositions(arr)
       })
+      .restart()
+
     d3SimRef.current = sim
   }, [])
 
@@ -664,22 +778,7 @@ const GraphModal = ({
         cy = ch / 2
       let arr = []
 
-      if (type === "radial") {
-        const step = 130
-        const t = tree()
-          .size([2 * Math.PI, 1])
-          .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth)
-        const rooted = t(root)
-        rooted.descendants().forEach((node) => {
-          const r = node.depth === 0 ? 0 : node.depth * step
-          const a = node.x - Math.PI / 2
-          arr.push({
-            id: node.data.id,
-            x: cx + r * Math.cos(a),
-            y: cy + r * Math.sin(a),
-          })
-        })
-      } else if (type === "tree-v") {
+      if (type === "tree-v") {
         const r = tree().nodeSize([70, 90])
         r(root)
         const nodes = root.descendants()
@@ -748,6 +847,13 @@ const GraphModal = ({
     setEdgesAll([])
     updatePositions([])
     setSelectedId(null)
+    setEgoFocalId(null)
+    setEgoMatchDataById({})
+    egoMatchCacheRef.current = {}
+    labelOverridesRef.current = {}
+    egoLabelOverridesRef.current = {}
+    setLabelOverrides({})
+    setEgoLabelOverrides({})
 
     const path = withPrefix(getFilePath(vocabId, "json", customDomain))
     fetch(path)
@@ -787,6 +893,7 @@ const GraphModal = ({
           id: n.data.id,
           label: n.data.label,
           isRoot: n.data.id === vocabId,
+          isLeaf: !n.children || n.children.length === 0,
           depth: n.depth,
           branchIdx: n.data._branchIdx,
         }))
@@ -803,6 +910,18 @@ const GraphModal = ({
         setLayoutType("force")
         layoutRef.current = "force"
         setLoading(false)
+
+        // Initialize ego focal to root so force controls are visible from the start
+        const rootNode = flatNodes.find((n) => n.isRoot) || flatNodes[0]
+        if (rootNode) {
+          const depths = computeEgoMaxDepths(rootNode.id, allEdges)
+          setEgoFocalId(rootNode.id)
+          setEgoMaxDepths(depths)
+          setEgoDepthBroader(depths.maxBroader)
+          setEgoDepthNarrow(depths.maxNarrow)
+          setEgoShowBroader(false)
+          setEgoShowNarrower(true)
+        }
 
         const el = containerRef.current
         const cx = el ? el.clientWidth / 2 : 400
@@ -837,6 +956,66 @@ const GraphModal = ({
       })
   }, [vocabId, language])
 
+  useEffect(() => {
+    if (!egoShowMatches || !egoFocalId) {
+      setEgoMatchDataById({})
+      return
+    }
+    const baseSub = buildEgoSubgraph(
+      egoFocalId,
+      nodeInfo,
+      edgesAll,
+      hierarchyRef.current,
+      egoDepthBroader,
+      egoDepthNarrow,
+      false,
+      {},
+      true,
+      true
+    )
+    const internalIds = new Set(nodeInfo.map((n) => n.id))
+    const visibleIds = baseSub.nodes
+      .map((n) => n.id)
+      .filter((id) => internalIds.has(id))
+    const cachedData = Object.fromEntries(
+      visibleIds
+        .filter((id) => egoMatchCacheRef.current[id])
+        .map((id) => [id, egoMatchCacheRef.current[id]])
+    )
+    setEgoMatchDataById(cachedData)
+    const missingIds = visibleIds.filter((id) => !egoMatchCacheRef.current[id])
+    if (!missingIds.length) return
+    let cancelled = false
+    Promise.all(
+      missingIds.map((id) =>
+        fetch(withPrefix(getFilePath(id, "json", customDomain)))
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => [id, data || {}])
+          .catch(() => [id, {}])
+      )
+    ).then((entries) => {
+      if (cancelled) return
+      entries.forEach(([id, data]) => {
+        egoMatchCacheRef.current[id] = data
+      })
+      setEgoMatchDataById((prev) => ({
+        ...prev,
+        ...Object.fromEntries(entries),
+      }))
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [
+    egoShowMatches,
+    egoFocalId,
+    egoDepthBroader,
+    egoDepthNarrow,
+    customDomain,
+    nodeInfo,
+    edgesAll,
+  ])
+
   useEffect(
     () => () => {
       if (d3SimRef.current) d3SimRef.current.stop()
@@ -846,7 +1025,7 @@ const GraphModal = ({
 
   // ── Ego subgraph recomputation ────────────────────────────
   useEffect(() => {
-    if (layoutType !== "ego" || !egoFocalId) {
+    if (!["ego", "radial", "force"].includes(layoutType) || !egoFocalId) {
       egoSubgraphRef.current = { nodes: [], edges: [] }
       egoPositionsRef.current = {}
       setEgoSubgraph({ nodes: [], edges: [] })
@@ -860,31 +1039,84 @@ const GraphModal = ({
       hierarchyRef.current,
       egoDepthBroader,
       egoDepthNarrow,
-      egoShowMatches
+      egoShowMatches,
+      egoMatchDataById,
+      layoutType === "ego" ? true : egoShowBroader,
+      layoutType === "ego" ? true : egoShowNarrower
     )
-    const el = containerRef.current
-    const cx = el ? el.clientWidth / 2 : 400,
-      cy = el ? el.clientHeight / 2 : 300
-    const basePos = egoLayoutNodes(sub.nodes, cx, cy, sub.edges)
-    // Merge: keep user-dragged overrides for nodes still in subgraph
-    const nodeIds = new Set(sub.nodes.map((n) => n.id))
-    const pos = { ...basePos }
-    for (const [id, p] of Object.entries(egoOverridesRef.current)) {
-      if (nodeIds.has(id)) pos[id] = p
-    }
     egoSubgraphRef.current = sub
-    egoPositionsRef.current = pos
     setEgoSubgraph(sub)
-    setEgoPositions(pos)
+    // For force layout, positions come from the force sim (handled by separate effect)
+    if (layoutType !== "force") {
+      const el = containerRef.current
+      const cx = el ? el.clientWidth / 2 : 400,
+        cy = el ? el.clientHeight / 2 : 300
+      const basePos = egoLayoutNodes(sub.nodes, cx, cy, sub.edges)
+      const nodeIds = new Set(sub.nodes.map((n) => n.id))
+      const pos = { ...basePos }
+      for (const [id, p] of Object.entries(egoOverridesRef.current)) {
+        if (nodeIds.has(id)) pos[id] = p
+      }
+      egoPositionsRef.current = pos
+      setEgoPositions(pos)
+    }
   }, [
     layoutType,
     egoFocalId,
     egoDepthBroader,
     egoDepthNarrow,
     egoShowMatches,
+    egoMatchDataById,
+    egoShowBroader,
+    egoShowNarrower,
     nodeInfo,
     edgesAll,
   ])
+
+  // ── Force sim restart when in force+ego mode ─────────────
+  useEffect(() => {
+    if (layoutType !== "force" || !egoFocalId || !egoSubgraph.nodes.length)
+      return
+    const el = containerRef.current
+    const cx = el ? el.clientWidth / 2 : 400
+    const cy = el ? el.clientHeight / 2 : 300
+    const nodes = egoSubgraph.nodes
+    const count = nodes.length
+    const r = Math.min(220, 40 + count * 5)
+    const cur = positionsRef.current
+    const initNodes = nodes.map((node, i) => {
+      const p = cur.find((pp) => pp.id === node.id)
+      // Fall back to egoPositions (from a previous radial/ego layout) so nodes don't all start at center
+      const egoP = egoPositionsRef.current[node.id]
+      return {
+        id: node.id,
+        x:
+          p?.x ??
+          egoP?.x ??
+          (i === 0
+            ? cx
+            : cx + r * Math.cos((2 * Math.PI * i) / Math.max(count - 1, 1))),
+        y:
+          p?.y ??
+          egoP?.y ??
+          (i === 0
+            ? cy
+            : cy + r * Math.sin((2 * Math.PI * i) / Math.max(count - 1, 1))),
+      }
+    })
+    const forceEdges = egoSubgraph.edges
+      .filter((e) => e.pred === "narrower" || e.pred === "broader")
+      .map((e) => ({
+        s: e.pred === "broader" ? e.t : e.s,
+        t: e.pred === "broader" ? e.s : e.t,
+        type: "narrower",
+      }))
+    if (d3SimRef.current) {
+      d3SimRef.current.stop()
+      d3SimRef.current = null
+    }
+    startForce(initNodes, forceEdges, new Set(["narrower"]))
+  }, [layoutType, egoFocalId, egoSubgraph, startForce])
 
   useEffect(() => {
     if (!egoFocalId || !edgesAll.length) return
@@ -895,53 +1127,79 @@ const GraphModal = ({
   const handleLayout = (type) => {
     layoutRef.current = type
     setLayoutType(type)
+    labelOverridesRef.current = {}
+    egoLabelOverridesRef.current = {}
+    setLabelOverrides({})
+    setEgoLabelOverrides({})
+    // radial = ego-style layout starting at vocab root (formerly "ego" layout)
+    if (type === "radial") {
+      if (d3SimRef.current) {
+        d3SimRef.current.stop()
+        d3SimRef.current = null
+      }
+      egoOverridesRef.current = {}
+      setEgoShowBroader(false)
+      setEgoShowNarrower(true)
+      const rootNode =
+        nodeInfoRef.current.find((n) => n.isRoot) || nodeInfoRef.current[0]
+      const focal = rootNode?.id || null
+      setEgoFocalId(focal)
+      if (focal) {
+        const depths = computeEgoMaxDepths(focal, edgesAllRef.current)
+        setEgoMaxDepths(depths)
+        setEgoDepthBroader(depths.maxBroader)
+        setEgoDepthNarrow(depths.maxNarrow)
+      }
+      return
+    }
+    // ego = concept-focused, starts at selected concept
     if (type === "ego") {
       if (d3SimRef.current) {
         d3SimRef.current.stop()
         d3SimRef.current = null
       }
       egoOverridesRef.current = {}
-      const focal = selectedId || nodeInfoRef.current[0]?.id || null
+      const focal =
+        selectedId ||
+        nodeInfoRef.current.find((n) => !n.isRoot)?.id ||
+        nodeInfoRef.current[0]?.id ||
+        null
       setEgoFocalId(focal)
-      if (focal)
-        setEgoMaxDepths(computeEgoMaxDepths(focal, edgesAllRef.current))
+      if (focal) {
+        const depths = computeEgoMaxDepths(focal, edgesAllRef.current)
+        setEgoMaxDepths(depths)
+        setEgoDepthBroader(Math.min(1, depths.maxBroader))
+        setEgoDepthNarrow(Math.min(1, depths.maxNarrow))
+      }
       return
     }
+    // force = ego-style subgraph with force-directed positions
     if (type === "force") {
-      const el = containerRef.current
-      const cx = el ? el.clientWidth / 2 : 400
-      const cy = el ? el.clientHeight / 2 : 300
-      const count = nodeInfoRef.current.length
-      const r = Math.min(220, 40 + count * 5)
-      const cur = positionsRef.current
-      const initNodes = nodeInfoRef.current.map((info, i) => {
-        const p = cur.find((pp) => pp.id === info.id)
-        return {
-          id: info.id,
-          x:
-            p?.x ??
-            (i === 0
-              ? cx
-              : cx + r * Math.cos((2 * Math.PI * i) / Math.max(count - 1, 1))),
-          y:
-            p?.y ??
-            (i === 0
-              ? cy
-              : cy + r * Math.sin((2 * Math.PI * i) / Math.max(count - 1, 1))),
-        }
-      })
       if (d3SimRef.current) {
         d3SimRef.current.stop()
         d3SimRef.current = null
       }
-      startForce(initNodes, edgesAllRef.current, enabledRef.current)
-    } else {
-      if (d3SimRef.current) {
-        d3SimRef.current.stop()
-        d3SimRef.current = null
+      egoOverridesRef.current = {}
+      setEgoShowBroader(false)
+      setEgoShowNarrower(true)
+      const rootNode =
+        nodeInfoRef.current.find((n) => n.isRoot) || nodeInfoRef.current[0]
+      const focal = rootNode?.id || null
+      setEgoFocalId(focal)
+      if (focal) {
+        const depths = computeEgoMaxDepths(focal, edgesAllRef.current)
+        setEgoMaxDepths(depths)
+        setEgoDepthBroader(depths.maxBroader)
+        setEgoDepthNarrow(depths.maxNarrow)
       }
-      applyStaticLayout(type)
+      // Force sim restart is handled by the force+ego useEffect below
+      return
     }
+    if (d3SimRef.current) {
+      d3SimRef.current.stop()
+      d3SimRef.current = null
+    }
+    applyStaticLayout(type)
   }
 
   // ── Edge type toggle ──────────────────────────────────────
@@ -1011,7 +1269,7 @@ const GraphModal = ({
           )
         : null
     }
-    if (lt === "ego") {
+    if (lt === "ego" || lt === "radial") {
       const egoNodes = egoSubgraphRef.current.nodes
       const egoPos = egoPositionsRef.current
       const hit = egoNodes.find((n) => {
@@ -1025,16 +1283,89 @@ const GraphModal = ({
     return null
   }
 
+  const hitLabel = (clientX, clientY) => {
+    if (!showLabels) return null
+    const c = getGXY(clientX, clientY)
+    if (!c) return null
+    const { gx, gy } = c
+    if (
+      layoutRef.current === "ego" ||
+      layoutRef.current === "radial" ||
+      (layoutRef.current === "force" && egoFocalId)
+    ) {
+      const labels = egoSubgraphRef.current.nodes
+        .map((node) => {
+          const pos =
+            layoutRef.current === "force"
+              ? positionsRef.current.find((p) => p.id === node.id)
+              : egoPositionsRef.current[node.id]
+          if (!pos) return null
+          const r = egoNodeR(node.direction, node.ringDepth)
+          const override = egoLabelOverridesRef.current[node.id]
+          return {
+            id: node.id,
+            isEgoLabel: true,
+            txt: node.label || "",
+            cx: override?.x ?? pos.x,
+            cy: override?.y ?? pos.y - (r + 8),
+            w: (node.label || "").length * CHAR_W,
+          }
+        })
+        .filter(Boolean)
+      return (
+        labels.find((label) => {
+          const w = label.w + LPAD * 2
+          const h = LABEL_H + LPAD * 2
+          return (
+            gx >= label.cx - w / 2 &&
+            gx <= label.cx + w / 2 &&
+            gy >= label.cy - h / 2 &&
+            gy <= label.cy + h / 2
+          )
+        }) || null
+      )
+    }
+    if (posMode !== "link") return null
+    return (
+      Object.values(labelData).find((label) => {
+        const w = label.w + LPAD * 2
+        const h = LABEL_H + LPAD * 2
+        return (
+          gx >= label.cx - w / 2 &&
+          gx <= label.cx + w / 2 &&
+          gy >= label.cy - h / 2 &&
+          gy <= label.cy + h / 2
+        )
+      }) || null
+    )
+  }
+
   const onMouseDown = (e) => {
     e.preventDefault()
     didMoveRef.current = false
+    const labelHit = hitLabel(e.clientX, e.clientY)
+    if (labelHit) {
+      dragRef.current = {
+        type: labelHit.isEgoLabel ? "ego-label" : "label",
+        hitId: labelHit.id,
+        sx: e.clientX,
+        sy: e.clientY,
+        ox: labelHit.cx,
+        oy: labelHit.cy,
+      }
+      return
+    }
     const hit = hitNode(e.clientX, e.clientY)
     if (hit && layoutRef.current === "force" && d3SimRef.current) {
       hit.fx = hit.x
       hit.fy = hit.y
       d3SimRef.current.alphaTarget(0.3).restart()
       dragRef.current = { type: "node", d3Node: hit }
-    } else if (hit && layoutRef.current === "ego" && hit.isEgoNode) {
+    } else if (
+      hit &&
+      (layoutRef.current === "ego" || layoutRef.current === "radial") &&
+      hit.isEgoNode
+    ) {
       dragRef.current = {
         type: "ego-node",
         hitId: hit.id,
@@ -1079,6 +1410,36 @@ const GraphModal = ({
         }
         setEgoPositions({ ...egoPositionsRef.current })
       }
+    } else if (dragRef.current.type === "static-node") {
+      const p = {
+        id: dragRef.current.hitId,
+        x: dragRef.current.ox + dx / scaleRef.current,
+        y: dragRef.current.oy + dy / scaleRef.current,
+      }
+      const next = positionsRef.current.map((pos) =>
+        pos.id === p.id ? { ...pos, x: p.x, y: p.y } : pos
+      )
+      updatePositions(next)
+    } else if (dragRef.current.type === "label") {
+      const next = {
+        ...labelOverridesRef.current,
+        [dragRef.current.hitId]: {
+          cx: dragRef.current.ox + dx / scaleRef.current,
+          cy: dragRef.current.oy + dy / scaleRef.current,
+        },
+      }
+      labelOverridesRef.current = next
+      setLabelOverrides(next)
+    } else if (dragRef.current.type === "ego-label") {
+      const next = {
+        ...egoLabelOverridesRef.current,
+        [dragRef.current.hitId]: {
+          x: dragRef.current.ox + dx / scaleRef.current,
+          y: dragRef.current.oy + dy / scaleRef.current,
+        },
+      }
+      egoLabelOverridesRef.current = next
+      setEgoLabelOverrides(next)
     } else {
       const nx = dragRef.current.ox + dx,
         ny = dragRef.current.oy + dy
@@ -1094,8 +1455,48 @@ const GraphModal = ({
       nd.fx = null
       nd.fy = null
       d3SimRef.current?.alphaTarget(0)
-      if (!didMoveRef.current)
+      if (!didMoveRef.current) {
         setSelectedId((id) => (id === nd.id ? null : nd.id))
+        // In force+ego mode: clicking an internal non-center node refocuses ego
+        if (layoutRef.current === "force" && egoFocalId) {
+          const isInternal = nodeInfoRef.current.some((n) => n.id === nd.id)
+          const egoNode = egoSubgraphRef.current.nodes.find(
+            (n) => n.id === nd.id
+          )
+          if (isInternal && egoNode?.direction !== "center") {
+            egoOverridesRef.current = {}
+            setEgoFocalId(nd.id)
+            setEgoMaxDepths(computeEgoMaxDepths(nd.id, edgesAllRef.current))
+          } else if (isInternal && egoNode?.direction === "center") {
+            handleEgoRoot()
+          }
+        }
+      }
+    } else if (dragRef.current.type === "static-node") {
+      if (!didMoveRef.current) {
+        const hitId = dragRef.current.hitId
+        setSelectedId((id) => (id === hitId ? null : hitId))
+      }
+    } else if (dragRef.current.type === "label") {
+      if (!didMoveRef.current) {
+        const hitId = dragRef.current.hitId
+        setSelectedId((id) => (id === hitId ? null : hitId))
+      }
+    } else if (dragRef.current.type === "ego-label") {
+      if (!didMoveRef.current) {
+        const hitId = dragRef.current.hitId
+        const hitNode = egoSubgraphRef.current.nodes.find((n) => n.id === hitId)
+        const isInternal = nodeInfoRef.current.some((n) => n.id === hitId)
+        if (isInternal && hitNode?.direction !== "center") {
+          egoOverridesRef.current = {}
+          setEgoFocalId(hitId)
+          setEgoMaxDepths(computeEgoMaxDepths(hitId, edgesAllRef.current))
+        } else if (isInternal) {
+          handleEgoRoot()
+        } else {
+          window.open(hitId, "_blank", "noopener,noreferrer")
+        }
+      }
     } else if (dragRef.current.type === "ego-node" && !didMoveRef.current) {
       const hitId = dragRef.current.hitId
       const isInternal = nodeInfoRef.current.some((n) => n.id === hitId)
@@ -1103,6 +1504,8 @@ const GraphModal = ({
         egoOverridesRef.current = {}
         setEgoFocalId(hitId)
         setEgoMaxDepths(computeEgoMaxDepths(hitId, edgesAllRef.current))
+      } else if (isInternal) {
+        handleEgoRoot()
       } else {
         window.open(hitId, "_blank", "noopener,noreferrer")
       }
@@ -1121,13 +1524,57 @@ const GraphModal = ({
 
   const handleEgoReset = () => {
     egoOverridesRef.current = {}
+    egoLabelOverridesRef.current = {}
+    setEgoLabelOverrides({})
     const sub = egoSubgraphRef.current
     const el = containerRef.current
     const cx = el ? el.clientWidth / 2 : 400,
       cy = el ? el.clientHeight / 2 : 300
-    const freshPos = egoLayoutNodes(sub.nodes, cx, cy, sub.edges)
-    egoPositionsRef.current = freshPos
-    setEgoPositions(freshPos)
+    if (layoutRef.current === "force") {
+      const count = sub.nodes.length
+      const r = Math.min(220, 40 + count * 5)
+      const initNodes = sub.nodes.map((node, i) => ({
+        id: node.id,
+        x:
+          i === 0
+            ? cx
+            : cx + r * Math.cos((2 * Math.PI * i) / Math.max(count - 1, 1)),
+        y:
+          i === 0
+            ? cy
+            : cy + r * Math.sin((2 * Math.PI * i) / Math.max(count - 1, 1)),
+      }))
+      const forceEdges = sub.edges
+        .filter((e) => e.pred === "narrower" || e.pred === "broader")
+        .map((e) => ({
+          s: e.pred === "broader" ? e.t : e.s,
+          t: e.pred === "broader" ? e.s : e.t,
+          type: "narrower",
+        }))
+      if (d3SimRef.current) {
+        d3SimRef.current.stop()
+        d3SimRef.current = null
+      }
+      startForce(initNodes, forceEdges, new Set(["narrower"]))
+    } else {
+      const freshPos = egoLayoutNodes(sub.nodes, cx, cy, sub.edges)
+      egoPositionsRef.current = freshPos
+      setEgoPositions(freshPos)
+    }
+  }
+
+  const handleEgoRoot = () => {
+    const rootNode =
+      nodeInfoRef.current.find((n) => n.isRoot) || nodeInfoRef.current[0]
+    if (!rootNode) return
+    egoOverridesRef.current = {}
+    egoLabelOverridesRef.current = {}
+    setEgoLabelOverrides({})
+    setEgoFocalId(rootNode.id)
+    const depths = computeEgoMaxDepths(rootNode.id, edgesAllRef.current)
+    setEgoMaxDepths(depths)
+    setEgoDepthBroader(depths.maxBroader)
+    setEgoDepthNarrow(depths.maxNarrow)
   }
 
   const onWheel = (e) => {
@@ -1145,6 +1592,10 @@ const GraphModal = ({
     })
     return m
   }, [positions])
+
+  // For ego rendering: force+ego uses posMap (force sim positions), others use egoPositions
+  const activeEgoPos =
+    layoutType === "force" && egoFocalId ? posMap : egoPositions
 
   const hlNodes = useMemo(() => {
     const s = new Set()
@@ -1188,8 +1639,12 @@ const GraphModal = ({
 
   const labelData = useMemo(() => {
     if (posMode !== "link") return {}
-    return computeLabels(nodeInfo, posMap)
-  }, [positions, nodeInfo, posMode])
+    const computed = computeLabels(nodeInfo, posMap)
+    for (const [id, override] of Object.entries(labelOverrides)) {
+      if (computed[id]) computed[id] = { ...computed[id], ...override }
+    }
+    return computed
+  }, [positions, nodeInfo, posMode, labelOverrides])
 
   // ── Edge renderer ─────────────────────────────────────────
   const renderEdge = (e, i) => {
@@ -1264,7 +1719,7 @@ const GraphModal = ({
         ? "rgb(196,95,40)"
         : isNbr
         ? "rgb(220,130,55)"
-        : branchDepthFill(info.branchIdx, info.depth)
+        : lightBranchDepthFill(info.branchIdx, info.depth)
       const isNarrow = w < 28
       return (
         <g key={info.id} opacity={dim ? 0.4 : 1} style={{ cursor: "pointer" }}>
@@ -1277,7 +1732,8 @@ const GraphModal = ({
             stroke={isSel ? "rgb(140,50,10)" : "white"}
             strokeWidth={isSel ? 2 : 1}
           />
-          {h >= 10 &&
+          {showLabels &&
+            h >= 10 &&
             (isNarrow ? (
               h >= 30 && (
                 <text
@@ -1285,8 +1741,8 @@ const GraphModal = ({
                     pos.y0 + 5
                   }) rotate(90)`}
                   textAnchor="start"
-                  fontSize={9}
-                  fontFamily="sans-serif"
+                  fontSize={labelFontSize}
+                  fontFamily={GRAPH_FONT_FAMILY}
                   fill="rgb(20,10,0)"
                   style={{ pointerEvents: "none" }}
                 >
@@ -1296,10 +1752,10 @@ const GraphModal = ({
             ) : (
               <text
                 x={pos.x0 + 4}
-                y={pos.y0 + 11}
-                fontSize={isSel ? 11 : 10}
+                y={pos.y0 + 15}
+                fontSize={isSel ? labelFontSize + 2 : labelFontSize}
                 fontWeight={isSel ? 700 : 400}
-                fontFamily="sans-serif"
+                fontFamily={isSel ? "inherit" : GRAPH_FONT_FAMILY}
                 fill="rgb(20,10,0)"
                 style={{ pointerEvents: "none" }}
               >
@@ -1317,7 +1773,7 @@ const GraphModal = ({
         ? "rgb(196,95,40)"
         : isNbr
         ? "rgb(220,130,55)"
-        : branchDepthFill(info.branchIdx, info.depth)
+        : lightBranchDepthFill(info.branchIdx, info.depth)
       const d = arcPath(pos.x0, pos.x1, pos.y0, pos.y1, pos.cx, pos.cy)
       if (!d) return null
       const midA = (pos.x0 + pos.x1) / 2 - Math.PI / 2
@@ -1331,7 +1787,7 @@ const GraphModal = ({
       const textRot = isLeft ? degA + 180 : degA
       const anchor = isLeft ? "end" : "start"
       const arcH = pos.y1 - pos.y0
-      const showLabel = arcH > 8 && (pos.x1 - pos.x0) * midR > 6
+      const showLabel = showLabels && arcH > 8 && (pos.x1 - pos.x0) * midR > 6
       return (
         <g key={info.id} opacity={dim ? 0.4 : 1} style={{ cursor: "pointer" }}>
           <path
@@ -1344,8 +1800,8 @@ const GraphModal = ({
             <text
               textAnchor={anchor}
               dominantBaseline="middle"
-              fontSize={9}
-              fontFamily="sans-serif"
+              fontSize={labelFontSize}
+              fontFamily={GRAPH_FONT_FAMILY}
               fill="rgb(20,10,0)"
               transform={`rotate(${textRot},${lx2},${ly2})`}
               x={lx2}
@@ -1381,16 +1837,17 @@ const GraphModal = ({
       >
         {isSel && <circle r={r + 7} fill="rgb(196,95,40)" fillOpacity={0.18} />}
         <circle r={r} fill={fill} stroke="white" strokeWidth={1.5} />
-        {ldat && (
+        {showLabels && ldat && (
           <text
             x={lx}
-            y={ly + LABEL_H / 2}
+            y={ly}
             textAnchor="middle"
-            fontSize={isSel ? 14 : 12}
+            dominantBaseline="middle"
+            fontSize={isSel ? labelFontSize + 2 : labelFontSize}
             fontWeight={isSel || isNbr ? 700 : 400}
-            fontFamily="sans-serif"
+            fontFamily={isSel || isNbr ? "inherit" : GRAPH_FONT_FAMILY}
             fill="rgb(20,10,0)"
-            style={{ pointerEvents: "none" }}
+            style={{ pointerEvents: "none", cursor: "move" }}
           >
             {ldat.txt}
           </text>
@@ -1448,7 +1905,7 @@ const GraphModal = ({
             <span
               style={{
                 fontWeight: 700,
-                fontSize: "15px",
+                fontSize: "21px",
                 color: "rgb(35,15,5)",
               }}
             >
@@ -1524,26 +1981,27 @@ const GraphModal = ({
             </div>
           </div>
 
-          {/* Row 2: vocab selector */}
+          {/* Row 2: selectors and options */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "10px",
+              flexWrap: "wrap",
               marginBottom: "14px",
             }}
           >
             <span
               style={{
-                fontSize: "11px",
-                fontWeight: 700,
-                color: "rgb(130,110,90)",
+                fontSize: "12px",
+                fontWeight: 900,
+                color: "rgb(35,15,5)",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
                 flexShrink: 0,
               }}
             >
-              {language === "en" ? "Vocabulary:" : "Vocabulario:"}
+              {language === "en" ? "VOCABULARY:" : "VOCABULARIO:"}
             </span>
             {schemes?.length > 0 ? (
               <select
@@ -1560,8 +2018,9 @@ const GraphModal = ({
                   cursor: "pointer",
                   appearance: "none",
                   WebkitAppearance: "none",
-                  flex: 1,
-                  minWidth: 0,
+                  width: "min(34vw, 360px)",
+                  maxWidth: "360px",
+                  minWidth: "220px",
                   backgroundImage:
                     "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23826e5a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
                   backgroundRepeat: "no-repeat",
@@ -1587,21 +2046,9 @@ const GraphModal = ({
                 </span>
               )
             )}
-          </div>
-
-          {/* Row 3: layout buttons */}
-          <div
-            style={{
-              display: "flex",
-              gap: "6px",
-              alignItems: "center",
-              flexWrap: "wrap",
-              paddingBottom: layoutType === "ego" ? "6px" : "10px",
-            }}
-          >
             <span
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: 700,
                 color: "rgb(35,15,5)",
                 textTransform: "uppercase",
@@ -1611,36 +2058,109 @@ const GraphModal = ({
             >
               {language === "en" ? "Graph type:" : "Tipo de grafo:"}
             </span>
-            {LAYOUTS.map((l) => {
-              const active = layoutType === l.id
-              return (
-                <button
-                  key={l.id}
-                  onClick={() => handleLayout(l.id)}
-                  style={{
-                    padding: "5px 13px",
-                    borderRadius: "20px",
-                    fontFamily: "inherit",
-                    border: `1px solid ${
-                      active ? "rgb(196,95,40)" : "rgb(220,205,185)"
-                    }`,
-                    background: active ? "rgb(196,95,40)" : "white",
-                    color: active ? "white" : "rgb(80,60,40)",
-                    cursor: "pointer",
-                    fontSize: "13px",
-                    fontWeight: active ? 700 : 400,
-                    transition:
-                      "background 0.15s,color 0.15s,border-color 0.15s",
-                  }}
-                >
+            <select
+              value={layoutType}
+              onChange={(e) => handleLayout(e.target.value)}
+              style={{
+                fontSize: "13px",
+                color: "rgb(80,50,20)",
+                border: "1px solid rgb(220,205,185)",
+                borderRadius: "6px",
+                padding: "4px 26px 4px 10px",
+                background: "white",
+                fontFamily: "inherit",
+                cursor: "pointer",
+                appearance: "none",
+                WebkitAppearance: "none",
+                minWidth: "150px",
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23826e5a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 8px center",
+              }}
+            >
+              {LAYOUTS.map((l) => (
+                <option key={l.id} value={l.id}>
                   {language === "en" ? l.en : l.es}
-                </button>
-              )
-            })}
+                </option>
+              ))}
+            </select>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "rgb(35,15,5)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginLeft: "6px",
+              }}
+            >
+              {language === "en" ? "OPTIONS:" : "OPCIONES:"}
+            </span>
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              style={{
+                padding: "5px 13px",
+                borderRadius: "20px",
+                fontFamily: "inherit",
+                border: `1px solid ${
+                  showLabels ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                }`,
+                background: showLabels ? "rgb(196,95,40)" : "white",
+                color: showLabels ? "white" : "rgb(80,60,40)",
+                cursor: "pointer",
+                fontSize: "13px",
+                fontWeight: showLabels ? 700 : 400,
+              }}
+            >
+              {language === "en" ? "Show Labels" : "Ver Etiquetas"}
+            </button>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "rgb(35,15,5)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginLeft: "4px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {language === "en" ? "TEXT SIZE:" : "TAMAÑO TEXTO:"}
+            </span>
+            <select
+              value={labelFontSize}
+              onChange={(e) => setLabelFontSize(Number(e.target.value))}
+              style={{
+                fontSize: "13px",
+                color: "rgb(80,50,20)",
+                border: "1px solid rgb(220,205,185)",
+                borderRadius: "6px",
+                padding: "4px 26px 4px 10px",
+                background: "white",
+                fontFamily: "inherit",
+                cursor: "pointer",
+                appearance: "none",
+                WebkitAppearance: "none",
+                minWidth: "76px",
+                backgroundImage:
+                  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23826e5a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 8px center",
+              }}
+            >
+              {Array.from({ length: 9 }, (_, i) => i + 8).map((sz) => (
+                <option key={sz} value={sz}>
+                  {sz}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Ego controls */}
-          {layoutType === "ego" && (
+          {(layoutType === "ego" ||
+            layoutType === "radial" ||
+            (layoutType === "force" && egoFocalId)) && (
             <div
               style={{
                 display: "flex",
@@ -1650,6 +2170,19 @@ const GraphModal = ({
                 paddingBottom: "10px",
               }}
             >
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "rgb(35,15,5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {language === "en"
+                  ? "Hierarchy depth:"
+                  : "Nivel de profundidad de jerarquía:"}
+              </span>
               <EgoDepthBtns
                 label="↑ Broader:"
                 value={egoDepthBroader}
@@ -1662,41 +2195,205 @@ const GraphModal = ({
                 max={egoMaxDepths.maxNarrow}
                 onChange={setEgoDepthNarrow}
               />
-              <button
-                onClick={() => setEgoShowMatches((m) => !m)}
+              <span
                 style={{
-                  padding: "3px 10px",
-                  borderRadius: "12px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "rgb(35,15,5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginLeft: 4,
+                }}
+              >
+                {language === "en" ? "Show relations:" : "Ver Relaciones:"}
+              </span>
+              <button
+                onClick={() => {
+                  if (layoutType === "ego") return
+                  if (egoShowBroader && !egoShowNarrower) return
+                  setEgoShowBroader((v) => !v)
+                }}
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
                   fontFamily: "inherit",
-                  fontSize: 11,
+                  fontSize: "13px",
                   border: `1.5px solid ${
-                    egoShowMatches ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                    layoutType === "ego"
+                      ? "rgb(210,200,185)"
+                      : egoShowBroader
+                      ? "rgb(198,166,112)"
+                      : "rgb(220,205,185)"
                   }`,
-                  background: egoShowMatches ? "rgb(255,245,235)" : "white",
-                  color: egoShowMatches ? "rgb(196,95,40)" : "rgb(100,80,60)",
+                  background:
+                    layoutType === "ego"
+                      ? "rgb(245,242,238)"
+                      : egoShowBroader
+                      ? "rgb(198,166,112)"
+                      : "white",
+                  color:
+                    layoutType === "ego"
+                      ? "rgb(185,170,150)"
+                      : egoShowBroader
+                      ? "white"
+                      : "rgb(100,80,60)",
+                  fontWeight:
+                    egoShowBroader && layoutType !== "ego" ? 700 : 400,
+                  cursor:
+                    layoutType === "ego" || (egoShowBroader && !egoShowNarrower)
+                      ? "default"
+                      : "pointer",
+                  opacity:
+                    layoutType === "ego" || (egoShowBroader && !egoShowNarrower)
+                      ? 0.5
+                      : 1,
+                  transition: "all 0.12s",
+                }}
+              >
+                Broader
+              </button>
+              <button
+                onClick={() => {
+                  if (layoutType === "ego") return
+                  if (!egoShowBroader && egoShowNarrower) return
+                  setEgoShowNarrower((v) => !v)
+                }}
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  border: `1.5px solid ${
+                    layoutType === "ego"
+                      ? "rgb(210,200,185)"
+                      : egoShowNarrower
+                      ? "rgb(196,95,40)"
+                      : "rgb(220,205,185)"
+                  }`,
+                  background:
+                    layoutType === "ego"
+                      ? "rgb(245,242,238)"
+                      : egoShowNarrower
+                      ? "rgb(196,95,40)"
+                      : "white",
+                  color:
+                    layoutType === "ego"
+                      ? "rgb(185,170,150)"
+                      : egoShowNarrower
+                      ? "white"
+                      : "rgb(100,80,60)",
+                  fontWeight:
+                    egoShowNarrower && layoutType !== "ego" ? 700 : 400,
+                  cursor:
+                    layoutType === "ego" || (!egoShowBroader && egoShowNarrower)
+                      ? "default"
+                      : "pointer",
+                  opacity:
+                    layoutType === "ego" || (!egoShowBroader && egoShowNarrower)
+                      ? 0.5
+                      : 1,
+                  transition: "all 0.12s",
+                }}
+              >
+                Narrower
+              </button>
+              <button
+                onClick={() => setEgoShowEdgeLabels((v) => !v)}
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  border: `1.5px solid ${
+                    egoShowEdgeLabels ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                  }`,
+                  background: egoShowEdgeLabels ? "rgb(196,95,40)" : "white",
+                  color: egoShowEdgeLabels ? "white" : "rgb(100,80,60)",
+                  fontWeight: egoShowEdgeLabels ? 700 : 400,
                   cursor: "pointer",
                   transition: "all 0.12s",
                 }}
               >
-                External Matches
+                {language === "en" ? "Show Labels" : "Ver Etiquetas"}
               </button>
-              <button
-                onClick={handleEgoReset}
-                title={
-                  language === "en" ? "Reset layout" : "Reiniciar posiciones"
-                }
+              <span
                 style={{
-                  padding: "3px 10px",
-                  borderRadius: "12px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "rgb(35,15,5)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginLeft: 4,
+                }}
+              >
+                {language === "en"
+                  ? "External vocabularies:"
+                  : "Vocabularios externos:"}
+              </span>
+              <button
+                onClick={() => setEgoShowMatches((m) => !m)}
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
                   fontFamily: "inherit",
-                  fontSize: 11,
+                  fontSize: "13px",
+                  border: `1.5px solid ${
+                    egoShowMatches ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                  }`,
+                  background: egoShowMatches ? "rgb(196,95,40)" : "white",
+                  color: egoShowMatches ? "white" : "rgb(100,80,60)",
+                  fontWeight: egoShowMatches ? 700 : 400,
+                  cursor: "pointer",
+                  transition: "all 0.12s",
+                }}
+              >
+                {language === "en" ? "Show alignments" : "Ver alineaciones"}
+              </button>
+              <span
+                style={{
+                  borderLeft: "1.5px solid rgb(210,195,175)",
+                  height: 18,
+                  margin: "0 2px",
+                  alignSelf: "center",
+                  flexShrink: 0,
+                }}
+              />
+              <button
+                onClick={handleEgoRoot}
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
                   border: "1.5px solid rgb(220,205,185)",
                   background: "white",
                   color: "rgb(100,80,60)",
                   cursor: "pointer",
                 }}
               >
-                ⌖ Reset
+                {language === "en" ? "Back to root node" : "Volver a nodo raíz"}
+              </button>
+              <button
+                onClick={handleEgoReset}
+                title={
+                  language === "en"
+                    ? "Reset positions"
+                    : "Reestablecer posiciones"
+                }
+                style={{
+                  padding: "5px 13px",
+                  borderRadius: "20px",
+                  fontFamily: "inherit",
+                  fontSize: "13px",
+                  border: "1.5px solid rgb(220,205,185)",
+                  background: "white",
+                  color: "rgb(100,80,60)",
+                  cursor: "pointer",
+                }}
+              >
+                {language === "en"
+                  ? "Reset positions"
+                  : "Reestablecer posiciones"}
               </button>
               {egoFocalId && (
                 <span
@@ -1724,7 +2421,9 @@ const GraphModal = ({
             position: "relative",
             background: "white",
             cursor:
-              layoutType === "force" || layoutType === "ego"
+              layoutType === "force" ||
+              layoutType === "ego" ||
+              layoutType === "radial"
                 ? "grab"
                 : "default",
           }}
@@ -1765,21 +2464,25 @@ const GraphModal = ({
             </div>
           )}
 
-          {positions.length > 0 && layoutType !== "ego" && (
-            <svg
-              width="100%"
-              height="100%"
-              style={{ userSelect: "none", display: "block" }}
-            >
-              <g transform={`translate(${pan.x},${pan.y}) scale(${scale})`}>
-                {LINK_LAYOUTS.has(layoutType) &&
-                  displayEdges.map((e, i) => renderEdge(e, i))}
-                {nodeInfo.map((info) => renderNode(info))}
-              </g>
-            </svg>
-          )}
+          {positions.length > 0 &&
+            !["ego", "radial"].includes(layoutType) &&
+            !(layoutType === "force" && egoFocalId) && (
+              <svg
+                width="100%"
+                height="100%"
+                style={{ userSelect: "none", display: "block" }}
+              >
+                <g transform={`translate(${pan.x},${pan.y}) scale(${scale})`}>
+                  {LINK_LAYOUTS.has(layoutType) &&
+                    displayEdges.map((e, i) => renderEdge(e, i))}
+                  {nodeInfo.map((info) => renderNode(info))}
+                </g>
+              </svg>
+            )}
 
-          {layoutType === "ego" &&
+          {(layoutType === "ego" ||
+            layoutType === "radial" ||
+            (layoutType === "force" && egoFocalId)) &&
             !loading &&
             !err &&
             (egoSubgraph.nodes.length === 0 ? (
@@ -1826,8 +2529,8 @@ const GraphModal = ({
                 </defs>
                 <g transform={`translate(${pan.x},${pan.y}) scale(${scale})`}>
                   {egoSubgraph.edges.map((e, i) => {
-                    const sp = egoPositions[e.s],
-                      tp = egoPositions[e.t]
+                    const sp = activeEgoPos[e.s],
+                      tp = activeEgoPos[e.t]
                     if (!sp || !tp) return null
                     const col = EGO_PRED_COLORS[e.pred] || "rgb(150,130,110)"
                     const nS = egoSubgraph.nodes.find((n) => n.id === e.s)
@@ -1839,14 +2542,47 @@ const GraphModal = ({
                       dist = Math.sqrt(dx * dx + dy * dy) || 1
                     const ux = dx / dist,
                       uy = dy / dist
-                    const x1 = sp.x + ux * rS,
-                      y1 = sp.y + uy * rS,
-                      x2 = tp.x - ux * (rT + 8),
-                      y2 = tp.y - uy * (rT + 8)
+                    const hasOppositeHierarchy = egoSubgraph.edges.some(
+                      (other) =>
+                        other !== e &&
+                        ((e.pred === "narrower" &&
+                          other.pred === "broader" &&
+                          other.s === e.t &&
+                          other.t === e.s) ||
+                          (e.pred === "broader" &&
+                            other.pred === "narrower" &&
+                            other.s === e.t &&
+                            other.t === e.s))
+                    )
+                    const lineOffset =
+                      hasOppositeHierarchy &&
+                      (e.pred === "broader" || e.pred === "narrower")
+                        ? -4
+                        : 0
+                    const nx = -uy,
+                      ny = ux
+                    const ox = nx * lineOffset,
+                      oy = ny * lineOffset
+                    const x1 = sp.x + ux * rS + ox,
+                      y1 = sp.y + uy * rS + oy,
+                      x2 = tp.x - ux * (rT + 8) + ox,
+                      y2 = tp.y - uy * (rT + 8) + oy
                     const mx = (x1 + x2) / 2,
                       my = (y1 + y2) / 2
                     const ang = (Math.atan2(dy, dx) * 180) / Math.PI,
                       flip = ang > 90 || ang < -90
+                    const isHierarchy =
+                      e.pred === "broader" || e.pred === "narrower"
+                    const labelOffset = isHierarchy
+                      ? hasOppositeHierarchy
+                        ? e.pred === "broader"
+                          ? -7
+                          : -10
+                        : -14
+                      : 0
+                    const labelX = mx + nx * labelOffset
+                    const labelY = my + ny * labelOffset
+                    const labelDy = isHierarchy ? 0 : -5
                     return (
                       <g key={i}>
                         <line
@@ -1855,36 +2591,72 @@ const GraphModal = ({
                           x2={x2}
                           y2={y2}
                           stroke={col}
-                          strokeWidth={1.5}
-                          strokeOpacity={0.75}
+                          strokeWidth={
+                            e.pred === "broader" || e.pred === "narrower"
+                              ? 2.2
+                              : 1.5
+                          }
+                          strokeOpacity={
+                            e.pred === "broader" || e.pred === "narrower"
+                              ? 0.9
+                              : 0.75
+                          }
                           markerEnd={`url(#gm-arr-${e.pred})`}
                         />
-                        <text
-                          x={mx}
-                          y={my}
-                          dy={-5}
-                          textAnchor="middle"
-                          fontSize={10}
-                          fontFamily="sans-serif"
-                          fontStyle="italic"
-                          fill={col}
-                          transform={`rotate(${
-                            flip ? ang + 180 : ang
-                          },${mx},${my})`}
-                          style={{ pointerEvents: "none" }}
-                        >
-                          {e.pred}
-                        </text>
+                        {egoShowEdgeLabels && (
+                          <text
+                            x={labelX}
+                            y={labelY}
+                            dy={labelDy}
+                            textAnchor="middle"
+                            fontSize={10}
+                            fontFamily={GRAPH_FONT_FAMILY}
+                            fontStyle="italic"
+                            fill={col}
+                            transform={`rotate(${
+                              flip ? ang + 180 : ang
+                            },${labelX},${labelY})`}
+                            style={{ pointerEvents: "none" }}
+                          >
+                            {e.pred}
+                          </text>
+                        )}
                       </g>
                     )
                   })}
                   {egoSubgraph.nodes.map((n) => {
-                    const pos = egoPositions[n.id]
+                    const pos = activeEgoPos[n.id]
                     if (!pos) return null
                     const isCenter = n.direction === "center"
                     const fill = egoGetNodeFill(n.direction, n.ringDepth)
                     const r = egoNodeR(n.direction, n.ringDepth)
                     const label = n.label || ""
+                    const labelOverride = egoLabelOverrides[n.id]
+                    // Compute outward label position for radial/ego layouts
+                    const egoCenterNode = egoSubgraph.nodes.find(
+                      (nn) => nn.direction === "center"
+                    )
+                    const egoCenterPos = egoCenterNode
+                      ? activeEgoPos[egoCenterNode.id]
+                      : null
+                    let labelX, labelY
+                    if (labelOverride) {
+                      labelX = labelOverride.x
+                      labelY = labelOverride.y
+                    } else if (
+                      !isCenter &&
+                      egoCenterPos &&
+                      layoutType !== "force"
+                    ) {
+                      const dx = pos.x - egoCenterPos.x
+                      const dy = pos.y - egoCenterPos.y
+                      const dist = Math.sqrt(dx * dx + dy * dy) || 1
+                      labelX = pos.x + (dx / dist) * (r + 10)
+                      labelY = pos.y + (dy / dist) * (r + 10)
+                    } else {
+                      labelX = pos.x
+                      labelY = pos.y - (r + 8)
+                    }
                     return (
                       <g
                         key={n.id}
@@ -1907,18 +2679,22 @@ const GraphModal = ({
                           stroke="white"
                           strokeWidth={isCenter ? 2.5 : 1.5}
                         />
-                        <text
-                          x={pos.x}
-                          y={pos.y - (r + 8)}
-                          textAnchor="middle"
-                          fontSize={11}
-                          fontFamily="sans-serif"
-                          fontWeight={isCenter ? 700 : 400}
-                          fill="rgb(20,10,0)"
-                          style={{ pointerEvents: "none" }}
-                        >
-                          {label}
-                        </text>
+                        {showLabels && (
+                          <text
+                            x={labelX}
+                            y={labelY}
+                            textAnchor="middle"
+                            fontSize={labelFontSize}
+                            fontFamily={
+                              isCenter ? "inherit" : GRAPH_FONT_FAMILY
+                            }
+                            fontWeight={isCenter ? 700 : 400}
+                            fill="rgb(20,10,0)"
+                            style={{ pointerEvents: "none", cursor: "move" }}
+                          >
+                            {label}
+                          </text>
+                        )}
                       </g>
                     )
                   })}
@@ -1980,7 +2756,7 @@ const GraphModal = ({
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                  fontFamily: "sans-serif",
+                  fontFamily: GRAPH_FONT_FAMILY,
                 }}
               >
                 {b.label}
@@ -2000,12 +2776,16 @@ const GraphModal = ({
               lineHeight: 1.6,
             }}
           >
-            {layoutType === "ego"
+            {layoutType === "ego" || layoutType === "radial"
               ? language === "en"
                 ? "Drag to pan · Scroll to zoom · Drag node · Click internal node to refocus · Click external node to open URI"
                 : "Arrastrar para mover · Rueda para zoom · Arrastrar nodo · Clic nodo interno para recentrar · Clic nodo externo abre URI"
               : layoutType === "force"
-              ? language === "en"
+              ? egoFocalId
+                ? language === "en"
+                  ? "Drag to pan · Scroll to zoom · Drag node · Click internal node to refocus"
+                  : "Arrastrar para mover · Rueda para zoom · Arrastrar nodo · Clic nodo interno para recentrar"
+                : language === "en"
                 ? "Drag to pan · Scroll to zoom · Drag node · Click to highlight"
                 : "Arrastrar para mover · Rueda para zoom · Arrastrar nodo · Clic para destacar"
               : language === "en"

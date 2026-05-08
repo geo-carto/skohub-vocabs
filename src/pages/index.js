@@ -1369,14 +1369,25 @@ const IndexPage = ({ location }) => {
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
   const homeConfig = config?.home || {}
+  const normalizeConceptSchemes = (value) => {
+    if (Array.isArray(value)) return value
+    if (value?.conceptSchemes && Array.isArray(value.conceptSchemes)) {
+      return value.conceptSchemes
+    }
+    if (value && typeof value === "object") {
+      return Object.values(value).filter((item) => item?.id)
+    }
+    return []
+  }
 
   useEffect(() => {
     async function fetchConceptData() {
       const res = await fetch("index.json")
       const csData = await res.json()
-      setConceptSchemes(csData)
+      const schemes = normalizeConceptSchemes(csData)
+      setConceptSchemes(schemes)
       const languages = Array.from(
-        new Set([...csData.flatMap((cs) => cs.languages)])
+        new Set(schemes.flatMap((cs) => cs.languages || []))
       )
       updateState({ ...data, languages: languages, indexPage: true })
     }
