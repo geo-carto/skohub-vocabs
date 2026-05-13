@@ -134,7 +134,8 @@ const pageStyles = css`
     background: rgb(244, 244, 244);
     background-size: cover;
     background-position: center;
-    border-radius: 12px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
     padding: 40px 36px;
     margin-bottom: 14px;
     height: 310px;
@@ -191,10 +192,11 @@ const pageStyles = css`
     display: flex;
     gap: 0;
     margin-bottom: 14px;
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 10px;
+    border: none;
+    border-radius: 8px;
     overflow: hidden;
-    background: rgb(255, 255, 255);
+    background: rgb(245, 240, 232);
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
 
     .stat-item {
       padding: 5px 10px;
@@ -229,7 +231,7 @@ const pageStyles = css`
     align-items: center;
     gap: 14px;
     padding: 18px 20px;
-    border-right: 1px solid rgb(220, 205, 185);
+    border-right: none;
 
     &:last-child {
       border-right: none;
@@ -241,7 +243,7 @@ const pageStyles = css`
       height: 52px;
       min-width: 52px;
       border-radius: 50%;
-      background: rgb(235, 215, 190);
+      background: white;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -263,6 +265,22 @@ const pageStyles = css`
       font-size: 16px;
       color: rgb(130, 110, 90);
       line-height: 1.3;
+    }
+
+    .stat-date {
+      font-size: 15px;
+      font-weight: 700;
+      color: rgb(35, 15, 5);
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .stat-update-label {
+      font-size: 13px;
+      color: rgb(130, 110, 90);
+      line-height: 1.15;
+      max-width: 72px;
+      white-space: pre-line;
     }
 
     @media (max-width: 640px) {
@@ -316,21 +334,26 @@ const pageStyles = css`
     display: flex;
     align-items: stretch;
     background: rgb(255, 255, 255);
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 10px;
+    border: none;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition:
       border-color 0.2s,
       box-shadow 0.2s;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
     text-align: left;
     font-family: inherit;
     width: 100%;
+    --cat-card-title-color: rgb(35, 15, 5);
 
     &:hover {
-      border-color: rgb(196, 95, 40);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 26px rgba(35, 15, 5, 0.12);
+      --cat-card-title-color: rgb(196, 95, 40);
+    }
+
+    &:hover .cat-card-title {
+      color: rgb(196, 95, 40);
     }
 
     @media (max-width: 640px) {
@@ -363,6 +386,7 @@ const pageStyles = css`
     font-size: 32px;
     font-weight: 700;
     margin: 0;
+    color: var(--cat-card-title-color);
   }
 
   .cat-card-desc {
@@ -405,18 +429,18 @@ const pageStyles = css`
     display: flex;
     flex-direction: row;
     align-items: stretch;
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 8px;
+    border: none;
+    border-radius: 6px;
     overflow: hidden;
     transition:
       box-shadow 0.2s,
       border-color 0.2s;
     min-height: 100px;
     background: rgb(255, 255, 255);
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
 
     &:hover {
-      border-color: rgb(196, 95, 40);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 26px rgba(35, 15, 5, 0.12);
     }
 
     @media (max-width: 640px) {
@@ -502,7 +526,7 @@ const pageStyles = css`
   /* Carousel */
   .carousel-panel {
     position: relative;
-    border-radius: 8px;
+    border-radius: 6px;
     overflow: hidden;
     flex-shrink: 0;
     height: 310px;
@@ -569,9 +593,10 @@ const pageStyles = css`
 
   .sidebar-panel {
     background: white;
-    border: 1px solid rgb(220, 205, 185);
+    border: none;
     border-radius: 8px;
     overflow: hidden;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
   }
 
   .sidebar-panel-header {
@@ -580,7 +605,7 @@ const pageStyles = css`
     justify-content: space-between;
     padding: 8px 12px;
     background: rgb(244, 244, 244);
-    border-bottom: 1px solid rgb(220, 205, 185);
+    border-bottom: 2px solid rgb(220, 205, 185);
 
     .panel-title {
       display: flex;
@@ -793,8 +818,9 @@ const pageStyles = css`
 
   .cat-hero-panel {
     background: rgb(244, 244, 244);
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 12px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
     padding: 14px 22px;
     display: flex;
     align-items: stretch;
@@ -838,17 +864,18 @@ const pageStyles = css`
   }
 
   .cat-stats-panel {
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 12px;
+    border: none;
+    border-radius: 10px;
     overflow: hidden;
-    background: white;
+    background: rgb(245, 240, 232);
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
     display: flex;
     align-items: stretch;
 
     .stat-item {
       flex: 1;
       padding: 10px 14px;
-      border-right: 1px solid rgb(220, 205, 185);
+      border-right: none;
       border-bottom: none;
 
       &:last-child {
@@ -965,9 +992,10 @@ const pageStyles = css`
   /* Filters column */
   .cat-filters-col {
     background: white;
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 8px;
+    border: none;
+    border-radius: 6px;
     overflow: hidden;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
   }
 
   .filter-header {
@@ -976,16 +1004,17 @@ const pageStyles = css`
     justify-content: space-between;
     padding: 10px 14px;
     background: rgb(244, 244, 244);
-    border-bottom: 1px solid rgb(220, 205, 185);
+    border-bottom: 2px solid rgb(220, 205, 185);
 
     .filter-title {
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-size: 13px;
+      gap: 8px;
+      font-size: 16px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
+      color: rgb(35, 15, 5);
     }
     .filter-clear {
       font-size: 12px;
@@ -1006,7 +1035,7 @@ const pageStyles = css`
 
   .filter-search {
     padding: 10px 12px;
-    border-bottom: 1px solid rgb(220, 205, 185);
+    border-bottom: none;
     position: relative;
 
     svg {
@@ -1049,7 +1078,7 @@ const pageStyles = css`
 
   .filter-section {
     padding: 10px 14px;
-    border-bottom: 1px solid rgb(220, 205, 185);
+    border-bottom: none;
     &:last-child {
       border-bottom: none;
     }
@@ -1080,18 +1109,22 @@ const pageStyles = css`
   .vocab-card-v2 {
     display: flex;
     align-items: stretch;
-    border: 1px solid rgb(220, 205, 185);
-    border-radius: 8px;
+    border: none;
+    border-radius: 6px;
     overflow: hidden;
     background: white;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
     transition:
       box-shadow 0.2s,
       border-color 0.2s;
     cursor: pointer;
 
     &:hover {
-      border-color: rgb(196, 95, 40);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 26px rgba(35, 15, 5, 0.12);
+    }
+
+    &:hover .vocab-title-link {
+      color: rgb(196, 95, 40);
     }
   }
 
@@ -1104,7 +1137,7 @@ const pageStyles = css`
     justify-content: center;
     text-decoration: none;
     flex-shrink: 0;
-    border-right: 1px solid rgb(220, 205, 185);
+    border-right: none;
   }
 
   .vocab-card-body {
@@ -1360,24 +1393,35 @@ const pageStyles = css`
 
   .explore-overlay {
     position: absolute;
-    inset: 0;
+    left: 12px;
+    bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.2s;
-    background: rgba(255, 248, 240, 0.35);
+    background: transparent;
   }
 
   .explore-overlay-btn {
-    background: rgb(196, 95, 40);
+    background: rgba(196, 95, 40, 0.92);
     color: white;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.03em;
-    padding: 5px 14px;
-    border-radius: 14px;
+    padding: 7px 16px;
+    border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    transition:
+      background 0.15s,
+      box-shadow 0.15s,
+      transform 0.15s;
+  }
+
+  .explore-graph-area:hover .explore-overlay-btn {
+    background: rgb(196, 95, 40);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+    transform: translateY(-1px);
   }
 `
 
@@ -1391,7 +1435,6 @@ const IndexPage = ({ location }) => {
   const [sortBy, setSortBy] = useState("az")
   const [graphVocab, setGraphVocab] = useState(null)
   const [exploreCs, setExploreCs] = useState(null)
-  const [exploreSlide, setExploreSlide] = useState(0)
 
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
@@ -1481,11 +1524,6 @@ const IndexPage = ({ location }) => {
       setExploreCs(sortedPool[0])
     }
   }, [conceptSchemes, selectedCategory, exploreCs, language])
-
-  useEffect(() => {
-    const timer = setInterval(() => setExploreSlide((i) => (i + 1) % 4), 3500)
-    return () => clearInterval(timer)
-  }, [])
 
   const getTitle = (cs) =>
     i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
@@ -1802,7 +1840,13 @@ const IndexPage = ({ location }) => {
 
       <div
         css={pageStyles}
-        style={{ width: "100%", padding: "0", boxSizing: "border-box" }}
+        style={{
+          width: "100%",
+          minHeight: "100%",
+          padding: "0",
+          boxSizing: "border-box",
+          background: "white",
+        }}
       >
         {selectedCategory ? (
           /* ══════════════════════════════════════
@@ -1914,14 +1958,14 @@ const IndexPage = ({ location }) => {
                       </svg>
                     </span>
                     <div
-                      className="stat-value"
+                      className="stat-date"
                       style={{ color: config.colors.skoHubDarkColor }}
                     >
                       {catTerms.toLocaleString(
                         language === "en" ? "en-GB" : "es-ES"
                       )}
                     </div>
-                    <div className="stat-label">
+                    <div className="stat-update-label">
                       {language === "en" ? "terms" : "términos"}
                     </div>
                   </div>
@@ -2005,18 +2049,12 @@ const IndexPage = ({ location }) => {
                         <line x1="3" y1="10" x2="21" y2="10" />
                       </svg>
                     </span>
-                    <div
-                      className="stat-value"
-                      style={{
-                        color: config.colors.skoHubDarkColor,
-                        fontSize: "15px",
-                      }}
-                    >
+                    <div className="stat-date">
                       {homeConfig.ultima_actualizacion}
                     </div>
-                    <div className="stat-label">
+                    <div className="stat-update-label">
                       {language === "en"
-                        ? "Last update"
+                        ? "Last\nupdate"
                         : "Última actualización"}
                     </div>
                   </div>
@@ -2451,10 +2489,7 @@ const IndexPage = ({ location }) => {
                       l: "rgb(248,205,193)",
                       s: "rgb(250,220,215)",
                     }
-                    const SLIDE_NAMES =
-                      language === "en"
-                        ? ["Ego", "Force", "Tree", "Sunburst"]
-                        : ["Ego", "Fuerza", "Árbol", "Sunburst"]
+                    const FORCE_SLIDE_INDEX = 1
 
                     // Slide 0 — Ego
                     const eg1 = Array.from({ length: 6 }, (_, i) => ({
@@ -2764,23 +2799,8 @@ const IndexPage = ({ location }) => {
                               display: "block",
                             }}
                           >
-                            {slideContent[exploreSlide]}
+                            {slideContent[FORCE_SLIDE_INDEX]}
                           </svg>
-                          <div className="explore-dots">
-                            {SLIDE_NAMES.map((_, i) => (
-                              <button
-                                key={i}
-                                className={i === exploreSlide ? "active" : ""}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setExploreSlide(i)
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <div className="explore-slide-label">
-                            {SLIDE_NAMES[exploreSlide]}
-                          </div>
                           <div className="explore-overlay">
                             <span className="explore-overlay-btn">
                               {language === "en"
@@ -3111,19 +3131,13 @@ const IndexPage = ({ location }) => {
                         </svg>
                       </span>
                       <div>
-                        <div className="stat-label">
+                        <div className="stat-date">
+                          {lastModified || homeConfig.ultima_actualizacion}
+                        </div>
+                        <div className="stat-update-label">
                           {language === "en"
                             ? "Last update"
                             : "Última actualización"}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "15px",
-                            color: config.colors.skoHubDarkColor,
-                            marginTop: "2px",
-                          }}
-                        >
-                          {lastModified || homeConfig.ultima_actualizacion}
                         </div>
                       </div>
                     </div>
@@ -3183,10 +3197,7 @@ const IndexPage = ({ location }) => {
                           className="cat-card-img"
                         />
                         <div className="cat-card-body">
-                          <h3
-                            className="cat-card-title"
-                            style={{ color: config.colors.skoHubDarkColor }}
-                          >
+                          <h3 className="cat-card-title">
                             {getCategoryLabel(code)}
                           </h3>
                           <p className="cat-card-desc">

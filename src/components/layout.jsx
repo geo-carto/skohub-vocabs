@@ -34,6 +34,7 @@ const Layout = ({ children }) => {
       flex-direction: column;
       overflow-y: auto;
       padding: 5px 22px 20px 22px;
+      background: white;
 
       @media only screen and (max-width: 800px) {
         display: block;
