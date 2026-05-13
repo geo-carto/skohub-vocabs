@@ -4,7 +4,7 @@ import GearIcon from "../icons/Gear"
 import Modal from "./Modal"
 import LabelFilter from "../components/LabelFilter"
 
-const Search = ({ handleQueryInput, labels, onLabelClick }) => {
+const Search = ({ handleQueryInput, labels, onLabelClick, language }) => {
   const style = css`
     .search {
       display: flex;
@@ -13,9 +13,12 @@ const Search = ({ handleQueryInput, labels, onLabelClick }) => {
 
       input[type="text"] {
         width: 100%;
-        padding: 10px;
+        padding: 7px 10px;
         margin-right: 10px;
         background: white !important;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
       }
       button {
         border: none;
@@ -43,7 +46,7 @@ const Search = ({ handleQueryInput, labels, onLabelClick }) => {
           type="text"
           className="inputStyle"
           onChange={handleQueryInput}
-          placeholder="Search"
+          placeholder={language === "en" ? "Search concept" : "Buscar concepto"}
           autoFocus
         />
         <button id="settings" onClick={() => setModal(true)}>

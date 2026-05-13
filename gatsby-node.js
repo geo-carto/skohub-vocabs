@@ -354,6 +354,8 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
   conceptSchemes.errors && console.error(conceptSchemes.errors)
 
   const conceptCountByCS = {}
+  const collectionCountByCS = {}
+  const collectionsByCS = {}
 
   await Promise.all(
     conceptSchemes.data.allConceptScheme.edges.map(
@@ -382,6 +384,18 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
           conceptsInScheme.data.allConcept.edges.filter(
             ({ node }) => node.type === "Concept"
           ).length
+        const conceptIdsInScheme = new Set(
+          conceptsInScheme.data.allConcept.edges.map(({ node }) => node.id)
+        )
+        collectionsByCS[conceptScheme.id] = collections.data.allCollection.edges
+          .filter(({ node: collection }) =>
+            collection.member?.some((member) =>
+              conceptIdsInScheme.has(member.id)
+            )
+          )
+          .map(({ node }) => node)
+        collectionCountByCS[conceptScheme.id] =
+          collectionsByCS[conceptScheme.id].length
         // embed concept scheme data
         const embeddedConcepts = [
           {
@@ -415,6 +429,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
                   ? memberOf[concept.id]
                   : [],
                 customDomain: config.customDomain,
+                schemeCollections: collectionsByCS[conceptScheme.id] || [],
               },
             })
             createData({
@@ -463,6 +478,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
             node: conceptScheme,
             embed: embeddedConcepts,
             customDomain: config.customDomain,
+            schemeCollections: collectionsByCS[conceptScheme.id] || [],
           },
         })
         const jsonldConceptScheme = replaceMultipleKeysInObject(conceptScheme, [
@@ -508,6 +524,7 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
       theme: cs.theme || null,
       languages: Array.from(languagesByCS[cs.id]),
       termCount: conceptCountByCS[cs.id] || 0,
+      collectionCount: collectionCountByCS[cs.id] || 0,
       modified: cs.modified || null,
     }))
   )

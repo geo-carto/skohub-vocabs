@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import escapeRegExp from "lodash.escaperegexp"
 import {
   i18n,
@@ -30,9 +30,12 @@ const App = ({ pageContext, children, location }) => {
   const style = conceptStyle(config.colors)
   const [index, setIndex] = useState({})
   const [query, setQuery] = useState(null)
+  const [selectedCollectionId, setSelectedCollectionId] = useState("")
   const [tree, setTree] = useState(
     pageContext.node.type === "ConceptScheme" ? pageContext.node : null
   )
+  const conceptsRef = useRef(null)
+  const didInitCollectionFilterRef = useRef(false)
   let showTreeControls = false
 
   const [labels, setLabels] = useState(
@@ -57,6 +60,33 @@ const App = ({ pageContext, children, location }) => {
 
   const [language, setLanguage] = useState("")
   const [currentScheme, setCurrentScheme] = useState(null)
+  const schemeCollections = pageContext.schemeCollections || []
+  const defaultCollectionId =
+    schemeCollections.find((collection) => {
+      const labels = collection.prefLabel || {}
+      return (
+        collection.id?.endsWith("/collection") ||
+        labels.es?.toLowerCase().includes("todos los conceptos") ||
+        labels.en?.toLowerCase().includes("all concepts")
+      )
+    })?.id ||
+    schemeCollections[0]?.id ||
+    ""
+  const selectedCollection = schemeCollections.find(
+    (collection) =>
+      collection.id === (selectedCollectionId || defaultCollectionId)
+  )
+  const collectionFilterIds = useMemo(
+    () =>
+      selectedCollection
+        ? new Set((selectedCollection.member || []).map((member) => member.id))
+        : null,
+    [selectedCollection]
+  )
+
+  useEffect(() => {
+    setSelectedCollectionId(defaultCollectionId)
+  }, [currentScheme?.id, defaultCollectionId])
 
   // get current scheme
   useEffect(() => {
@@ -77,13 +107,21 @@ const App = ({ pageContext, children, location }) => {
     }
 
     const getCurrentScheme = async () => {
+      const preserveKnownSchemeData = (scheme) =>
+        data.currentScheme?.id === scheme?.id
+          ? {
+              ...data.currentScheme,
+              ...scheme,
+              theme: scheme.theme || data.currentScheme.theme,
+            }
+          : scheme
       if (pageContext.node.type === "ConceptScheme")
         setCurrentScheme(pageContext.node)
       else if (pageContext.node.type === "Concept")
-        setCurrentScheme(pageContext.node.inScheme[0])
+        setCurrentScheme(preserveKnownSchemeData(pageContext.node.inScheme[0]))
       else if (pageContext.node.type === "Collection") {
         const cs = await fetchConceptSchemeForCollection(pageContext.node)
-        setCurrentScheme(cs)
+        setCurrentScheme(preserveKnownSchemeData(cs))
       } else return {}
     }
     getCurrentScheme()
@@ -148,7 +186,7 @@ const App = ({ pageContext, children, location }) => {
         .then((tree) => setTree(tree))
   }, [data, pageContext.node.type])
 
-  // Scroll current item into view
+  // Scroll current item into view only when the page/tree changes.
   useEffect(() => {
     const current = document.querySelector(".current")
     current &&
@@ -157,7 +195,21 @@ const App = ({ pageContext, children, location }) => {
         block: "center",
         inline: "nearest",
       })
-  })
+  }, [pageContext.node.id, tree])
+
+  useEffect(() => {
+    if (!didInitCollectionFilterRef.current) {
+      didInitCollectionFilterRef.current = true
+      return
+    }
+    window.requestAnimationFrame(() => {
+      if (conceptsRef.current) conceptsRef.current.scrollTop = 0
+      conceptsRef.current?.querySelectorAll(".treeItemIcon").forEach((el) => {
+        el.classList.add("collapsed")
+        el.setAttribute("aria-expanded", "false")
+      })
+    })
+  }, [selectedCollectionId])
   const toggleClick = (e) => setLabels({ ...labels, [e]: !labels[e] })
   const title =
     pageContext.node?.prefLabel ||
@@ -302,9 +354,47 @@ const App = ({ pageContext, children, location }) => {
             handleQueryInput={(e) => setQuery(e.target.value || null)}
             labels={labels}
             onLabelClick={(e) => toggleClick(e)}
+            language={language}
           />
+          {schemeCollections.length > 1 && (
+            <label
+              style={{
+                display: "grid",
+                gap: "5px",
+                margin: "10px 0 12px",
+                fontSize: "13px",
+                color: config.colors.skoHubDarkColor,
+              }}
+            >
+              <span style={{ fontWeight: 700, fontSize: "15px" }}>
+                {language === "en" ? "Collection" : "Colecci\u00f3n"}
+              </span>
+              <select
+                value={selectedCollectionId || defaultCollectionId}
+                onChange={(e) => setSelectedCollectionId(e.target.value)}
+                style={{
+                  width: "100%",
+                  fontFamily: "inherit",
+                  fontSize: "14px",
+                  color: config.colors.skoHubDarkColor,
+                  border: `1px solid ${config.colors.skoHubMiddleGrey}`,
+                  borderRadius: "6px",
+                  padding: "7px 30px 7px 10px",
+                  backgroundColor: "white",
+                  cursor: "pointer",
+                }}
+              >
+                {schemeCollections.map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {i18n(language)(collection.prefLabel) ||
+                      collection.id.split("/").pop()}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           {showTreeControls && <TreeControls />}
-          <div className="concepts">
+          <div className="concepts" ref={conceptsRef}>
             {tree && (
               <NestedList
                 items={tree.hasTopConcept}
@@ -316,6 +406,7 @@ const App = ({ pageContext, children, location }) => {
                 language={language}
                 topLevel={true}
                 customDomain={config.customDomain}
+                collectionFilterIds={collectionFilterIds}
               />
             )}
           </div>

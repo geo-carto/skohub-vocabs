@@ -35,6 +35,7 @@ const NestedList = ({
   language,
   topLevel = false,
   customDomain,
+  collectionFilterIds = null,
 }) => {
   const { config } = getConfigAndConceptSchemes()
 
@@ -88,35 +89,38 @@ const NestedList = ({
 
     .treeItemIcon {
       display: inline-flex;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      margin-right: 5px;
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
       font-weight: bold;
       position: relative;
-      top: -1px;
+      top: -2px;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: ${config.colors.skoHubAction};
+      transition: transform 0.15s ease;
+
+      &:hover,
+      &:focus {
+        background: transparent;
+        color: ${config.colors.skoHubAction};
+      }
 
       &:before {
         content: "";
-        background-color: ${config.colors.skoHubDarkColor};
-        position: absolute;
-        width: 60%;
-        height: 3px;
-        left: 50%;
-        top: 50%;
-        transform: translateY(-50%) translateX(-50%);
+        width: 9px;
+        height: 9px;
+        border-right: 2.5px solid currentColor;
+        border-bottom: 2.5px solid currentColor;
+        transform: rotate(45deg);
       }
 
       &.collapsed {
-        &:after {
-          content: "";
-          background-color: ${config.colors.skoHubDarkColor};
-          position: absolute;
-          width: 3px;
-          height: 60%;
-          left: 50%;
-          top: 50%;
-          transform: translateX(-50%) translateY(-50%);
+        &:before {
+          transform: rotate(-45deg);
         }
 
         & + div > a + ul {
@@ -136,16 +140,24 @@ const NestedList = ({
     queryFilter && queryFilter.length
       ? queryFilter.flatMap((f) => f.result)
       : []
+  const isInSelectedCollection = (item) =>
+    !collectionFilterIds ||
+    getNestedItems(item).some((id) => collectionFilterIds.has(id))
 
   const getFilteredItems = () => {
     if (!queryFilter) {
       // Sin búsqueda: ocultar conceptos deprecated
-      return items.filter((item) => !item.deprecated)
+      return items.filter(
+        (item) => !item.deprecated && isInSelectedCollection(item)
+      )
     } else if (filteredIds.length) {
       return items.filter(
         (item) =>
-          !queryFilter ||
-          filteredIds.some((filter) => getNestedItems(item).includes(filter))
+          (!queryFilter ||
+            filteredIds.some((filter) =>
+              getNestedItems(item).includes(filter)
+            )) &&
+          isInSelectedCollection(item)
       )
     } else {
       return []
@@ -331,6 +343,7 @@ const NestedList = ({
                 highlight={highlight}
                 language={language}
                 customDomain={customDomain}
+                collectionFilterIds={collectionFilterIds}
               />
             )}
           </div>

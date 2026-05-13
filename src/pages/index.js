@@ -157,14 +157,14 @@ const pageStyles = css`
     }
 
     h1 {
-      font-size: 58px;
+      font-size: 48px;
       font-weight: 700;
       line-height: 1.1;
       margin: 0 0 16px 0;
     }
 
     h2 {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       margin: 0 0 18px 0;
     }
@@ -360,7 +360,7 @@ const pageStyles = css`
   }
 
   .cat-card-title {
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 700;
     margin: 0;
   }
@@ -594,7 +594,7 @@ const pageStyles = css`
     }
 
     .panel-link {
-      font-size: 12px;
+      font-size: 10px;
       color: rgb(196, 95, 40);
       text-decoration: none;
 
@@ -652,8 +652,8 @@ const pageStyles = css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    font-size: 15px;
+    padding: 5px 12px;
+    font-size: 13px;
     gap: 8px;
     cursor: pointer;
     transition: background 0.15s;
@@ -1112,7 +1112,7 @@ const pageStyles = css`
     padding: 10px 16px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
     min-width: 0;
 
     .vocab-title-link {
@@ -1193,6 +1193,34 @@ const pageStyles = css`
     padding: 10px 12px;
     justify-content: center;
     flex-shrink: 0;
+  }
+
+  .vocab-download-link {
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 3px;
+    border: 1px solid rgb(195, 180, 160);
+    color: rgb(35, 15, 5);
+    text-decoration: none;
+    background: rgb(244, 244, 244);
+    text-align: center;
+    white-space: nowrap;
+    transition:
+      background 0.12s,
+      border-color 0.12s,
+      color 0.12s,
+      box-shadow 0.12s,
+      transform 0.12s;
+
+    &:hover,
+    &:focus-visible {
+      background: rgb(255, 245, 235);
+      border-color: rgb(196, 95, 40);
+      color: rgb(196, 95, 40);
+      box-shadow: 0 0 0 2px rgba(196, 95, 40, 0.16);
+      transform: translateY(-1px);
+      outline: none;
+    }
   }
 
   /* Category sidebar */
@@ -1382,14 +1410,19 @@ const IndexPage = ({ location }) => {
 
   useEffect(() => {
     async function fetchConceptData() {
-      const res = await fetch("index.json")
-      const csData = await res.json()
-      const schemes = normalizeConceptSchemes(csData)
-      setConceptSchemes(schemes)
-      const languages = Array.from(
-        new Set(schemes.flatMap((cs) => cs.languages || []))
-      )
-      updateState({ ...data, languages: languages, indexPage: true })
+      try {
+        const res = await fetch(withPrefix("/index.json"))
+        if (!res.ok) throw new Error(`Could not load index.json: ${res.status}`)
+        const csData = await res.json()
+        const schemes = normalizeConceptSchemes(csData)
+        setConceptSchemes(schemes)
+        const languages = Array.from(
+          new Set(schemes.flatMap((cs) => cs.languages || []))
+        )
+        updateState({ ...data, languages: languages, indexPage: true })
+      } catch {
+        setConceptSchemes([])
+      }
     }
     fetchConceptData()
   }, [])
@@ -1430,19 +1463,24 @@ const IndexPage = ({ location }) => {
   }, [data?.languages, data?.selectedLanguage])
 
   useEffect(() => {
-    if (conceptSchemes.length > 0 && !exploreCs) {
-      const found = conceptSchemes.find((cs) => {
-        const t =
-          cs.title?.es ||
-          cs.title?.en ||
-          cs.prefLabel?.es ||
-          cs.prefLabel?.en ||
-          ""
-        return t.toLowerCase().includes("unidad geol")
-      })
-      setExploreCs(found || conceptSchemes[0])
+    if (conceptSchemes.length > 0) {
+      const pool = selectedCategory
+        ? conceptSchemes.filter((cs) => cs.theme === selectedCategory)
+        : conceptSchemes
+      if (!pool.length) return
+      if (exploreCs && pool.some((cs) => cs.id === exploreCs.id)) return
+      const sortedPool = [...pool].sort((a, b) =>
+        getTitle(a).localeCompare(
+          getTitle(b),
+          language === "en" ? "en" : "es",
+          {
+            sensitivity: "base",
+          }
+        )
+      )
+      setExploreCs(sortedPool[0])
     }
-  }, [conceptSchemes.length])
+  }, [conceptSchemes, selectedCategory, exploreCs, language])
 
   useEffect(() => {
     const timer = setInterval(() => setExploreSlide((i) => (i + 1) % 4), 3500)
@@ -1452,10 +1490,28 @@ const IndexPage = ({ location }) => {
   const getTitle = (cs) =>
     i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
 
-  const schemeOptions = conceptSchemes.map((cs) => ({
-    id: cs.id,
-    label: getTitle(cs),
-  }))
+  const sortSchemeOptions = (items) =>
+    items
+      .map((cs) => ({
+        id: cs.id,
+        label: getTitle(cs),
+      }))
+      .sort((a, b) =>
+        a.label.localeCompare(b.label, language === "en" ? "en" : "es", {
+          sensitivity: "base",
+        })
+      )
+
+  const schemeOptions = sortSchemeOptions(conceptSchemes)
+
+  const graphSchemeOptions =
+    graphVocab?.theme || selectedCategory
+      ? conceptSchemes.filter(
+          (cs) => cs.theme === (graphVocab?.theme || selectedCategory)
+        )
+      : conceptSchemes
+
+  const sortedGraphSchemeOptions = sortSchemeOptions(graphSchemeOptions)
 
   const getDescription = (cs) =>
     i18n(language)(cs?.description || cs?.dc_description) || ""
@@ -1529,6 +1585,12 @@ const IndexPage = ({ location }) => {
     .sort((a, b) => {
       const tA = getTitle(a),
         tB = getTitle(b)
+      if (sortBy === "terms-desc") {
+        return (b.termCount || 0) - (a.termCount || 0)
+      }
+      if (sortBy === "terms-asc") {
+        return (a.termCount || 0) - (b.termCount || 0)
+      }
       return sortBy === "za" ? tB.localeCompare(tA) : tA.localeCompare(tB)
     })
 
@@ -2158,6 +2220,16 @@ const IndexPage = ({ location }) => {
                   >
                     <option value="az">A → Z</option>
                     <option value="za">Z → A</option>
+                    <option value="terms-desc">
+                      {language === "en"
+                        ? "Terms count \u2193"
+                        : "N\u00famero de t\u00e9rminos \u2193"}
+                    </option>
+                    <option value="terms-asc">
+                      {language === "en"
+                        ? "Terms count \u2191"
+                        : "N\u00famero de t\u00e9rminos \u2191"}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -2231,6 +2303,31 @@ const IndexPage = ({ location }) => {
                               language === "en" ? "en-GB" : "es-ES"
                             )}{" "}
                             {language === "en" ? "terms" : "términos"}
+                          </span>
+                        )}
+                        {cs.collectionCount > 0 && (
+                          <span className="meta-item">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M3 7h6l2 3h10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                              <path d="M3 7V5a2 2 0 0 1 2-2h4l2 4" />
+                            </svg>
+                            {cs.collectionCount.toLocaleString(
+                              language === "en" ? "en-GB" : "es-ES"
+                            )}{" "}
+                            {language === "en"
+                              ? cs.collectionCount === 1
+                                ? "collection"
+                                : "collections"
+                              : cs.collectionCount === 1
+                              ? "colecci\u00f3n"
+                              : "colecciones"}
                           </span>
                         )}
                         {cs.modified && (
@@ -2313,22 +2410,12 @@ const IndexPage = ({ location }) => {
                         return (
                           <a
                             key={ext}
+                            className="vocab-download-link"
                             href={`${
                               customDomain || "/"
                             }downloads/${slug}.${ext}`}
                             download
                             onClick={(e) => e.stopPropagation()}
-                            style={{
-                              fontSize: "11px",
-                              padding: "1px 8px",
-                              borderRadius: "3px",
-                              border: `1px solid ${config.colors.skoHubMiddleGrey}`,
-                              color: config.colors.skoHubDarkColor,
-                              textDecoration: "none",
-                              background: "rgb(244,244,244)",
-                              textAlign: "center",
-                              whiteSpace: "nowrap",
-                            }}
                           >
                             {label}
                           </a>
@@ -3085,7 +3172,10 @@ const IndexPage = ({ location }) => {
                       <button
                         key={code}
                         className="cat-card"
-                        onClick={() => setSelectedCategory(code)}
+                        onClick={() => {
+                          setSelectedCategory(code)
+                          navigate("/", { state: { category: code } })
+                        }}
                       >
                         <img
                           src={withPrefix(`/img/${cat.image}`)}
@@ -3140,9 +3230,13 @@ const IndexPage = ({ location }) => {
           language={language}
           title={getTitle(graphVocab)}
           onClose={() => setGraphVocab(null)}
-          schemes={schemeOptions}
+          schemes={sortedGraphSchemeOptions}
           onVocabChange={(id) => {
-            const cs = conceptSchemes.find((c) => c.id === id)
+            const cs = conceptSchemes.find(
+              (c) =>
+                c.id === id &&
+                (!graphVocab?.theme || c.theme === graphVocab.theme)
+            )
             if (cs) setGraphVocab(cs)
           }}
         />

@@ -11,6 +11,7 @@ const SEMANTIC_PROPS = [
   "narrowMatch",
 ]
 const GRAPH_FONT_FAMILY = "roboto, Roboto, sans-serif"
+const GRAPH_FONT_WEIGHT = 700
 
 const PRED_COLORS = {
   broader: "rgb(165,85,55)",
@@ -835,6 +836,7 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                         textAnchor="middle"
                         fontSize={10}
                         fontFamily={GRAPH_FONT_FAMILY}
+                        fontWeight={GRAPH_FONT_WEIGHT}
                         fontStyle="italic"
                         fill={col}
                         transform={`rotate(${
@@ -890,8 +892,8 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fontSize={11}
-                            fontWeight={700}
-                            fontFamily="inherit"
+                            fontWeight={GRAPH_FONT_WEIGHT}
+                            fontFamily={GRAPH_FONT_FAMILY}
                             fill="rgb(20,10,0)"
                             style={{ pointerEvents: "none" }}
                           >
@@ -904,6 +906,7 @@ const ConceptEgoModal = ({ concept, language, customDomain, onClose }) => {
                             textAnchor="middle"
                             fontSize={11}
                             fontFamily={GRAPH_FONT_FAMILY}
+                            fontWeight={GRAPH_FONT_WEIGHT}
                             fill="rgb(20,10,0)"
                             style={{ pointerEvents: "none" }}
                           >

@@ -13,8 +13,7 @@ export const conceptStyle = (colors) => css`
   }
 
   a.current {
-    color: ${colors.skoHubMiddleColor};
-    font-weight: 700;
+    color: ${colors.skoHubAction};
   }
 
   .block {

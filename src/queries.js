@@ -115,6 +115,7 @@ module.exports.allConcept = (inScheme, languages) => `
           }
           inScheme {
             id
+            theme
             title {
               ${[...languages].join(" ")}
             }
