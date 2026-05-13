@@ -14,12 +14,17 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import Header from "./header.jsx"
 import Footer from "./footer.jsx"
 
-const Layout = ({ children }) => {
+const Layout = ({ children, topBackground = false }) => {
   const { config } = getConfigAndConceptSchemes()
   const style = css`
     height: 100vh;
     display: flex;
     flex-direction: column;
+    background: ${topBackground
+      ? `white url(${withPrefix(
+          "/img/header-fondo-2.png"
+        )}) top center / 100% 350px no-repeat`
+      : "white"};
 
     @media only screen and (max-width: 800px) {
       display: block;
@@ -34,7 +39,7 @@ const Layout = ({ children }) => {
       flex-direction: column;
       overflow-y: auto;
       padding: 5px 22px 20px 22px;
-      background: white;
+      background: transparent;
 
       @media only screen and (max-width: 800px) {
         display: block;
@@ -220,7 +225,10 @@ const Layout = ({ children }) => {
           }
         `}
       />
-      <Header siteTitle={qdata.site.siteMetadata.title} />
+      <Header
+        siteTitle={qdata.site.siteMetadata.title}
+        transparent={topBackground}
+      />
       <main>{children}</main>
 
       <Footer siteTitle={qdata.site.siteMetadata.title} />
@@ -229,6 +237,7 @@ const Layout = ({ children }) => {
 }
 Layout.propTypes = {
   children: PropTypes.node.isRequired,
+  topBackground: PropTypes.bool,
 }
 
 export default Layout

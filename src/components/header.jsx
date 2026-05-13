@@ -6,18 +6,23 @@ import { useSkoHubContext } from "../context/Context.jsx"
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import { getUserLang } from "../hooks/getUserLanguage"
 
-const Header = ({ siteTitle }) => {
+const Header = ({ siteTitle, transparent = false }) => {
   const { config, conceptSchemes: conceptSchemesData } =
     getConfigAndConceptSchemes()
   const { data, updateState } = useSkoHubContext()
   const style = css`
-    background: url(${withPrefix("/img/header-fondo.png")}) center bottom/cover
-      no-repeat;
+    background: ${transparent
+      ? "transparent"
+      : `url(${withPrefix(
+          "/img/header-fondo.png"
+        )}) center bottom/cover no-repeat`};
 
     .headerContent {
       padding: 10px 20px;
       display: flex;
       align-items: center;
+      position: relative;
+      z-index: 5;
     }
 
     .skohubLogo {
@@ -74,8 +79,12 @@ const Header = ({ siteTitle }) => {
       margin: 0;
       padding: 0;
       list-style: none;
-      display: inline-block;
-      text-align: right;
+      display: flex;
+      gap: 4px;
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      z-index: 6;
 
       li {
         display: inline;

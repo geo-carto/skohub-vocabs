@@ -121,7 +121,7 @@ const pageStyles = css`
     grid-template-columns: 1fr 540px;
     gap: 24px;
     align-items: stretch;
-    padding-top: 12px;
+    padding-top: 0;
     padding-bottom: 40px;
 
     @media (max-width: 900px) {
@@ -130,15 +130,24 @@ const pageStyles = css`
   }
 
   /* ── Hero ── */
+  .home-top-band {
+    min-height: 250px;
+    margin-bottom: 18px;
+
+    @media (max-width: 900px) {
+      height: auto;
+    }
+  }
+
   .hero {
-    background: rgb(244, 244, 244);
+    background: transparent;
     background-size: cover;
     background-position: center;
-    border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
-    padding: 40px 36px;
-    margin-bottom: 14px;
-    height: 310px;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 36px 40px;
+    height: 100%;
+    margin: 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -364,12 +373,15 @@ const pageStyles = css`
   .cat-card-img {
     width: 220px;
     min-width: 220px;
-    height: auto;
+    height: 100%;
     display: block;
+    object-fit: cover;
+    object-position: center;
 
     @media (max-width: 640px) {
       width: 100%;
       min-width: unset;
+      height: 180px;
     }
   }
 
@@ -523,74 +535,6 @@ const pageStyles = css`
     }
   }
 
-  /* Carousel */
-  .carousel-panel {
-    position: relative;
-    border-radius: 6px;
-    overflow: hidden;
-    flex-shrink: 0;
-    height: 310px;
-
-    .carousel-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: opacity 0.5s ease;
-    }
-
-    .carousel-dots {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 6px;
-
-      button {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        background: rgba(255, 255, 255, 0.5);
-        transition: background 0.2s;
-
-        &.active {
-          background: white;
-        }
-      }
-    }
-
-    .carousel-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.7);
-      border: none;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: rgb(35, 15, 5);
-      padding: 0;
-
-      &:hover {
-        background: white;
-      }
-      &.prev {
-        left: 8px;
-      }
-      &.next {
-        right: 8px;
-      }
-    }
-  }
-
   .sidebar-panel {
     background: white;
     border: none;
@@ -631,6 +575,135 @@ const pageStyles = css`
 
   .sidebar-panel-body {
     padding: 4px 0;
+  }
+
+  .gallery-list {
+    display: grid;
+    gap: 8px;
+    padding: 10px 12px 12px;
+  }
+
+  .gallery-item {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    padding: 6px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: rgb(35, 15, 5);
+    transition:
+      background 0.15s,
+      color 0.15s;
+
+    &:hover {
+      background: rgb(248, 242, 232);
+      color: rgb(196, 95, 40);
+    }
+  }
+
+  .gallery-thumb {
+    width: 74px;
+    aspect-ratio: 3 / 4;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    background: rgb(245, 240, 232);
+  }
+
+  .gallery-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .gallery-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+  }
+
+  .gallery-modal {
+    position: relative;
+    width: min(92vw, 1080px);
+    height: min(88vh, 820px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gallery-modal-img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 14px 46px rgba(0, 0, 0, 0.35);
+  }
+
+  .gallery-modal-close,
+  .gallery-modal-nav {
+    position: absolute;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: rgb(35, 15, 5);
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+
+    &:hover {
+      background: white;
+      color: rgb(196, 95, 40);
+    }
+  }
+
+  .gallery-modal-close {
+    top: 0;
+    right: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .gallery-modal-nav {
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.prev {
+      left: 0;
+    }
+
+    &.next {
+      right: 0;
+    }
+  }
+
+  .gallery-modal-count {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: rgb(35, 15, 5);
+    font-size: 12px;
+    font-weight: 700;
   }
 
   .sidebar-item {
@@ -1440,6 +1513,19 @@ const IndexPage = ({ location }) => {
   const { config } = getConfigAndConceptSchemes()
   const customDomain = config.customDomain
   const homeConfig = config?.home || {}
+  const homeSlides = homeConfig.carrusel || []
+  const galleryItems = homeSlides.map((item, index) => ({
+    title:
+      item.titulo ||
+      item.title ||
+      (language === "en" ? `Image ${index + 1}` : `Imagen ${index + 1}`),
+    image: item.imagen,
+    thumb:
+      item.miniatura ||
+      item.thumb ||
+      item.imagen?.replace(/(\.[^.]+)$/, "-thumb$1"),
+  }))
+  const [galleryIndex, setGalleryIndex] = useState(null)
   const normalizeConceptSchemes = (value) => {
     if (Array.isArray(value)) return value
     if (value?.conceptSchemes && Array.isArray(value.conceptSchemes)) {
@@ -1524,6 +1610,23 @@ const IndexPage = ({ location }) => {
       setExploreCs(sortedPool[0])
     }
   }, [conceptSchemes, selectedCategory, exploreCs, language])
+
+  useEffect(() => {
+    if (galleryIndex === null || galleryItems.length === 0) return
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setGalleryIndex(null)
+      } else if (event.key === "ArrowLeft") {
+        setGalleryIndex(
+          (index) => (index - 1 + galleryItems.length) % galleryItems.length
+        )
+      } else if (event.key === "ArrowRight") {
+        setGalleryIndex((index) => (index + 1) % galleryItems.length)
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [galleryIndex, galleryItems.length])
 
   const getTitle = (cs) =>
     i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
@@ -1633,74 +1736,48 @@ const IndexPage = ({ location }) => {
     })
 
   const Sidebar = () => {
-    const slides = homeConfig.carrusel || []
-    const [slideIdx, setSlideIdx] = React.useState(0)
-
-    React.useEffect(() => {
-      if (slides.length <= 1) return
-      const timer = setInterval(() => {
-        setSlideIdx((i) => (i + 1) % slides.length)
-      }, 5000)
-      return () => clearInterval(timer)
-    }, [slides.length])
-
     return (
       <aside className="sidebar">
-        {/* Carrusel */}
-        {slides.length > 0 && (
-          <div className="carousel-panel">
-            <img
-              src={withPrefix(`/img/${slides[slideIdx].imagen}`)}
-              alt=""
-              className="carousel-img"
-            />
-            {slides.length > 1 && (
-              <>
-                <button
-                  className="carousel-arrow prev"
-                  onClick={() =>
-                    setSlideIdx((i) => (i - 1 + slides.length) % slides.length)
-                  }
+        {galleryItems.length > 0 && (
+          <div className="sidebar-panel">
+            <div className="sidebar-panel-header">
+              <span className="panel-title">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
                 >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                </button>
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                {language === "en" ? "Gallery" : "Galería"}
+              </span>
+            </div>
+            <div className="gallery-list">
+              {galleryItems.map((item, index) => (
                 <button
-                  className="carousel-arrow next"
-                  onClick={() => setSlideIdx((i) => (i + 1) % slides.length)}
+                  key={item.image}
+                  type="button"
+                  className="gallery-item"
+                  onClick={() => setGalleryIndex(index)}
                 >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
+                  <img
+                    className="gallery-thumb"
+                    src={withPrefix(`/img/${item.thumb}`)}
+                    alt=""
+                    loading="lazy"
+                  />
+                  <span className="gallery-item-title">{item.title}</span>
                 </button>
-                <div className="carousel-dots">
-                  {slides.map((_, i) => (
-                    <button
-                      key={i}
-                      className={i === slideIdx ? "active" : ""}
-                      onClick={() => setSlideIdx(i)}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+              ))}
+            </div>
           </div>
         )}
+
         {/* Sugerencias */}
         <div className="sidebar-panel">
           <div className="sidebar-panel-header">
@@ -1835,7 +1912,7 @@ const IndexPage = ({ location }) => {
   }
 
   return (
-    <Layout language={language}>
+    <Layout language={language} topBackground={!selectedCategory}>
       <SEO title="Concept Schemes" keywords={["conceptSchemes"]} />
 
       <div
@@ -1845,7 +1922,7 @@ const IndexPage = ({ location }) => {
           minHeight: "100%",
           padding: "0",
           boxSizing: "border-box",
-          background: "white",
+          background: selectedCategory ? "white" : "transparent",
         }}
       >
         {selectedCategory ? (
@@ -2951,70 +3028,37 @@ const IndexPage = ({ location }) => {
           /* ══════════════════════════════════════
            HOME PAGE — 2-column grid
         ══════════════════════════════════════ */
-          <div className="page-grid">
-            {/* ── Columna principal ── */}
-            <div>
-              {/* Hero — solo en página de categorías */}
-              {!selectedCategory && (
-                <div
-                  className="hero"
-                  style={{
-                    backgroundImage: `url(${withPrefix(
-                      "/img/fondo-hero.png"
-                    )})`,
-                  }}
-                >
-                  <div className="hero-text">
-                    <h1 style={{ color: config.colors.skoHubDarkColor }}>
-                      {config.title || "Repositorio de Vocabularios"}
-                    </h1>
-                    {homeConfig.subtitle && (
-                      <h2 style={{ color: config.colors.skoHubDarkColor }}>
-                        {language === "en" && homeConfig.subtitle_en
-                          ? homeConfig.subtitle_en
-                          : homeConfig.subtitle}
-                      </h2>
-                    )}
-                    {homeConfig.description && (
-                      <p>
-                        {language === "en" && homeConfig.description_en
-                          ? homeConfig.description_en
-                          : homeConfig.description}
-                      </p>
-                    )}
-                  </div>
+          <>
+            <div className="home-top-band">
+              <div className="hero">
+                <div className="hero-text">
+                  <h1 style={{ color: config.colors.skoHubDarkColor }}>
+                    {config.title || "Repositorio de Vocabularios"}
+                  </h1>
+                  {homeConfig.subtitle && (
+                    <h2 style={{ color: config.colors.skoHubDarkColor }}>
+                      {language === "en" && homeConfig.subtitle_en
+                        ? homeConfig.subtitle_en
+                        : homeConfig.subtitle}
+                    </h2>
+                  )}
+                  {homeConfig.description && (
+                    <p>
+                      {language === "en" && homeConfig.description_en
+                        ? homeConfig.description_en
+                        : homeConfig.description}
+                    </p>
+                  )}
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* Stats bar */}
-              {!selectedCategory && conceptSchemes.length > 0 && (
-                <div className="stats-bar">
-                  <div className="stat-item">
-                    <span className="stat-icon-bg">
-                      <svg
-                        className="stat-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                      </svg>
-                    </span>
-                    <div
-                      className="stat-value"
-                      style={{ color: config.colors.skoHubDarkColor }}
-                    >
-                      {conceptSchemes.length}
-                    </div>
-                    <div className="stat-label">
-                      {language === "en" ? "vocabularies" : "vocabularios"}
-                    </div>
-                  </div>
-                  {totalTerms > 0 && (
+            <div className="page-grid">
+              {/* ── Columna principal ── */}
+              <div>
+                {/* Stats bar */}
+                {!selectedCategory && conceptSchemes.length > 0 && (
+                  <div className="stats-bar">
                     <div className="stat-item">
                       <span className="stat-icon-bg">
                         <svg
@@ -3026,86 +3070,53 @@ const IndexPage = ({ location }) => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <line x1="8" y1="6" x2="21" y2="6" />
-                          <line x1="8" y1="12" x2="21" y2="12" />
-                          <line x1="8" y1="18" x2="21" y2="18" />
-                          <line x1="3" y1="6" x2="3.01" y2="6" />
-                          <line x1="3" y1="12" x2="3.01" y2="12" />
-                          <line x1="3" y1="18" x2="3.01" y2="18" />
+                          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                         </svg>
                       </span>
                       <div
                         className="stat-value"
                         style={{ color: config.colors.skoHubDarkColor }}
                       >
-                        {totalTerms.toLocaleString(
-                          language === "en" ? "en-GB" : "es-ES"
-                        )}
+                        {conceptSchemes.length}
                       </div>
                       <div className="stat-label">
-                        {language === "en" ? "terms" : "términos"}
+                        {language === "en" ? "vocabularies" : "vocabularios"}
                       </div>
                     </div>
-                  )}
-                  <div className="stat-item">
-                    <span className="stat-icon-bg">
-                      <svg
-                        className="stat-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="2" y1="12" x2="22" y2="12" />
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                    </span>
-                    <div
-                      className="stat-value"
-                      style={{ color: config.colors.skoHubDarkColor }}
-                    >
-                      {allLanguages.length}
-                    </div>
-                    <div>
-                      <div className="stat-label">
-                        {language === "en" ? "languages" : "idiomas"}
+                    {totalTerms > 0 && (
+                      <div className="stat-item">
+                        <span className="stat-icon-bg">
+                          <svg
+                            className="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                          </svg>
+                        </span>
+                        <div
+                          className="stat-value"
+                          style={{ color: config.colors.skoHubDarkColor }}
+                        >
+                          {totalTerms.toLocaleString(
+                            language === "en" ? "en-GB" : "es-ES"
+                          )}
+                        </div>
+                        <div className="stat-label">
+                          {language === "en" ? "terms" : "términos"}
+                        </div>
                       </div>
-                      <div className="stat-label">
-                        {allLanguages.join(" · ")}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="stat-item">
-                    <span className="stat-icon-bg">
-                      <svg
-                        className="stat-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                      </svg>
-                    </span>
-                    <div
-                      className="stat-value"
-                      style={{ color: config.colors.skoHubDarkColor }}
-                    >
-                      3
-                    </div>
-                    <div className="stat-label">
-                      {language === "en" ? "formats" : "formatos"}
-                    </div>
-                  </div>
-                  {(lastModified || homeConfig.ultima_actualizacion) && (
+                    )}
                     <div className="stat-item">
                       <span className="stat-icon-bg">
                         <svg
@@ -3117,123 +3128,253 @@ const IndexPage = ({ location }) => {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <rect
-                            x="3"
-                            y="4"
-                            width="18"
-                            height="18"
-                            rx="2"
-                            ry="2"
-                          />
-                          <line x1="16" y1="2" x2="16" y2="6" />
-                          <line x1="8" y1="2" x2="8" y2="6" />
-                          <line x1="3" y1="10" x2="21" y2="10" />
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="2" y1="12" x2="22" y2="12" />
+                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                         </svg>
                       </span>
+                      <div
+                        className="stat-value"
+                        style={{ color: config.colors.skoHubDarkColor }}
+                      >
+                        {allLanguages.length}
+                      </div>
                       <div>
-                        <div className="stat-date">
-                          {lastModified || homeConfig.ultima_actualizacion}
+                        <div className="stat-label">
+                          {language === "en" ? "languages" : "idiomas"}
                         </div>
-                        <div className="stat-update-label">
-                          {language === "en"
-                            ? "Last update"
-                            : "Última actualización"}
+                        <div className="stat-label">
+                          {allLanguages.join(" · ")}
                         </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              )}
-
-              {/* Search */}
-              {!selectedCategory &&
-                availableCategories.length === 0 &&
-                filteredSchemes.length > 4 && (
-                  <div className="search-wrapper">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input
-                      type="text"
-                      placeholder={
-                        language === "en"
-                          ? "Search vocabularies..."
-                          : "Buscar vocabularios, conceptos o colecciones..."
-                      }
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                )}
-
-              {/* Categories */}
-              {!selectedCategory && availableCategories.length > 0 && (
-                <div className="cat-list">
-                  {availableCategories.map((code) => {
-                    const cat = CATEGORIES[code]
-                    const count = conceptSchemes.filter(
-                      (cs) => cs.theme === code
-                    ).length
-                    return (
-                      <button
-                        key={code}
-                        className="cat-card"
-                        onClick={() => {
-                          setSelectedCategory(code)
-                          navigate("/", { state: { category: code } })
-                        }}
+                    <div className="stat-item">
+                      <span className="stat-icon-bg">
+                        <svg
+                          className="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </span>
+                      <div
+                        className="stat-value"
+                        style={{ color: config.colors.skoHubDarkColor }}
                       >
-                        <img
-                          src={withPrefix(`/img/${cat.image}`)}
-                          alt={getCategoryLabel(code)}
-                          className="cat-card-img"
-                        />
-                        <div className="cat-card-body">
-                          <h3 className="cat-card-title">
-                            {getCategoryLabel(code)}
-                          </h3>
-                          <p className="cat-card-desc">
-                            {getCategoryDescription(code)}
-                          </p>
-                          <span className="cat-card-count">
-                            {count}{" "}
-                            {language === "en"
-                              ? "vocabularies"
-                              : "vocabularios"}
-                          </span>
-                        </div>
-                        <div className="cat-card-arrow">
+                        3
+                      </div>
+                      <div className="stat-label">
+                        {language === "en" ? "formats" : "formatos"}
+                      </div>
+                    </div>
+                    {(lastModified || homeConfig.ultima_actualizacion) && (
+                      <div className="stat-item">
+                        <span className="stat-icon-bg">
                           <svg
-                            width="20"
-                            height="20"
+                            className="stat-icon"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
-                            strokeWidth="2"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           >
-                            <polyline points="9 18 15 12 9 6" />
+                            <rect
+                              x="3"
+                              y="4"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              ry="2"
+                            />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
                           </svg>
+                        </span>
+                        <div>
+                          <div className="stat-date">
+                            {lastModified || homeConfig.ultima_actualizacion}
+                          </div>
+                          <div className="stat-update-label">
+                            {language === "en"
+                              ? "Last update"
+                              : "Última actualización"}
+                          </div>
                         </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-            {/* ── Sidebar ── */}
-            <Sidebar />
-          </div>
+                {/* Search */}
+                {!selectedCategory &&
+                  availableCategories.length === 0 &&
+                  filteredSchemes.length > 4 && (
+                    <div className="search-wrapper">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder={
+                          language === "en"
+                            ? "Search vocabularies..."
+                            : "Buscar vocabularios, conceptos o colecciones..."
+                        }
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                {/* Categories */}
+                {!selectedCategory && availableCategories.length > 0 && (
+                  <div className="cat-list">
+                    {availableCategories.map((code) => {
+                      const cat = CATEGORIES[code]
+                      const count = conceptSchemes.filter(
+                        (cs) => cs.theme === code
+                      ).length
+                      return (
+                        <button
+                          key={code}
+                          className="cat-card"
+                          onClick={() => {
+                            setSelectedCategory(code)
+                            navigate("/", { state: { category: code } })
+                          }}
+                        >
+                          <img
+                            src={withPrefix(`/img/${cat.image}`)}
+                            alt={getCategoryLabel(code)}
+                            className="cat-card-img"
+                          />
+                          <div className="cat-card-body">
+                            <h3 className="cat-card-title">
+                              {getCategoryLabel(code)}
+                            </h3>
+                            <p className="cat-card-desc">
+                              {getCategoryDescription(code)}
+                            </p>
+                            <span className="cat-card-count">
+                              {count}{" "}
+                              {language === "en"
+                                ? "vocabularies"
+                                : "vocabularios"}
+                            </span>
+                          </div>
+                          <div className="cat-card-arrow">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Sidebar ── */}
+              <Sidebar />
+            </div>
+          </>
         )}
       </div>
+      {galleryIndex !== null && galleryItems[galleryIndex] && (
+        <div
+          className="gallery-modal-backdrop"
+          onClick={() => setGalleryIndex(null)}
+        >
+          <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="gallery-modal-close"
+              onClick={() => setGalleryIndex(null)}
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            {galleryItems.length > 1 && (
+              <button
+                type="button"
+                className="gallery-modal-nav prev"
+                onClick={() =>
+                  setGalleryIndex(
+                    (index) =>
+                      (index - 1 + galleryItems.length) % galleryItems.length
+                  )
+                }
+                aria-label="Anterior"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+            )}
+            <img
+              className="gallery-modal-img"
+              src={withPrefix(`/img/${galleryItems[galleryIndex].image}`)}
+              alt={galleryItems[galleryIndex].title}
+            />
+            {galleryItems.length > 1 && (
+              <button
+                type="button"
+                className="gallery-modal-nav next"
+                onClick={() =>
+                  setGalleryIndex((index) => (index + 1) % galleryItems.length)
+                }
+                aria-label="Siguiente"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )}
+            <div className="gallery-modal-count">
+              {galleryIndex + 1} / {galleryItems.length}
+            </div>
+          </div>
+        </div>
+      )}
       {graphVocab && (
         <GraphModal
           vocabId={graphVocab.id}
