@@ -17,14 +17,15 @@ import Footer from "./footer.jsx"
 const Layout = ({ children, topBackground = false }) => {
   const { config } = getConfigAndConceptSchemes()
   const style = css`
-    height: 100vh;
+    height: ${topBackground ? "auto" : "100vh"};
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: ${topBackground
       ? `linear-gradient(rgba(255,255,255,0.22), rgba(255,255,255,0.22)),
          url(${withPrefix(
            "/img/header-fondo-2.png"
-         )}) top center / 100% 325px no-repeat,
+         )}) top center / 100% 380px no-repeat,
          white`
       : "white"};
 
@@ -39,12 +40,12 @@ const Layout = ({ children, topBackground = false }) => {
       min-height: 0;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      overflow-y: ${topBackground ? "visible" : "auto"};
       scrollbar-width: none;
       &::-webkit-scrollbar {
         display: none;
       }
-      padding: 5px 22px 20px 22px;
+      padding: ${topBackground ? "0 22px 20px 22px" : "5px 22px 20px 22px"};
       background: transparent;
 
       @media only screen and (max-width: 800px) {
@@ -148,7 +149,7 @@ const Layout = ({ children, topBackground = false }) => {
             padding: 0;
             margin: 0;
             border: 0 none;
-            overflow: hidden;
+            overflow: ${topBackground ? "auto" : "hidden"};
             background-color: ${config.colors.skoHubWhite};
             font-family: ${config.fonts.regular.font_family}, ${config.fonts.bold.font_family}, sans-serif;
             font-weight: 400;

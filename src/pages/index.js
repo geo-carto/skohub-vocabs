@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+﻿import React, { useEffect, useRef, useState } from "react"
 import { css } from "@emotion/react"
 import { withPrefix, navigate } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
@@ -158,12 +158,185 @@ const pageStyles = css`
 
   /* ── Hero ── */
   .home-top-band {
-    min-height: 195px;
-    margin-bottom: 5px;
+    margin-bottom: 0;
+  }
 
-    @media (max-width: 900px) {
-      height: auto;
+  .home-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    width: calc(100% + 44px);
+    margin: 0 -22px;
+  }
+
+  .home-section {
+    width: 100%;
+    padding: 48px 22px 54px;
+  }
+
+  .home-section:first-child {
+    padding-top: 48px;
+    background: #e3e0de !important;
+  }
+
+  .home-section.cat-panel,
+  .home-section.recursos-destacados {
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .home-section .cat-list {
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  .home-section .cat-card {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .home-section:nth-child(odd) {
+    background: white;
+  }
+
+  .home-section:nth-child(even) {
+    background: rgb(245, 246, 247);
+  }
+
+  .home-section > .cat-section-title,
+  .home-section > .cat-list,
+  .home-section > .home-section-title,
+  .home-section > .home-updates-grid,
+  .home-section > .recursos-header,
+  .home-section > .recursos-grid,
+  .home-section > .gallery-slider-wrap,
+  .home-section > .sidebar-suggestion {
+    width: min(75vw, 1180px);
+    max-width: calc(100vw - 44px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .home-section > .cat-section-title,
+  .home-section > .home-section-title,
+  .home-section > .recursos-header {
+    padding: 0;
+    margin-bottom: 22px;
+    background: transparent;
+    border-bottom: none;
+    font-size: 42px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #a74c01;
+  }
+
+  .home-section > .home-section-title svg,
+  .home-section > .recursos-header svg {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .home-section > .cat-section-title,
+    .home-section > .cat-list,
+    .home-section > .home-section-title,
+    .home-section > .home-updates-grid,
+    .home-section > .recursos-header,
+    .home-section > .recursos-grid,
+    .home-section > .gallery-slider-wrap,
+    .home-section > .sidebar-suggestion {
+      width: min(88vw, 980px);
     }
+  }
+
+  @media (max-width: 760px) {
+    .home-section {
+      padding: 34px 14px 40px;
+    }
+
+    .home-section > .cat-section-title,
+    .home-section > .cat-list,
+    .home-section > .home-section-title,
+    .home-section > .home-updates-grid,
+    .home-section > .recursos-header,
+    .home-section > .recursos-grid,
+    .home-section > .gallery-slider-wrap,
+    .home-section > .sidebar-suggestion {
+      width: 100%;
+      max-width: none;
+    }
+
+    .home-section > .cat-section-title,
+    .home-section > .home-section-title,
+    .home-section > .recursos-header {
+      font-size: 34px;
+    }
+  }
+
+  .home-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgb(35, 15, 5);
+  }
+
+  .home-updates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .home-update-card {
+    display: grid;
+    gap: 8px;
+    min-height: 132px;
+    padding: 22px 24px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: none;
+  }
+
+  .home-update-date {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgb(196, 95, 40);
+  }
+
+  .home-update-title {
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: rgb(35, 15, 5);
+  }
+
+  .home-update-new {
+    justify-self: start;
+    align-self: end;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: white;
+    background: rgb(45, 140, 80);
+    border-radius: 999px;
+    padding: 3px 8px;
+  }
+
+  .home-suggestion-card {
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .home-gallery-card {
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: none;
   }
 
   .hero {
@@ -172,13 +345,13 @@ const pageStyles = css`
     background-position: center;
     border-radius: 0;
     box-shadow: none;
-    padding: 5px 36px 52px;
-    height: 100%;
+    padding: 12px 36px 24px;
+    height: auto;
     margin: 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     gap: 28px;
 
     @media (max-width: 900px) {
@@ -189,13 +362,16 @@ const pageStyles = css`
 
     @media (max-width: 640px) {
       height: auto;
-      padding: 20px 20px 14px;
+      padding: 12px 20px 34px;
     }
   }
 
   .hero-text {
     max-width: 50%;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 
     @media (max-width: 900px) {
       max-width: 100%;
@@ -209,18 +385,18 @@ const pageStyles = css`
       font-size: 48px;
       font-weight: 700;
       line-height: 1.1;
-      margin: 0 0 16px 0;
+      margin: 0 0 30px 0;
     }
 
     h2 {
       font-size: 24px;
       font-weight: 700;
-      margin: 0 0 18px 0;
+      margin: 0 0 28px 0;
     }
 
     p {
       font-size: 15px;
-      line-height: 1.65;
+      line-height: 1.82;
       margin: 0;
       color: rgb(80, 60, 40);
     }
@@ -368,8 +544,8 @@ const pageStyles = css`
       font-size: 13px;
       color: rgb(130, 110, 90);
       line-height: 1.2;
-      white-space: normal;
-      max-width: 58px;
+      white-space: nowrap;
+      max-width: none;
     }
 
     @media (max-width: 640px) {
@@ -428,7 +604,7 @@ const pageStyles = css`
   .cat-panel {
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+    box-shadow: none;
 
     .cat-list {
       padding: 12px;
@@ -436,7 +612,7 @@ const pageStyles = css`
     }
 
     .cat-card {
-      box-shadow: 0 2px 8px rgba(35, 15, 5, 0.06);
+      box-shadow: none;
     }
   }
 
@@ -464,14 +640,13 @@ const pageStyles = css`
     transition:
       border-color 0.2s,
       box-shadow 0.2s;
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+    box-shadow: none;
     text-align: left;
     font-family: inherit;
     width: 100%;
     --cat-card-title-color: rgb(35, 15, 5);
 
     &:hover {
-      box-shadow: 0 10px 26px rgba(35, 15, 5, 0.12);
       --cat-card-title-color: rgb(196, 95, 40);
     }
 
@@ -489,8 +664,10 @@ const pageStyles = css`
     min-width: 220px;
     height: 100%;
     display: block;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
+    padding: 18px 10px;
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
       width: 100%;
@@ -509,14 +686,14 @@ const pageStyles = css`
   }
 
   .cat-card-title {
-    font-size: 32px;
+    font-size: 35px;
     font-weight: 700;
     margin: 0;
     color: var(--cat-card-title-color);
   }
 
   .cat-card-desc {
-    font-size: 14px;
+    font-size: 17px;
     line-height: 1.5;
     color: rgb(80, 60, 40);
     margin: 0;
@@ -524,7 +701,7 @@ const pageStyles = css`
 
   .cat-card-count {
     display: inline-block;
-    font-size: 13px;
+    font-size: 15px;
     color: rgb(130, 110, 90);
     background: rgb(245, 240, 232);
     border-radius: 20px;
@@ -746,6 +923,43 @@ const pageStyles = css`
     display: block;
     background: rgb(245, 240, 232);
     transition: opacity 0.15s;
+  }
+
+  .home-gallery-card .gallery-slider-wrap {
+    padding: 0;
+  }
+
+  .home-gallery-card .gallery-slider {
+    gap: 18px;
+  }
+
+  .home-gallery-card .gallery-slide-item {
+    flex: 0 0 calc((100% - 36px) / 3);
+
+    @media (max-width: 1100px) {
+      flex-basis: calc((100% - 18px) / 2);
+    }
+
+    @media (max-width: 700px) {
+      flex-basis: 100%;
+    }
+  }
+
+  .home-gallery-card .gallery-slide-img {
+    height: 315px;
+    max-height: none;
+    aspect-ratio: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    background: white;
+
+    @media (max-width: 900px) {
+      height: 270px;
+    }
+
+    @media (max-width: 520px) {
+      height: 220px;
+    }
   }
 
   .gallery-nav-btn {
@@ -1008,6 +1222,12 @@ const pageStyles = css`
     p + p {
       display: none;
     }
+
+    @media (max-width: 760px) {
+      grid-template-columns: 1fr;
+      padding: 16px;
+      text-align: left;
+    }
   }
 
   .sidebar-suggestion-img {
@@ -1015,6 +1235,12 @@ const pageStyles = css`
     height: 188px;
     object-fit: contain;
     display: block;
+
+    @media (max-width: 760px) {
+      width: min(100%, 260px);
+      height: auto;
+      justify-self: center;
+    }
   }
 
   .sidebar-suggestion-content {
@@ -1022,7 +1248,7 @@ const pageStyles = css`
   }
 
   .sidebar-suggestion-title {
-    font-size: 17px;
+    font-size: 22px;
     font-weight: 700;
     line-height: 1.3;
     color: rgb(35, 15, 5);
@@ -1033,7 +1259,7 @@ const pageStyles = css`
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 14px;
+    font-size: 19px;
     font-weight: 700;
     color: rgb(196, 95, 40);
     text-decoration: none;
@@ -1735,8 +1961,8 @@ const pageStyles = css`
   .recursos-destacados {
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
-    height: 190px;
+    box-shadow: none;
+    height: auto;
   }
 
   .sidebar > .sidebar-panel {
@@ -1760,8 +1986,16 @@ const pageStyles = css`
   .recursos-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    background: white;
+    gap: 14px;
+    background: transparent;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .recurso-card {
@@ -1769,11 +2003,12 @@ const pageStyles = css`
     grid-template-columns: 96px 1fr;
     align-items: center;
     gap: 14px;
-    padding: 16px 14px;
+    min-height: 150px;
+    padding: 22px 20px;
     background: white;
-    border-radius: 0;
+    border-radius: 8px;
     box-shadow: none;
-    border-right: 1px solid rgb(235, 225, 210);
+    border-right: none;
     border-bottom: none;
     text-decoration: none;
     color: inherit;
@@ -1781,6 +2016,19 @@ const pageStyles = css`
     transition: background 0.15s;
 
     &:last-child {
+      border-right: none;
+    }
+
+    @media (max-width: 1100px) {
+      border-bottom: none;
+
+      &:nth-child(2n) {
+        border-right: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 96px 1fr;
       border-right: none;
     }
 
@@ -1803,7 +2051,7 @@ const pageStyles = css`
 
   .recurso-logo {
     width: 100%;
-    max-height: 76px;
+    max-height: 88px;
     object-fit: contain;
     display: block;
   }
@@ -1822,7 +2070,7 @@ const pageStyles = css`
     }
 
     .recurso-title {
-      font-size: 17px;
+      font-size: 21px;
       font-weight: 700;
       line-height: 1.3;
       color: rgb(35, 15, 5);
@@ -1830,14 +2078,14 @@ const pageStyles = css`
     }
 
     .recurso-desc {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 1.5;
       color: rgb(80, 60, 40);
       margin: 0 0 8px;
     }
 
     .recurso-link {
-      font-size: 14px;
+      font-size: 16px;
       color: rgb(196, 95, 40);
       font-weight: 600;
     }
@@ -1883,6 +2131,10 @@ const IndexPage = ({ location }) => {
   }
 
   useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  useEffect(() => {
     async function fetchConceptData() {
       try {
         const res = await fetch(withPrefix("/index.json"))
@@ -1904,6 +2156,7 @@ const IndexPage = ({ location }) => {
   useEffect(() => {
     if (location.state?.category) {
       setSelectedCategory(location.state.category)
+      window.history.replaceState({}, document.title, window.location.pathname)
     }
   }, [])
 
@@ -2119,7 +2372,7 @@ const IndexPage = ({ location }) => {
                     ? "Your feedback helps us improve the repository."
                     : "Tu opinión nos ayuda a mejorar el repositorio."}
                 </p>
-                <p>EscrÃ­benos y contacta con nosotros.</p>
+                <p>Escríbenos y contacta con nosotros.</p>
                 <a
                   href="mailto:vocabularios.cientificos@igme.es"
                   className="sidebar-suggestion-btn"
@@ -2291,7 +2544,7 @@ const IndexPage = ({ location }) => {
                 minHeight: 0,
                 display: "flex",
                 flexDirection: "column",
-                overflow: "hidden",
+                overflow: "visible",
                 padding: "0",
                 boxSizing: "border-box",
                 background: "transparent",
@@ -2503,9 +2756,7 @@ const IndexPage = ({ location }) => {
                       {homeConfig.ultima_actualizacion}
                     </div>
                     <div className="stat-update-label">
-                      {language === "en"
-                        ? "Last\nupdate"
-                        : "Última actualización"}
+                      {language === "en" ? "Updated" : "actualizado"}
                     </div>
                   </div>
                 )}
@@ -3571,9 +3822,7 @@ const IndexPage = ({ location }) => {
                             {lastModified || homeConfig.ultima_actualizacion}
                           </span>
                           <span className="stat-update-label">
-                            {language === "en"
-                              ? "Last update"
-                              : "Última actualización"}
+                            {language === "en" ? "Updated" : "actualizado"}
                           </span>
                         </div>
                       )}
@@ -3583,233 +3832,402 @@ const IndexPage = ({ location }) => {
               </div>
             </div>
 
-            <div
-              className="page-grid"
-              style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
-            >
+            <div className="home-scroll">
               {/* ── Columna principal ── */}
-              <div className="main-col">
-                {/* Search */}
-                {!selectedCategory &&
-                  availableCategories.length === 0 &&
-                  filteredSchemes.length > 4 && (
-                    <div className="search-wrapper">
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                      <input
-                        type="text"
-                        placeholder={
-                          language === "en"
-                            ? "Search vocabularies..."
-                            : "Buscar vocabularios, conceptos o colecciones..."
-                        }
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                {/* Categories */}
-                {!selectedCategory && availableCategories.length > 0 && (
-                  <div className="cat-panel">
-                    <div className="cat-section-title">
-                      {language === "en" ? "Categories" : "Categorías"}
-                    </div>
-                    <div className="cat-list">
-                      {availableCategories.map((code) => {
-                        const cat = CATEGORIES[code]
-                        const count = conceptSchemes.filter(
-                          (cs) => cs.theme === code
-                        ).length
-                        return (
-                          <button
-                            key={code}
-                            className="cat-card"
-                            onClick={() => {
-                              setSelectedCategory(code)
-                              navigate("/", { state: { category: code } })
-                            }}
-                          >
-                            <img
-                              src={withPrefix(`/img/${cat.image}`)}
-                              alt={getCategoryLabel(code)}
-                              className="cat-card-img"
-                            />
-                            <div className="cat-card-body">
-                              <h3 className="cat-card-title">
-                                {getCategoryLabel(code)}
-                              </h3>
-                              <p className="cat-card-desc">
-                                {getCategoryDescription(code)}
-                              </p>
-                              <span className="cat-card-count">
-                                {count}{" "}
-                                {language === "en"
-                                  ? "vocabularies"
-                                  : "vocabularios"}
-                              </span>
-                            </div>
-                            <div className="cat-card-arrow">
-                              <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              >
-                                <polyline points="9 18 15 12 9 6" />
-                              </svg>
-                            </div>
-                          </button>
-                        )
-                      })}
-                    </div>
+              {/* Search */}
+              {!selectedCategory &&
+                availableCategories.length === 0 &&
+                filteredSchemes.length > 4 && (
+                  <div className="search-wrapper">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder={
+                        language === "en"
+                          ? "Search vocabularies..."
+                          : "Buscar vocabularios, conceptos o colecciones..."
+                      }
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
                 )}
 
-                {/* Recursos Destacados */}
-                {!selectedCategory && homeConfig.enlaces?.length > 0 && (
-                  <div className="recursos-destacados">
-                    <div className="recursos-header">
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
+              {/* Categories */}
+              {!selectedCategory && availableCategories.length > 0 && (
+                <section className="home-section cat-panel">
+                  <div className="cat-section-title">
+                    {language === "en" ? "Categories" : "Categorías"}
+                  </div>
+                  <div className="cat-list">
+                    {availableCategories.map((code) => {
+                      const cat = CATEGORIES[code]
+                      const count = conceptSchemes.filter(
+                        (cs) => cs.theme === code
+                      ).length
+                      return (
+                        <button
+                          key={code}
+                          className="cat-card"
+                          onClick={() => setSelectedCategory(code)}
+                        >
+                          <img
+                            src={withPrefix(`/img/${cat.image}`)}
+                            alt={getCategoryLabel(code)}
+                            className="cat-card-img"
+                          />
+                          <div className="cat-card-body">
+                            <h3 className="cat-card-title">
+                              {getCategoryLabel(code)}
+                            </h3>
+                            <p className="cat-card-desc">
+                              {getCategoryDescription(code)}
+                            </p>
+                            <span className="cat-card-count">
+                              {count}{" "}
+                              {language === "en"
+                                ? "vocabularies"
+                                : "vocabularios"}
+                            </span>
+                          </div>
+                          <div className="cat-card-arrow">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {/* Ultimas actualizaciones */}
+              {!selectedCategory && homeConfig.novedades?.length > 0 && (
+                <section className="home-section">
+                  <div className="home-section-title">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    {language === "en"
+                      ? "Latest updates"
+                      : "Últimas actualizaciones"}
+                  </div>
+                  <div className="home-updates-grid">
+                    {homeConfig.novedades.map((item, i) => (
+                      <article key={i} className="home-update-card">
+                        {item.fecha && (
+                          <div className="home-update-date">{item.fecha}</div>
+                        )}
+                        <div className="home-update-title">{item.titulo}</div>
+                        {item.nuevo && (
+                          <span className="home-update-new">NUEVO</span>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Sugerencias */}
+              {!selectedCategory && (
+                <section className="home-section home-suggestion-card">
+                  <div className="recursos-header">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {language === "en"
+                      ? "Suggestions?"
+                      : "¿Tienes sugerencias?"}
+                  </div>
+                  <div className="sidebar-suggestion">
+                    <img
+                      src={withPrefix("/img/sugerencias.png")}
+                      alt=""
+                      className="sidebar-suggestion-img"
+                      loading="lazy"
+                    />
+                    <div className="sidebar-suggestion-content">
+                      <div className="sidebar-suggestion-title">
+                        {language === "en"
+                          ? "Write to us and contact us"
+                          : "Escríbenos y contacta con nosotros"}
+                      </div>
+                      <p>
+                        {language === "en"
+                          ? "Your feedback helps us improve the repository."
+                          : "Tu opinión nos ayuda a mejorar el repositorio."}
+                      </p>
+                      <a
+                        href="mailto:vocabularios.cientificos@igme.es"
+                        className="sidebar-suggestion-btn"
                       >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                      {language === "en"
-                        ? "Featured Resources"
-                        : "Recursos Destacados"}
+                        {language === "en"
+                          ? "Send suggestion →"
+                          : "Enviar sugerencia →"}
+                      </a>
                     </div>
-                    <div className="recursos-grid">
-                      {homeConfig.enlaces.map((item, i) => {
-                        const logo = getResourceLogo(item)
-                        const ICONS = [
-                          <svg
-                            key="layers"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                            <polyline points="2 17 12 22 22 17" />
-                            <polyline points="2 12 12 17 22 12" />
-                          </svg>,
-                          <svg
-                            key="graph"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <circle cx="5" cy="12" r="3" />
-                            <circle cx="19" cy="5" r="3" />
-                            <circle cx="19" cy="19" r="3" />
-                            <line x1="8" y1="11" x2="16" y2="6" />
-                            <line x1="8" y1="13" x2="16" y2="18" />
-                          </svg>,
-                          <svg
-                            key="tree"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <rect x="9" y="2" width="6" height="4" rx="1" />
-                            <rect x="2" y="16" width="6" height="4" rx="1" />
-                            <rect x="16" y="16" width="6" height="4" rx="1" />
-                            <line x1="12" y1="6" x2="12" y2="12" />
-                            <line x1="5" y1="16" x2="12" y2="12" />
-                            <line x1="19" y1="16" x2="12" y2="12" />
-                          </svg>,
-                          <svg
-                            key="doc"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                          </svg>,
-                        ]
-                        return (
-                          <a
-                            key={i}
-                            href={item.url}
-                            className="recurso-card"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <div className="recurso-icon-wrap">
-                              {logo && (
-                                <img
-                                  className="recurso-logo"
-                                  src={withPrefix(logo)}
-                                  alt=""
-                                  loading="lazy"
-                                />
-                              )}
+                  </div>
+                </section>
+              )}
+
+              {/* Recursos Destacados */}
+              {!selectedCategory && homeConfig.enlaces?.length > 0 && (
+                <section className="home-section recursos-destacados">
+                  <div className="recursos-header">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                    {language === "en"
+                      ? "Featured Resources"
+                      : "Recursos Destacados"}
+                  </div>
+                  <div className="recursos-grid">
+                    {homeConfig.enlaces.map((item, i) => {
+                      const logo = getResourceLogo(item)
+                      const ICONS = [
+                        <svg
+                          key="layers"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                          <polyline points="2 17 12 22 22 17" />
+                          <polyline points="2 12 12 17 22 12" />
+                        </svg>,
+                        <svg
+                          key="graph"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="5" cy="12" r="3" />
+                          <circle cx="19" cy="5" r="3" />
+                          <circle cx="19" cy="19" r="3" />
+                          <line x1="8" y1="11" x2="16" y2="6" />
+                          <line x1="8" y1="13" x2="16" y2="18" />
+                        </svg>,
+                        <svg
+                          key="tree"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <rect x="9" y="2" width="6" height="4" rx="1" />
+                          <rect x="2" y="16" width="6" height="4" rx="1" />
+                          <rect x="16" y="16" width="6" height="4" rx="1" />
+                          <line x1="12" y1="6" x2="12" y2="12" />
+                          <line x1="5" y1="16" x2="12" y2="12" />
+                          <line x1="19" y1="16" x2="12" y2="12" />
+                        </svg>,
+                        <svg
+                          key="doc"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>,
+                      ]
+                      return (
+                        <a
+                          key={i}
+                          href={item.url}
+                          className="recurso-card"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <div className="recurso-icon-wrap">
+                            {logo && (
+                              <img
+                                className="recurso-logo"
+                                src={withPrefix(logo)}
+                                alt=""
+                                loading="lazy"
+                              />
+                            )}
+                          </div>
+                          <div className="recurso-body">
+                            <div className="recurso-vector-icon">
+                              {ICONS[i % ICONS.length]}
                             </div>
-                            <div className="recurso-body">
-                              <div className="recurso-vector-icon">
-                                {ICONS[i % ICONS.length]}
+                            <div className="recurso-title">{item.titulo}</div>
+                            {item.descripcion && (
+                              <div className="recurso-desc">
+                                {item.descripcion}
                               </div>
-                              <div className="recurso-title">{item.titulo}</div>
-                              {item.descripcion && (
-                                <div className="recurso-desc">
-                                  {item.descripcion}
-                                </div>
-                              )}
-                              <span className="recurso-link">
-                                {language === "en"
-                                  ? "Learn more →"
-                                  : "Saber más →"}
-                              </span>
-                            </div>
-                          </a>
-                        )
-                      })}
-                    </div>
+                            )}
+                            <span className="recurso-link">
+                              {language === "en"
+                                ? "Learn more →"
+                                : "Saber más →"}
+                            </span>
+                          </div>
+                        </a>
+                      )
+                    })}
                   </div>
-                )}
-              </div>
+                </section>
+              )}
 
-              {/* ── Sidebar ── */}
-              <Sidebar />
+              {/* Galeria */}
+              {!selectedCategory && galleryItems.length > 0 && (
+                <section className="home-section home-gallery-card">
+                  <div className="recursos-header">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    {language === "en" ? "Gallery" : "Galería"}
+                  </div>
+                  <div className="gallery-slider-wrap">
+                    <div className="gallery-slider" ref={sliderRef}>
+                      {galleryItems.map((item, index) => (
+                        <button
+                          key={item.image}
+                          type="button"
+                          className="gallery-slide-item"
+                          onClick={() => setGalleryIndex(index)}
+                        >
+                          <img
+                            className="gallery-slide-img"
+                            src={withPrefix(`/img/${item.thumb}`)}
+                            alt=""
+                            loading="lazy"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    {galleryItems.length > 3 && (
+                      <>
+                        <button
+                          type="button"
+                          className="gallery-nav-btn gallery-nav-prev"
+                          onClick={() => {
+                            const el = sliderRef.current
+                            if (!el) return
+                            const itemW = el.firstElementChild?.offsetWidth || 0
+                            el.scrollBy({
+                              left: -(itemW + 8),
+                              behavior: "smooth",
+                            })
+                          }}
+                          aria-label={
+                            language === "en" ? "Previous" : "Anterior"
+                          }
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="gallery-nav-btn gallery-nav-next"
+                          onClick={() => {
+                            const el = sliderRef.current
+                            if (!el) return
+                            const itemW = el.firstElementChild?.offsetWidth || 0
+                            el.scrollBy({
+                              left: itemW + 8,
+                              behavior: "smooth",
+                            })
+                          }}
+                          aria-label={language === "en" ? "Next" : "Siguiente"}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </section>
+              )}
             </div>
           </>
         )}
