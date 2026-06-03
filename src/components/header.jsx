@@ -18,7 +18,7 @@ const Header = ({ siteTitle, transparent = false }) => {
         )}) center bottom/cover no-repeat`};
 
     .headerContent {
-      padding: 10px 20px;
+      padding: 8px 20px 3px;
       display: flex;
       align-items: center;
       position: relative;

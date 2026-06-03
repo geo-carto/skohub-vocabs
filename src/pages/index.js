@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { css } from "@emotion/react"
 import { withPrefix, navigate } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
@@ -76,6 +76,29 @@ const VOCAB_ICONS = {
   estado: "/img/vocab-estado.png",
 }
 
+const RESOURCE_LOGOS = [
+  {
+    match: (item) => /skos|w3c/i.test(`${item.titulo || ""} ${item.url || ""}`),
+    src: "/img/logo-skos.png",
+  },
+  {
+    match: (item) => /geosciml/i.test(`${item.titulo || ""} ${item.url || ""}`),
+    src: "/img/logo-geosciml.png",
+  },
+  {
+    match: (item) => /inspire/i.test(`${item.titulo || ""} ${item.url || ""}`),
+    src: "/img/logo-inspire.png",
+  },
+  {
+    match: (item) =>
+      /egdi|europe-geology/i.test(`${item.titulo || ""} ${item.url || ""}`),
+    src: "/img/logo-egdi.png",
+  },
+]
+
+const getResourceLogo = (item) =>
+  RESOURCE_LOGOS.find((logo) => logo.match(item))?.src || null
+
 const DEFAULT_ICON = (
   <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
     <rect x="6" y="6" width="28" height="28" rx="4" />
@@ -119,6 +142,10 @@ const pageStyles = css`
   .page-grid {
     display: grid;
     grid-template-columns: 1fr 540px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     gap: 24px;
     align-items: stretch;
     padding-top: 0;
@@ -131,8 +158,8 @@ const pageStyles = css`
 
   /* ── Hero ── */
   .home-top-band {
-    min-height: 250px;
-    margin-bottom: 18px;
+    min-height: 195px;
+    margin-bottom: 5px;
 
     @media (max-width: 900px) {
       height: auto;
@@ -145,22 +172,34 @@ const pageStyles = css`
     background-position: center;
     border-radius: 0;
     box-shadow: none;
-    padding: 8px 36px 40px;
+    padding: 5px 36px 52px;
     height: 100%;
     margin: 0;
     box-sizing: border-box;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+
+    @media (max-width: 900px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
 
     @media (max-width: 640px) {
       height: auto;
-      padding: 24px 20px;
+      padding: 20px 20px 14px;
     }
   }
 
   .hero-text {
-    max-width: 66%;
+    max-width: 50%;
+    flex-shrink: 0;
+
+    @media (max-width: 900px) {
+      max-width: 100%;
+    }
 
     @media (max-width: 640px) {
       max-width: 100%;
@@ -204,8 +243,10 @@ const pageStyles = css`
     border: none;
     border-radius: 8px;
     overflow: hidden;
-    background: rgb(245, 240, 232);
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.12);
 
     .stat-item {
       padding: 5px 10px;
@@ -233,6 +274,45 @@ const pageStyles = css`
     }
   }
 
+  .hero-stats-col {
+    flex: 1;
+    min-width: 0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+
+    .stats-bar {
+      margin-bottom: 0;
+      height: 125px;
+      width: fit-content;
+      justify-content: center;
+
+      .stat-item {
+        flex: 0 0 auto;
+        padding: 14px 14px;
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      flex: none;
+      align-self: auto;
+      width: 100%;
+
+      .stats-bar {
+        height: auto;
+        width: auto;
+
+        .stat-item {
+          padding: 5px 10px;
+          gap: 8px;
+        }
+      }
+    }
+  }
+
   .stat-item {
     flex: 1;
     display: flex;
@@ -252,7 +332,7 @@ const pageStyles = css`
       height: 52px;
       min-width: 52px;
       border-radius: 50%;
-      background: white;
+      background: rgba(196, 95, 40, 0.14);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -261,7 +341,7 @@ const pageStyles = css`
     .stat-icon {
       width: 28px;
       height: 28px;
-      color: rgb(35, 15, 5);
+      color: rgb(196, 95, 40);
     }
 
     .stat-value {
@@ -287,9 +367,9 @@ const pageStyles = css`
     .stat-update-label {
       font-size: 13px;
       color: rgb(130, 110, 90);
-      line-height: 1.15;
-      max-width: 72px;
-      white-space: pre-line;
+      line-height: 1.2;
+      white-space: normal;
+      max-width: 58px;
     }
 
     @media (max-width: 640px) {
@@ -337,6 +417,40 @@ const pageStyles = css`
     display: flex;
     flex-direction: column;
     gap: 14px;
+  }
+
+  .main-col {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    row-gap: 16px;
+  }
+
+  .cat-panel {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+
+    .cat-list {
+      padding: 12px;
+      background: white;
+    }
+
+    .cat-card {
+      box-shadow: 0 2px 8px rgba(35, 15, 5, 0.06);
+    }
+  }
+
+  .cat-section-title {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgb(244, 244, 244);
+    border-bottom: 2px solid rgb(220, 205, 185);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgb(35, 15, 5);
   }
 
   .cat-card {
@@ -525,13 +639,22 @@ const pageStyles = css`
 
   /* ── Sidebar ── */
   .sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    justify-content: flex-start;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    row-gap: 16px;
 
     @media (max-width: 900px) {
       display: none;
+    }
+  }
+
+  .sidebar-top-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .sidebar-panel {
+      flex: 1;
     }
   }
 
@@ -541,6 +664,8 @@ const pageStyles = css`
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+    display: flex;
+    flex-direction: column;
   }
 
   .sidebar-panel-header {
@@ -577,48 +702,83 @@ const pageStyles = css`
     padding: 4px 0;
   }
 
-  .gallery-list {
-    display: grid;
-    gap: 8px;
-    padding: 10px 12px 12px;
+  .gallery-slider-wrap {
+    position: relative;
+    padding: 10px 12px 8px;
   }
 
-  .gallery-item {
-    display: grid;
-    grid-template-columns: 74px 1fr;
-    align-items: center;
-    gap: 10px;
-    border: none;
-    border-radius: 6px;
-    background: white;
-    padding: 6px;
-    cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    color: rgb(35, 15, 5);
-    transition:
-      background 0.15s,
-      color 0.15s;
+  .gallery-slider {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 8px;
+    scrollbar-width: none;
 
-    &:hover {
-      background: rgb(248, 242, 232);
-      color: rgb(196, 95, 40);
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 
-  .gallery-thumb {
-    width: 74px;
-    aspect-ratio: 3 / 4;
-    border-radius: 4px;
-    object-fit: cover;
-    display: block;
-    background: rgb(245, 240, 232);
+  .gallery-slide-item {
+    flex: 0 0 calc((100% - 16px) / 3);
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: rgb(35, 15, 5);
+
+    &:hover .gallery-slide-img {
+      opacity: 0.82;
+    }
   }
 
-  .gallery-item-title {
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.25;
+  .gallery-slide-img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    max-height: 110px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    background: rgb(245, 240, 232);
+    transition: opacity 0.15s;
+  }
+
+  .gallery-nav-btn {
+    position: absolute;
+    top: calc(50% - 9px);
+    transform: translateY(-50%);
+    z-index: 2;
+    border: 1.5px solid rgba(210, 195, 175, 0.85);
+    background: rgba(255, 255, 255, 0.88);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgb(100, 80, 60);
+    padding: 0;
+    transition: all 0.15s;
+
+    &:hover {
+      background: white;
+      border-color: rgb(176, 118, 48);
+      color: rgb(176, 118, 48);
+    }
+
+    &.gallery-nav-prev {
+      left: 2px;
+    }
+
+    &.gallery-nav-next {
+      right: 2px;
+    }
   }
 
   .gallery-modal-backdrop {
@@ -629,81 +789,122 @@ const pageStyles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 28px;
   }
 
   .gallery-modal {
-    position: relative;
-    width: min(92vw, 1080px);
-    height: min(88vh, 820px);
+    width: 65vw;
+    max-width: 1100px;
+    height: 65vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  }
+
+  .gallery-modal-titlebar {
+    height: 32px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    background: rgb(32, 32, 32);
+    user-select: none;
+  }
+
+  .gallery-modal-title {
+    flex: 1;
+    text-align: left;
+    font-size: 12px;
+    color: rgb(200, 200, 200);
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 8px 0 14px;
+  }
+
+  .gallery-modal-winctrls {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    flex-shrink: 0;
+    height: 32px;
+  }
+
+  .gallery-wc-btn {
+    width: 46px;
+    height: 32px;
+    border: none;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent;
+    color: rgb(200, 200, 200);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+
+  .gallery-wc-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .gallery-wc-close:hover {
+    background: rgb(196, 43, 28);
+    color: white;
+  }
+
+  .gallery-modal-body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(18, 18, 18);
+    overflow: hidden;
   }
 
   .gallery-modal-img {
     max-width: 100%;
     max-height: 100%;
-    border-radius: 8px;
-    background: white;
-    box-shadow: 0 14px 46px rgba(0, 0, 0, 0.35);
+    display: block;
+    object-fit: contain;
   }
 
-  .gallery-modal-close,
   .gallery-modal-nav {
     position: absolute;
-    border: none;
-    background: rgba(255, 255, 255, 0.9);
-    color: rgb(35, 15, 5);
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
-
-    &:hover {
-      background: white;
-      color: rgb(196, 95, 40);
-    }
-  }
-
-  .gallery-modal-close {
-    top: 0;
-    right: 0;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    font-size: 24px;
-    line-height: 1;
-  }
-
-  .gallery-modal-nav {
     top: 50%;
     transform: translateY(-50%);
+    border: none;
+    background: rgba(30, 30, 30, 0.6);
+    color: white;
+    cursor: pointer;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    &.prev {
-      left: 0;
-    }
-
-    &.next {
-      right: 0;
-    }
+    z-index: 100;
+    pointer-events: all;
+    transition: background 0.15s;
   }
 
-  .gallery-modal-count {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9);
-    color: rgb(35, 15, 5);
-    font-size: 12px;
-    font-weight: 700;
+  .gallery-modal-nav:hover {
+    background: rgba(30, 30, 30, 0.85);
+  }
+
+  .gallery-modal-nav.prev {
+    left: 14px;
+  }
+
+  .gallery-modal-nav.next {
+    right: 14px;
   }
 
   .sidebar-item {
@@ -790,7 +991,12 @@ const pageStyles = css`
   }
 
   .sidebar-suggestion {
-    padding: 10px 12px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 226px 1fr;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 8px 8px 0;
     font-size: 15px;
 
     p {
@@ -798,13 +1004,37 @@ const pageStyles = css`
       color: rgb(80, 60, 40);
       line-height: 1.4;
     }
+
+    p + p {
+      display: none;
+    }
+  }
+
+  .sidebar-suggestion-img {
+    width: 238px;
+    height: 188px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .sidebar-suggestion-content {
+    min-width: 0;
+  }
+
+  .sidebar-suggestion-title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: rgb(35, 15, 5);
+    margin: 0 0 6px;
   }
 
   .sidebar-suggestion-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 700;
     color: rgb(196, 95, 40);
     text-decoration: none;
     background: none;
@@ -972,13 +1202,17 @@ const pageStyles = css`
 
   /* Timeline */
   .timeline-panel-body {
+    flex: 1;
     padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .timeline-item {
     display: flex;
     gap: 10px;
-    padding-bottom: 14px;
+    padding-bottom: 0;
 
     &:last-child {
       padding-bottom: 0;
@@ -1496,6 +1730,118 @@ const pageStyles = css`
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
     transform: translateY(-1px);
   }
+
+  /* ── Recursos Destacados ── */
+  .recursos-destacados {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
+    height: 190px;
+  }
+
+  .sidebar > .sidebar-panel {
+    height: 190px;
+  }
+
+  .recursos-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgb(244, 244, 244);
+    border-bottom: 2px solid rgb(220, 205, 185);
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgb(35, 15, 5);
+  }
+
+  .recursos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    background: white;
+  }
+
+  .recurso-card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 14px;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    border-right: 1px solid rgb(235, 225, 210);
+    border-bottom: none;
+    text-decoration: none;
+    color: inherit;
+    text-align: left;
+    transition: background 0.15s;
+
+    &:last-child {
+      border-right: none;
+    }
+
+    &:hover {
+      background: rgb(250, 247, 242);
+    }
+
+    &:hover .recurso-link {
+      text-decoration: underline;
+    }
+  }
+
+  .recurso-icon-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .recurso-logo {
+    width: 100%;
+    max-height: 76px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .recurso-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .recurso-vector-icon {
+      color: rgb(196, 95, 40);
+      margin-bottom: 5px;
+      line-height: 0;
+    }
+
+    .recurso-title {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: rgb(35, 15, 5);
+      margin: 0 0 4px;
+    }
+
+    .recurso-desc {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgb(80, 60, 40);
+      margin: 0 0 8px;
+    }
+
+    .recurso-link {
+      font-size: 14px;
+      color: rgb(196, 95, 40);
+      font-weight: 600;
+    }
+  }
 `
 
 const IndexPage = ({ location }) => {
@@ -1521,11 +1867,10 @@ const IndexPage = ({ location }) => {
       (language === "en" ? `Image ${index + 1}` : `Imagen ${index + 1}`),
     image: item.imagen,
     thumb:
-      item.miniatura ||
-      item.thumb ||
-      item.imagen?.replace(/(\.[^.]+)$/, "-thumb$1"),
+      item.miniatura || item.thumb || item.imagen?.replace(/(\.[^.]+)$/, "g$1"),
   }))
   const [galleryIndex, setGalleryIndex] = useState(null)
+  const sliderRef = useRef(null)
   const normalizeConceptSchemes = (value) => {
     if (Array.isArray(value)) return value
     if (value?.conceptSchemes && Array.isArray(value.conceptSchemes)) {
@@ -1738,6 +2083,101 @@ const IndexPage = ({ location }) => {
   const Sidebar = () => {
     return (
       <aside className="sidebar">
+        <div className="sidebar-top-panels">
+          {/* Sugerencias */}
+          <div className="sidebar-panel">
+            <div className="sidebar-panel-header">
+              <span className="panel-title">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
+              </span>
+            </div>
+            <div className="sidebar-suggestion">
+              <img
+                src={withPrefix("/img/sugerencias.png")}
+                alt=""
+                className="sidebar-suggestion-img"
+                loading="lazy"
+              />
+              <div className="sidebar-suggestion-content">
+                <div className="sidebar-suggestion-title">
+                  {language === "en"
+                    ? "Write to us and contact us"
+                    : "Escríbenos y contacta con nosotros"}
+                </div>
+                <p>
+                  {language === "en"
+                    ? "Your feedback helps us improve the repository."
+                    : "Tu opinión nos ayuda a mejorar el repositorio."}
+                </p>
+                <p>EscrÃ­benos y contacta con nosotros.</p>
+                <a
+                  href="mailto:vocabularios.cientificos@igme.es"
+                  className="sidebar-suggestion-btn"
+                >
+                  {language === "en"
+                    ? "Send suggestion →"
+                    : "Enviar sugerencia →"}
+                </a>
+              </div>
+            </div>
+
+            {/* Últimas actualizaciones */}
+          </div>
+          {homeConfig.novedades?.length > 0 && (
+            <div className="sidebar-panel">
+              <div className="sidebar-panel-header">
+                <span className="panel-title">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  {language === "en"
+                    ? "Latest updates"
+                    : "Últimas actualizaciones"}
+                </span>
+              </div>
+              <div className="timeline-panel-body">
+                {homeConfig.novedades.map((item, i) => (
+                  <div key={i} className="timeline-item">
+                    <div className="timeline-dot-col">
+                      <div className="timeline-dot" />
+                      <div className="timeline-line" />
+                    </div>
+                    <div className="timeline-content">
+                      <div className="timeline-title">
+                        {item.titulo}
+                        {item.nuevo && (
+                          <span className="timeline-new">NUEVO</span>
+                        )}
+                      </div>
+                      {item.fecha && (
+                        <div className="timeline-date">{item.fecha}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         {galleryItems.length > 0 && (
           <div className="sidebar-panel">
             <div className="sidebar-panel-header">
@@ -1757,153 +2197,72 @@ const IndexPage = ({ location }) => {
                 {language === "en" ? "Gallery" : "Galería"}
               </span>
             </div>
-            <div className="gallery-list">
-              {galleryItems.map((item, index) => (
-                <button
-                  key={item.image}
-                  type="button"
-                  className="gallery-item"
-                  onClick={() => setGalleryIndex(index)}
-                >
-                  <img
-                    className="gallery-thumb"
-                    src={withPrefix(`/img/${item.thumb}`)}
-                    alt=""
-                    loading="lazy"
-                  />
-                  <span className="gallery-item-title">{item.title}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Sugerencias */}
-        <div className="sidebar-panel">
-          <div className="sidebar-panel-header">
-            <span className="panel-title">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
-            </span>
-          </div>
-          <div className="sidebar-suggestion">
-            <p>
-              {language === "en"
-                ? "Your feedback helps us improve the repository."
-                : "Tu opinión nos ayuda a mejorar el repositorio."}
-            </p>
-            <a
-              href="mailto:vocabularios.cientificos@igme.es"
-              className="sidebar-suggestion-btn"
-            >
-              {language === "en" ? "Send suggestion →" : "Enviar sugerencia →"}
-            </a>
-          </div>
-        </div>
-
-        {/* Últimas actualizaciones */}
-        {homeConfig.novedades?.length > 0 && (
-          <div className="sidebar-panel">
-            <div className="sidebar-panel-header">
-              <span className="panel-title">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                {language === "en"
-                  ? "Latest updates"
-                  : "Últimas actualizaciones"}
-              </span>
-            </div>
-            <div className="timeline-panel-body">
-              {homeConfig.novedades.map((item, i) => (
-                <div key={i} className="timeline-item">
-                  <div className="timeline-dot-col">
-                    <div className="timeline-dot" />
-                    <div className="timeline-line" />
-                  </div>
-                  <div className="timeline-content">
-                    <div className="timeline-title">
-                      {item.titulo}
-                      {item.nuevo && (
-                        <span className="timeline-new">NUEVO</span>
-                      )}
-                    </div>
-                    {item.fecha && (
-                      <div className="timeline-date">{item.fecha}</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Enlaces */}
-        {homeConfig.enlaces?.length > 0 && (
-          <div className="sidebar-panel">
-            <div className="sidebar-panel-header">
-              <span className="panel-title">
-                <svg
-                  width="15"
-                  height="15"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
-                {language === "en" ? "Related Links" : "Enlaces Relacionados"}
-              </span>
-            </div>
-            <div className="sidebar-panel-body">
-              {homeConfig.enlaces.map((item, i) => (
-                <a
-                  key={i}
-                  href={item.url}
-                  className="sidebar-item-link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span
-                    className="item-title"
-                    style={{ color: "rgb(196,95,40)" }}
+            <div className="gallery-slider-wrap">
+              <div className="gallery-slider" ref={sliderRef}>
+                {galleryItems.map((item, index) => (
+                  <button
+                    key={item.image}
+                    type="button"
+                    className="gallery-slide-item"
+                    onClick={() => setGalleryIndex(index)}
                   >
-                    {item.titulo}
-                  </span>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    style={{ minWidth: 12, color: "rgb(130,110,90)" }}
+                    <img
+                      className="gallery-slide-img"
+                      src={withPrefix(`/img/${item.thumb}`)}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+              {galleryItems.length > 3 && (
+                <>
+                  <button
+                    type="button"
+                    className="gallery-nav-btn gallery-nav-prev"
+                    onClick={() => {
+                      const el = sliderRef.current
+                      if (!el) return
+                      const itemW = el.firstElementChild?.offsetWidth || 0
+                      el.scrollBy({ left: -(itemW + 8), behavior: "smooth" })
+                    }}
+                    aria-label={language === "en" ? "Previous" : "Anterior"}
                   >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </a>
-              ))}
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="gallery-nav-btn gallery-nav-next"
+                    onClick={() => {
+                      const el = sliderRef.current
+                      if (!el) return
+                      const itemW = el.firstElementChild?.offsetWidth || 0
+                      el.scrollBy({ left: itemW + 8, behavior: "smooth" })
+                    }}
+                    aria-label={language === "en" ? "Next" : "Siguiente"}
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -1917,13 +2276,27 @@ const IndexPage = ({ location }) => {
 
       <div
         css={pageStyles}
-        style={{
-          width: "100%",
-          minHeight: "100%",
-          padding: "0",
-          boxSizing: "border-box",
-          background: selectedCategory ? "white" : "transparent",
-        }}
+        style={
+          selectedCategory
+            ? {
+                width: "100%",
+                minHeight: "100%",
+                padding: "0",
+                boxSizing: "border-box",
+                background: "white",
+              }
+            : {
+                width: "100%",
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                padding: "0",
+                boxSizing: "border-box",
+                background: "transparent",
+              }
+        }
       >
         {selectedCategory ? (
           /* ══════════════════════════════════════
@@ -3050,41 +3423,9 @@ const IndexPage = ({ location }) => {
                     </p>
                   )}
                 </div>
-              </div>
-            </div>
-
-            <div className="page-grid">
-              {/* ── Columna principal ── */}
-              <div>
-                {/* Stats bar */}
-                {!selectedCategory && conceptSchemes.length > 0 && (
-                  <div className="stats-bar">
-                    <div className="stat-item">
-                      <span className="stat-icon-bg">
-                        <svg
-                          className="stat-icon"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                        </svg>
-                      </span>
-                      <div
-                        className="stat-value"
-                        style={{ color: config.colors.skoHubDarkColor }}
-                      >
-                        {conceptSchemes.length}
-                      </div>
-                      <div className="stat-label">
-                        {language === "en" ? "vocabularies" : "vocabularios"}
-                      </div>
-                    </div>
-                    {totalTerms > 0 && (
+                {conceptSchemes.length > 0 && (
+                  <div className="hero-stats-col">
+                    <div className="stats-bar">
                       <div className="stat-item">
                         <span className="stat-icon-bg">
                           <svg
@@ -3096,86 +3437,53 @@ const IndexPage = ({ location }) => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            <line x1="8" y1="6" x2="21" y2="6" />
-                            <line x1="8" y1="12" x2="21" y2="12" />
-                            <line x1="8" y1="18" x2="21" y2="18" />
-                            <line x1="3" y1="6" x2="3.01" y2="6" />
-                            <line x1="3" y1="12" x2="3.01" y2="12" />
-                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                           </svg>
                         </span>
                         <div
                           className="stat-value"
                           style={{ color: config.colors.skoHubDarkColor }}
                         >
-                          {totalTerms.toLocaleString(
-                            language === "en" ? "en-GB" : "es-ES"
-                          )}
+                          {conceptSchemes.length}
                         </div>
                         <div className="stat-label">
-                          {language === "en" ? "terms" : "términos"}
+                          {language === "en" ? "vocabularies" : "vocabularios"}
                         </div>
                       </div>
-                    )}
-                    <div className="stat-item">
-                      <span className="stat-icon-bg">
-                        <svg
-                          className="stat-icon"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="2" y1="12" x2="22" y2="12" />
-                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                        </svg>
-                      </span>
-                      <div
-                        className="stat-value"
-                        style={{ color: config.colors.skoHubDarkColor }}
-                      >
-                        {allLanguages.length}
-                      </div>
-                      <div>
-                        <div className="stat-label">
-                          {language === "en" ? "languages" : "idiomas"}
+                      {totalTerms > 0 && (
+                        <div className="stat-item">
+                          <span className="stat-icon-bg">
+                            <svg
+                              className="stat-icon"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <line x1="8" y1="6" x2="21" y2="6" />
+                              <line x1="8" y1="12" x2="21" y2="12" />
+                              <line x1="8" y1="18" x2="21" y2="18" />
+                              <line x1="3" y1="6" x2="3.01" y2="6" />
+                              <line x1="3" y1="12" x2="3.01" y2="12" />
+                              <line x1="3" y1="18" x2="3.01" y2="18" />
+                            </svg>
+                          </span>
+                          <div
+                            className="stat-value"
+                            style={{ color: config.colors.skoHubDarkColor }}
+                          >
+                            {totalTerms.toLocaleString(
+                              language === "en" ? "en-GB" : "es-ES"
+                            )}
+                          </div>
+                          <div className="stat-label">
+                            {language === "en" ? "terms" : "términos"}
+                          </div>
                         </div>
-                        <div className="stat-label">
-                          {allLanguages.join(" · ")}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="stat-item">
-                      <span className="stat-icon-bg">
-                        <svg
-                          className="stat-icon"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <line x1="16" y1="13" x2="8" y2="13" />
-                          <line x1="16" y1="17" x2="8" y2="17" />
-                        </svg>
-                      </span>
-                      <div
-                        className="stat-value"
-                        style={{ color: config.colors.skoHubDarkColor }}
-                      >
-                        3
-                      </div>
-                      <div className="stat-label">
-                        {language === "en" ? "formats" : "formatos"}
-                      </div>
-                    </div>
-                    {(lastModified || homeConfig.ultima_actualizacion) && (
+                      )}
                       <div className="stat-item">
                         <span className="stat-icon-bg">
                           <svg
@@ -3187,34 +3495,100 @@ const IndexPage = ({ location }) => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            <rect
-                              x="3"
-                              y="4"
-                              width="18"
-                              height="18"
-                              rx="2"
-                              ry="2"
-                            />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                           </svg>
                         </span>
+                        <div
+                          className="stat-value"
+                          style={{ color: config.colors.skoHubDarkColor }}
+                        >
+                          {allLanguages.length}
+                        </div>
                         <div>
-                          <div className="stat-date">
-                            {lastModified || homeConfig.ultima_actualizacion}
+                          <div className="stat-label">
+                            {language === "en" ? "languages" : "idiomas"}
                           </div>
-                          <div className="stat-update-label">
-                            {language === "en"
-                              ? "Last update"
-                              : "Última actualización"}
+                          <div className="stat-label">
+                            {allLanguages.join(" · ")}
                           </div>
                         </div>
                       </div>
-                    )}
+                      <div className="stat-item">
+                        <span className="stat-icon-bg">
+                          <svg
+                            className="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                          </svg>
+                        </span>
+                        <div
+                          className="stat-value"
+                          style={{ color: config.colors.skoHubDarkColor }}
+                        >
+                          3
+                        </div>
+                        <div className="stat-label">
+                          {language === "en" ? "formats" : "formatos"}
+                        </div>
+                      </div>
+                      {(lastModified || homeConfig.ultima_actualizacion) && (
+                        <div className="stat-item">
+                          <span className="stat-icon-bg">
+                            <svg
+                              className="stat-icon"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="18"
+                                rx="2"
+                                ry="2"
+                              />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                          </span>
+                          <span className="stat-date">
+                            {lastModified || homeConfig.ultima_actualizacion}
+                          </span>
+                          <span className="stat-update-label">
+                            {language === "en"
+                              ? "Last update"
+                              : "Última actualización"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
+              </div>
+            </div>
 
+            <div
+              className="page-grid"
+              style={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+            >
+              {/* ── Columna principal ── */}
+              <div className="main-col">
                 {/* Search */}
                 {!selectedCategory &&
                   availableCategories.length === 0 &&
@@ -3246,55 +3620,190 @@ const IndexPage = ({ location }) => {
 
                 {/* Categories */}
                 {!selectedCategory && availableCategories.length > 0 && (
-                  <div className="cat-list">
-                    {availableCategories.map((code) => {
-                      const cat = CATEGORIES[code]
-                      const count = conceptSchemes.filter(
-                        (cs) => cs.theme === code
-                      ).length
-                      return (
-                        <button
-                          key={code}
-                          className="cat-card"
-                          onClick={() => {
-                            setSelectedCategory(code)
-                            navigate("/", { state: { category: code } })
-                          }}
-                        >
-                          <img
-                            src={withPrefix(`/img/${cat.image}`)}
-                            alt={getCategoryLabel(code)}
-                            className="cat-card-img"
-                          />
-                          <div className="cat-card-body">
-                            <h3 className="cat-card-title">
-                              {getCategoryLabel(code)}
-                            </h3>
-                            <p className="cat-card-desc">
-                              {getCategoryDescription(code)}
-                            </p>
-                            <span className="cat-card-count">
-                              {count}{" "}
-                              {language === "en"
-                                ? "vocabularies"
-                                : "vocabularios"}
-                            </span>
-                          </div>
-                          <div className="cat-card-arrow">
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                          </div>
-                        </button>
-                      )
-                    })}
+                  <div className="cat-panel">
+                    <div className="cat-section-title">
+                      {language === "en" ? "Categories" : "Categorías"}
+                    </div>
+                    <div className="cat-list">
+                      {availableCategories.map((code) => {
+                        const cat = CATEGORIES[code]
+                        const count = conceptSchemes.filter(
+                          (cs) => cs.theme === code
+                        ).length
+                        return (
+                          <button
+                            key={code}
+                            className="cat-card"
+                            onClick={() => {
+                              setSelectedCategory(code)
+                              navigate("/", { state: { category: code } })
+                            }}
+                          >
+                            <img
+                              src={withPrefix(`/img/${cat.image}`)}
+                              alt={getCategoryLabel(code)}
+                              className="cat-card-img"
+                            />
+                            <div className="cat-card-body">
+                              <h3 className="cat-card-title">
+                                {getCategoryLabel(code)}
+                              </h3>
+                              <p className="cat-card-desc">
+                                {getCategoryDescription(code)}
+                              </p>
+                              <span className="cat-card-count">
+                                {count}{" "}
+                                {language === "en"
+                                  ? "vocabularies"
+                                  : "vocabularios"}
+                              </span>
+                            </div>
+                            <div className="cat-card-arrow">
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <polyline points="9 18 15 12 9 6" />
+                              </svg>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recursos Destacados */}
+                {!selectedCategory && homeConfig.enlaces?.length > 0 && (
+                  <div className="recursos-destacados">
+                    <div className="recursos-header">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                      {language === "en"
+                        ? "Featured Resources"
+                        : "Recursos Destacados"}
+                    </div>
+                    <div className="recursos-grid">
+                      {homeConfig.enlaces.map((item, i) => {
+                        const logo = getResourceLogo(item)
+                        const ICONS = [
+                          <svg
+                            key="layers"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                            <polyline points="2 17 12 22 22 17" />
+                            <polyline points="2 12 12 17 22 12" />
+                          </svg>,
+                          <svg
+                            key="graph"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <circle cx="5" cy="12" r="3" />
+                            <circle cx="19" cy="5" r="3" />
+                            <circle cx="19" cy="19" r="3" />
+                            <line x1="8" y1="11" x2="16" y2="6" />
+                            <line x1="8" y1="13" x2="16" y2="18" />
+                          </svg>,
+                          <svg
+                            key="tree"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect x="9" y="2" width="6" height="4" rx="1" />
+                            <rect x="2" y="16" width="6" height="4" rx="1" />
+                            <rect x="16" y="16" width="6" height="4" rx="1" />
+                            <line x1="12" y1="6" x2="12" y2="12" />
+                            <line x1="5" y1="16" x2="12" y2="12" />
+                            <line x1="19" y1="16" x2="12" y2="12" />
+                          </svg>,
+                          <svg
+                            key="doc"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                          </svg>,
+                        ]
+                        return (
+                          <a
+                            key={i}
+                            href={item.url}
+                            className="recurso-card"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <div className="recurso-icon-wrap">
+                              {logo && (
+                                <img
+                                  className="recurso-logo"
+                                  src={withPrefix(logo)}
+                                  alt=""
+                                  loading="lazy"
+                                />
+                              )}
+                            </div>
+                            <div className="recurso-body">
+                              <div className="recurso-vector-icon">
+                                {ICONS[i % ICONS.length]}
+                              </div>
+                              <div className="recurso-title">{item.titulo}</div>
+                              {item.descripcion && (
+                                <div className="recurso-desc">
+                                  {item.descripcion}
+                                </div>
+                              )}
+                              <span className="recurso-link">
+                                {language === "en"
+                                  ? "Learn more →"
+                                  : "Saber más →"}
+                              </span>
+                            </div>
+                          </a>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
@@ -3304,77 +3813,102 @@ const IndexPage = ({ location }) => {
             </div>
           </>
         )}
-      </div>
-      {galleryIndex !== null && galleryItems[galleryIndex] && (
-        <div
-          className="gallery-modal-backdrop"
-          onClick={() => setGalleryIndex(null)}
-        >
-          <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="gallery-modal-close"
-              onClick={() => setGalleryIndex(null)}
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
-            {galleryItems.length > 1 && (
-              <button
-                type="button"
-                className="gallery-modal-nav prev"
-                onClick={() =>
-                  setGalleryIndex(
-                    (index) =>
-                      (index - 1 + galleryItems.length) % galleryItems.length
-                  )
-                }
-                aria-label="Anterior"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-            )}
-            <img
-              className="gallery-modal-img"
-              src={withPrefix(`/img/${galleryItems[galleryIndex].image}`)}
-              alt={galleryItems[galleryIndex].title}
-            />
-            {galleryItems.length > 1 && (
-              <button
-                type="button"
-                className="gallery-modal-nav next"
-                onClick={() =>
-                  setGalleryIndex((index) => (index + 1) % galleryItems.length)
-                }
-                aria-label="Siguiente"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </button>
-            )}
-            <div className="gallery-modal-count">
-              {galleryIndex + 1} / {galleryItems.length}
+        {galleryIndex !== null && galleryItems[galleryIndex] && (
+          <div
+            className="gallery-modal-backdrop"
+            onClick={() => setGalleryIndex(null)}
+          >
+            <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
+              {/* Title bar */}
+              <div className="gallery-modal-titlebar">
+                <span className="gallery-modal-title">
+                  {galleryItems[galleryIndex].image}
+                </span>
+                <div className="gallery-modal-winctrls">
+                  <button
+                    type="button"
+                    className="gallery-wc-btn gallery-wc-min"
+                    aria-label="Minimizar"
+                  >
+                    ─
+                  </button>
+                  <button
+                    type="button"
+                    className="gallery-wc-btn gallery-wc-max"
+                    aria-label="Maximizar"
+                  >
+                    □
+                  </button>
+                  <button
+                    type="button"
+                    className="gallery-wc-btn gallery-wc-close"
+                    onClick={() => setGalleryIndex(null)}
+                    aria-label="Cerrar"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              {/* Image area */}
+              <div className="gallery-modal-body">
+                {galleryItems.length > 1 && (
+                  <button
+                    type="button"
+                    className="gallery-modal-nav prev"
+                    onClick={() =>
+                      setGalleryIndex(
+                        (index) =>
+                          (index - 1 + galleryItems.length) %
+                          galleryItems.length
+                      )
+                    }
+                    aria-label="Anterior"
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                )}
+                <img
+                  className="gallery-modal-img"
+                  src={withPrefix(`/img/${galleryItems[galleryIndex].image}`)}
+                  alt={galleryItems[galleryIndex].title}
+                />
+                {galleryItems.length > 1 && (
+                  <button
+                    type="button"
+                    className="gallery-modal-nav next"
+                    onClick={() =>
+                      setGalleryIndex(
+                        (index) => (index + 1) % galleryItems.length
+                      )
+                    }
+                    aria-label="Siguiente"
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       {graphVocab && (
         <GraphModal
           vocabId={graphVocab.id}

@@ -18,13 +18,13 @@ import {
 
 // ─── Layout definitions ───────────────────────────────────────
 const LAYOUTS = [
-  { id: "force", es: "Fuerza", en: "Force" },
-  { id: "radial", es: "Radial", en: "Radial" },
   { id: "tree-v", es: "Árbol ↕", en: "Tree ↕" },
   { id: "tree-h", es: "Árbol →", en: "Tree →" },
-  { id: "treemap", es: "Treemap", en: "Treemap" },
-  { id: "sunburst", es: "Sunburst", en: "Sunburst" },
+  { id: "radial", es: "Radial", en: "Radial" },
   { id: "ego", es: "Ego", en: "Ego" },
+  { id: "force", es: "Fuerza", en: "Force" },
+  { id: "sunburst", es: "Sunburst", en: "Sunburst" },
+  { id: "treemap", es: "Treemap", en: "Treemap" },
 ]
 
 const LINK_LAYOUTS = new Set(["force", "tree-v", "tree-h"])
@@ -33,8 +33,8 @@ const RECT_LAYOUTS = new Set(["treemap"])
 // ─── Edge type definitions ────────────────────────────────────
 const RELATION_STYLES = {
   broader: {
-    color: "rgb(94, 94, 94)",
-    hlColor: "rgb(51, 51, 51)",
+    color: "rgb(129, 128, 128)",
+    hlColor: "rgb(92, 92, 92)",
     dash: null,
   },
   narrower: {
@@ -472,7 +472,11 @@ const EGO_LABEL_MAX_LINES = 4
 const EGO_NODE_PAD_X = 14
 const EGO_NODE_PAD_Y = 10
 
-function wrapNodeLabel(label, maxChars = EGO_LABEL_WRAP_CHARS) {
+function wrapNodeLabel(
+  label,
+  maxChars = EGO_LABEL_WRAP_CHARS,
+  breakLongWords = true
+) {
   const words = String(label || "")
     .trim()
     .split(/\s+/)
@@ -487,6 +491,14 @@ function wrapNodeLabel(label, maxChars = EGO_LABEL_WRAP_CHARS) {
   }
   words.forEach((word) => {
     if (word.length > maxChars) {
+      if (!breakLongWords) {
+        if (current) {
+          lines.push(current)
+          current = ""
+        }
+        lines.push(word)
+        return
+      }
       if (current) {
         lines.push(current)
         current = ""
@@ -853,6 +865,90 @@ function EgoDepthBtns({ label, value, max, onChange }) {
 }
 
 // ─── Component ────────────────────────────────────────────────
+const FONT_SIZE_OPTIONS = Array.from({ length: 23 }, (_, i) => i + 8)
+
+function FontSizeSelect({ value, onChange, disabled = false, label }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ position: "relative", width: 68 }}>
+      <button
+        type="button"
+        disabled={disabled}
+        aria-label={label}
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          width: "100%",
+          fontSize: "13px",
+          color: disabled ? "rgb(150,145,160)" : "rgb(40,35,50)",
+          border: "1px solid rgb(225,222,232)",
+          borderRadius: "8px",
+          padding: "6px 22px 6px 10px",
+          background: disabled ? "rgb(245,244,248)" : "white",
+          fontFamily: "inherit",
+          cursor: disabled ? "default" : "pointer",
+          textAlign: "left",
+          position: "relative",
+        }}
+      >
+        {value}
+        <span
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "rgb(130,125,145)",
+            fontSize: 10,
+          }}
+        >
+          ▾
+        </span>
+      </button>
+      {open && !disabled && (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 3px)",
+            left: 0,
+            right: 0,
+            zIndex: 20,
+            maxHeight: 280,
+            overflowY: "auto",
+            border: "1px solid rgb(225,222,232)",
+            borderRadius: 8,
+            background: "white",
+            boxShadow: "0 8px 18px rgba(35,15,5,0.16)",
+          }}
+        >
+          {FONT_SIZE_OPTIONS.map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={() => {
+                onChange(size)
+                setOpen(false)
+              }}
+              style={{
+                width: "100%",
+                height: 28,
+                border: "none",
+                background: size === value ? "rgb(248,242,232)" : "transparent",
+                color: size === value ? "rgb(196,95,40)" : "rgb(40,35,50)",
+                cursor: "pointer",
+                fontFamily: "inherit",
+                fontSize: 13,
+                fontWeight: size === value ? 700 : 400,
+              }}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 const GraphModal = ({
   vocabId,
   customDomain,
@@ -861,6 +957,8 @@ const GraphModal = ({
   onClose,
   schemes,
   onVocabChange,
+  initialLayout,
+  initialFocalId,
 }) => {
   const [nodeInfo, setNodeInfo] = useState([])
   const [edgesAll, setEdgesAll] = useState([])
@@ -868,7 +966,7 @@ const GraphModal = ({
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
-  const [layoutType, setLayoutType] = useState("force")
+  const [layoutType, setLayoutType] = useState(initialLayout || "tree-v")
   const [showLabels, setShowLabels] = useState(true)
   const [labelOverrides, setLabelOverrides] = useState({})
   const [, setEgoLabelOverrides] = useState({})
@@ -890,6 +988,7 @@ const GraphModal = ({
   const [edgeLabelFontSize, setEdgeLabelFontSize] = useState(10)
   const [nodePalette, setNodePalette] = useState("depth")
   const [radialSpacing, setRadialSpacing] = useState(1)
+  const [sunburstRingScale, setSunburstRingScale] = useState(1)
   const [treeSpacingX, setTreeSpacingX] = useState(190)
   const [treeSpacingY, setTreeSpacingY] = useState(145)
   const egoShowMatches = enabledExternalRelations.size > 0
@@ -913,13 +1012,15 @@ const GraphModal = ({
   const scaleRef = useRef(1)
   const dragRef = useRef(null)
   const didMoveRef = useRef(false)
-  const layoutRef = useRef("force")
+  const layoutRef = useRef(initialLayout || "tree-v")
   const labelOverridesRef = useRef({})
   const egoLabelOverridesRef = useRef({})
   const egoMatchCacheRef = useRef({})
   const egoSubgraphRef = useRef({ nodes: [], edges: [] })
   const egoPositionsRef = useRef({})
   const egoOverridesRef = useRef({}) // user-dragged positions, preserved across depth changes
+  const initialLayoutRef = useRef(initialLayout)
+  const initialFocalIdRef = useRef(initialFocalId)
 
   const posMode = RECT_LAYOUTS.has(layoutType)
     ? "rect"
@@ -992,6 +1093,10 @@ const GraphModal = ({
   // ── Static layout computation ─────────────────────────────
   const applyStaticLayout = useCallback(
     (type) => {
+      if (d3SimRef.current) {
+        d3SimRef.current.stop()
+        d3SimRef.current = null
+      }
       const root = hierarchyRef.current
       if (!root) return
       const el = containerRef.current
@@ -1035,27 +1140,59 @@ const GraphModal = ({
             })
           })
       } else if (type === "sunburst") {
-        const maxDepth = Math.max(1, ...root.descendants().map((n) => n.depth))
-        const ringWidth = 92
-        const R = Math.max(Math.min(cx, cy) - 10, maxDepth * ringWidth)
-        partition()
-          .size([2 * Math.PI, R])(root)
-          .descendants()
-          .forEach((node) => {
-            arr.push({
-              id: node.data.id,
-              x0: node.x0,
-              x1: node.x1,
-              y0: node.y0,
-              y1: node.y1,
-              cx,
-              cy,
-            })
+        const nodes = root.descendants()
+        const maxDepth = Math.max(1, ...nodes.map((n) => n.depth))
+        const longestWordsByDepth = Array.from(
+          { length: maxDepth + 1 },
+          () => 0
+        )
+        nodes.forEach((node) => {
+          const words = String(node.data.label || "")
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+          const longest = words.length
+            ? Math.max(...words.map((word) => word.length))
+            : 0
+          longestWordsByDepth[node.depth] = Math.max(
+            longestWordsByDepth[node.depth],
+            longest
+          )
+        })
+        const ringWidths = longestWordsByDepth.map((longest, depth) => {
+          if (depth === 0) return 104
+          const textW = longest * labelFontSize * 0.58
+          return Math.max(48, Math.min(220, (textW + 34) * sunburstRingScale))
+        })
+        const depthRadii = [0]
+        ringWidths.forEach((width) => {
+          depthRadii.push(depthRadii[depthRadii.length - 1] + width)
+        })
+        const R = depthRadii[depthRadii.length - 1]
+        partition().size([2 * Math.PI, R])(root)
+        root.descendants().forEach((node) => {
+          const y0 = depthRadii[node.depth]
+          const y1 = depthRadii[node.depth + 1] ?? R
+          arr.push({
+            id: node.data.id,
+            x0: node.x0,
+            x1: node.x1,
+            y0,
+            y1,
+            cx,
+            cy,
           })
+        })
       }
       updatePositions(arr)
     },
-    [treeSpacingX, treeSpacingY, updatePositions]
+    [
+      labelFontSize,
+      sunburstRingScale,
+      treeSpacingX,
+      treeSpacingY,
+      updatePositions,
+    ]
   )
 
   // ── Load vocabulary ───────────────────────────────────────
@@ -1133,44 +1270,61 @@ const GraphModal = ({
         setNodeInfo(flatNodes)
         setEdgesAll(allEdges)
         setEnabledEdgeTypes(initEnabled)
-        setLayoutType("force")
-        layoutRef.current = "force"
+        fitPendingRef.current = true
+
+        const layout = initialLayoutRef.current || "tree-v"
+        const isEgoMode = layout === "ego" || layout === "radial"
+        setLayoutType(layout)
+        layoutRef.current = layout
         setLoading(false)
 
-        // Initialize ego focal to root so force controls are visible from the start
         const rootNode = flatNodes.find((n) => n.isRoot) || flatNodes[0]
-        if (rootNode) {
-          const depths = computeEgoMaxDepths(rootNode.id, allEdges)
-          setEgoFocalId(rootNode.id)
+        const initFocal = initialFocalIdRef.current
+        const focalId =
+          initFocal && flatNodes.some((n) => n.id === initFocal)
+            ? initFocal
+            : rootNode?.id || null
+        if (focalId) {
+          const depths = computeEgoMaxDepths(focalId, allEdges)
+          setEgoFocalId(focalId)
           setEgoMaxDepths(depths)
-          setEgoDepthBroader(depths.maxBroader)
-          setEgoDepthNarrow(depths.maxNarrow)
-          setEnabledEgoRelations(new Set(["narrower"]))
+          if (isEgoMode || layout === "force") {
+            setEnabledEgoRelations(new Set(["broader", "narrower"]))
+            setEgoDepthBroader(Math.min(1, depths.maxBroader))
+            setEgoDepthNarrow(Math.min(1, depths.maxNarrow))
+          } else {
+            setEnabledEgoRelations(new Set(["narrower"]))
+            setEgoDepthBroader(depths.maxBroader)
+            setEgoDepthNarrow(depths.maxNarrow)
+          }
         }
 
-        const el = containerRef.current
-        const cx = el ? el.clientWidth / 2 : 400
-        const cy = el ? el.clientHeight / 2 : 300
-        const count = flatNodes.length
-        const r = Math.min(220, 40 + count * 5)
-        const initNodes = flatNodes.map((info, i) => ({
-          ...info,
-          id: info.id,
-          x:
-            i === 0
-              ? cx
-              : cx +
-                r * Math.cos((2 * Math.PI * i) / Math.max(count - 1, 1)) +
-                (Math.random() - 0.5) * 20,
-          y:
-            i === 0
-              ? cy
-              : cy +
-                r * Math.sin((2 * Math.PI * i) / Math.max(count - 1, 1)) +
-                (Math.random() - 0.5) * 20,
-        }))
-        updatePositions(initNodes.map((n) => ({ id: n.id, x: n.x, y: n.y })))
-        startForce(initNodes, allEdges, initEnabled)
+        // Only start force sim for force layout — static layouts use applyStaticLayout via the layout-switch useEffect
+        if (layout === "force") {
+          const el = containerRef.current
+          const cx = el ? el.clientWidth / 2 : 400
+          const cy = el ? el.clientHeight / 2 : 300
+          const count = flatNodes.length
+          const r = Math.min(220, 40 + count * 5)
+          const initNodes = flatNodes.map((info, i) => ({
+            ...info,
+            id: info.id,
+            x:
+              i === 0
+                ? cx
+                : cx +
+                  r * Math.cos((2 * Math.PI * i) / Math.max(count - 1, 1)) +
+                  (Math.random() - 0.5) * 20,
+            y:
+              i === 0
+                ? cy
+                : cy +
+                  r * Math.sin((2 * Math.PI * i) / Math.max(count - 1, 1)) +
+                  (Math.random() - 0.5) * 20,
+          }))
+          updatePositions(initNodes.map((n) => ({ id: n.id, x: n.x, y: n.y })))
+          startForce(initNodes, allEdges, initEnabled)
+        }
       })
       .catch(() => {
         setErr(
@@ -1180,6 +1334,7 @@ const GraphModal = ({
         )
         setLoading(false)
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vocabId, language])
 
   useEffect(() => {
@@ -1380,12 +1535,25 @@ const GraphModal = ({
 
   // ── Layout switch ─────────────────────────────────────────
   useEffect(() => {
-    if (layoutType === "tree-v" || layoutType === "tree-h") {
+    if (
+      layoutType === "tree-v" ||
+      layoutType === "tree-h" ||
+      layoutType === "sunburst"
+    ) {
       applyStaticLayout(layoutType)
     }
-  }, [layoutType, treeSpacingX, treeSpacingY, applyStaticLayout])
+  }, [
+    layoutType,
+    treeSpacingX,
+    treeSpacingY,
+    labelFontSize,
+    sunburstRingScale,
+    applyStaticLayout,
+    nodeInfo,
+  ])
 
   const handleLayout = (type) => {
+    fitPendingRef.current = true
     layoutRef.current = type
     setLayoutType(type)
     labelOverridesRef.current = {}
@@ -1399,7 +1567,7 @@ const GraphModal = ({
         d3SimRef.current = null
       }
       egoOverridesRef.current = {}
-      setEnabledEgoRelations(new Set(["narrower"]))
+      setEnabledEgoRelations(new Set(["broader", "narrower"]))
       const rootNode =
         nodeInfoRef.current.find((n) => n.isRoot) || nodeInfoRef.current[0]
       const focal = rootNode?.id || null
@@ -1441,7 +1609,7 @@ const GraphModal = ({
         d3SimRef.current = null
       }
       egoOverridesRef.current = {}
-      setEnabledEgoRelations(new Set(["narrower"]))
+      setEnabledEgoRelations(new Set(["broader", "narrower"]))
       const rootNode =
         nodeInfoRef.current.find((n) => n.isRoot) || nodeInfoRef.current[0]
       const focal = rootNode?.id || null
@@ -1722,12 +1890,18 @@ const GraphModal = ({
         }
       }
     } else if (dragRef.current.type === "static-node") {
-      if (!didMoveRef.current) {
+      if (
+        !didMoveRef.current &&
+        !["tree-v", "tree-h"].includes(layoutRef.current)
+      ) {
         const hitId = dragRef.current.hitId
         setSelectedId((id) => (id === hitId ? null : hitId))
       }
     } else if (dragRef.current.type === "label") {
-      if (!didMoveRef.current) {
+      if (
+        !didMoveRef.current &&
+        !["tree-v", "tree-h"].includes(layoutRef.current)
+      ) {
         const hitId = dragRef.current.hitId
         setSelectedId((id) => (id === hitId ? null : hitId))
       }
@@ -1759,7 +1933,8 @@ const GraphModal = ({
     } else if (
       dragRef.current.type === "pan" &&
       !didMoveRef.current &&
-      dragRef.current.hitId
+      dragRef.current.hitId &&
+      !["tree-v", "tree-h"].includes(layoutRef.current)
     ) {
       const hitId = dragRef.current.hitId
       setSelectedId((id) => (id === hitId ? null : hitId))
@@ -1830,6 +2005,82 @@ const GraphModal = ({
     setEgoDepthBroader(depths.maxBroader)
     setEgoDepthNarrow(depths.maxNarrow)
   }
+
+  const fitPendingRef = useRef(false)
+
+  const applyFit = useCallback((pts) => {
+    if (!pts.length || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    const xs = []
+    const ys = []
+    pts.forEach((p) => {
+      if (p.cx != null && p.cy != null && p.y1 != null) {
+        xs.push(p.cx - p.y1, p.cx + p.y1)
+        ys.push(p.cy - p.y1, p.cy + p.y1)
+      } else if (p.x != null && p.y != null) {
+        xs.push(p.x)
+        ys.push(p.y)
+      } else if (p.x0 != null && p.x1 != null && p.y0 != null && p.y1 != null) {
+        xs.push(p.x0, p.x1)
+        ys.push(p.y0, p.y1)
+      }
+    })
+    if (!xs.length || !ys.length) return
+    const minX = Math.min(...xs)
+    const maxX = Math.max(...xs)
+    const minY = Math.min(...ys)
+    const maxY = Math.max(...ys)
+    const pad = 80
+    const graphW = maxX - minX + pad * 2
+    const graphH = maxY - minY + pad * 2
+    const panelW = 262
+    const availW = rect.width - panelW
+    const availH = rect.height
+    const s = Math.max(
+      0.1,
+      Math.min(2.5, Math.min(availW / graphW, availH / graphH))
+    )
+    const cx = (minX + maxX) / 2
+    const cy = (minY + maxY) / 2
+    const px = panelW + availW / 2 - cx * s
+    const py = availH / 2 - cy * s
+    panRef.current = { x: px, y: py }
+    setPan({ x: px, y: py })
+    scaleRef.current = s
+    setScale(s)
+  }, [])
+
+  const handleFitView = useCallback(() => {
+    const lt = layoutRef.current
+    if (lt === "ego" || lt === "radial") {
+      const pts = Object.values(egoPositionsRef.current).filter(
+        (p) => p?.x != null
+      )
+      applyFit(pts)
+    } else {
+      const pts = positionsRef.current.length ? positionsRef.current : []
+      applyFit(pts)
+    }
+  }, [applyFit])
+
+  // Auto-fit when positions update after a layout switch
+  useEffect(() => {
+    if (!fitPendingRef.current || !positions.length) return
+    const lt = layoutRef.current
+    if (lt === "ego" || lt === "radial") return // handled by egoPositions effect
+    fitPendingRef.current = false
+    applyFit(positions)
+  }, [positions, applyFit])
+
+  useEffect(() => {
+    if (!fitPendingRef.current) return
+    const lt = layoutRef.current
+    if (lt !== "ego" && lt !== "radial") return
+    const pts = Object.values(egoPositions).filter((p) => p?.x != null)
+    if (!pts.length) return
+    fitPendingRef.current = false
+    applyFit(pts)
+  }, [egoPositions, applyFit])
 
   const onWheel = (e) => {
     e.preventDefault()
@@ -2047,18 +2298,20 @@ const GraphModal = ({
       const midA = (pos.x0 + pos.x1) / 2 - Math.PI / 2
       const midR = (pos.y0 + pos.y1) / 2
       // Label at inner edge, text extends radially outward — no clipping
-      const innerR = pos.y0 < 2 ? 0 : pos.y0 + 10
-      const lx2 = pos.cx + innerR * Math.cos(midA)
-      const ly2 = pos.cy + innerR * Math.sin(midA)
+      const labelR = pos.y0 < 2 ? 0 : (pos.y0 + pos.y1) / 2
+      const lx2 = pos.cx + labelR * Math.cos(midA)
+      const ly2 = pos.cy + labelR * Math.sin(midA)
       const degA = (midA * 180) / Math.PI
       const isLeft = midA > Math.PI / 2 || midA < -Math.PI / 2
       const textRot = isLeft ? degA + 180 : degA
-      const anchor = isLeft ? "end" : "start"
       const arcH = pos.y1 - pos.y0
       const showLabel = showLabels && arcH > 8 && (pos.x1 - pos.x0) * midR > 6
       const isSunburstRoot = info.isRoot || pos.y0 < 2
-      const labelLines = wrapNodeLabel(info.label, isSunburstRoot ? 16 : 14)
-      const lineH = labelFontSize + 2
+      const sunburstMaxChars = isSunburstRoot
+        ? 18
+        : Math.max(12, Math.floor((arcH - 8) / (labelFontSize * 0.42)))
+      const labelLines = wrapNodeLabel(info.label, sunburstMaxChars, false)
+      const lineH = Math.max(labelFontSize * 0.9, labelFontSize - 1)
       const labelStartY =
         (isSunburstRoot ? pos.cy : ly2) - ((labelLines.length - 1) * lineH) / 2
       return (
@@ -2071,7 +2324,7 @@ const GraphModal = ({
           />
           {showLabel && (
             <text
-              textAnchor={isSunburstRoot ? "middle" : anchor}
+              textAnchor="middle"
               dominantBaseline="middle"
               fontSize={labelFontSize}
               fontFamily={GRAPH_FONT_FAMILY}
@@ -2161,21 +2414,21 @@ const GraphModal = ({
   }
 
   const sidePanelLabelStyle = {
-    fontSize: 12,
-    fontWeight: 700,
-    color: "rgb(35,15,5)",
+    fontSize: 10,
+    fontWeight: 600,
+    color: "rgb(120,115,130)",
     textTransform: "uppercase",
-    letterSpacing: "0.05em",
+    letterSpacing: "0.08em",
   }
   const sideSelectStyle = {
     fontSize: "13px",
-    color: "rgb(80,50,20)",
-    border: "1px solid rgb(220,205,185)",
-    borderRadius: "6px",
+    color: "rgb(40,35,50)",
+    border: "1px solid rgb(225,222,232)",
+    borderRadius: "8px",
     padding: "6px 26px 6px 10px",
     background: "white",
     backgroundImage:
-      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23826e5a' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238880a0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 8px center",
     fontFamily: "inherit",
@@ -2183,15 +2436,74 @@ const GraphModal = ({
     appearance: "none",
     WebkitAppearance: "none",
     width: "100%",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
   }
-  const sideCheckboxRowStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
-    padding: "2px 0",
-    cursor: "pointer",
+  const sideSectionStyle = {
+    display: "grid",
+    gap: 6,
+    padding: "10px 12px",
+    background: "white",
+    borderRadius: 10,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
   }
+  const sideToggle = (active, onToggle) => (
+    <div
+      role="switch"
+      aria-checked={active}
+      onClick={onToggle}
+      style={{
+        width: 34,
+        height: 19,
+        borderRadius: 10,
+        background: active ? "rgb(196,95,40)" : "rgb(210,208,218)",
+        position: "relative",
+        cursor: "pointer",
+        flexShrink: 0,
+        transition: "background 0.18s",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 2,
+          left: active ? 17 : 2,
+          width: 15,
+          height: 15,
+          borderRadius: "50%",
+          background: "white",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+          transition: "left 0.18s",
+        }}
+      />
+    </div>
+  )
+
+  // ── Drag ──────────────────────────────────────────────────
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const dragOffsetRef = useRef({ x: 0, y: 0 })
+
+  const onDragStart = useCallback((e) => {
+    e.preventDefault()
+    const startX = e.clientX
+    const startY = e.clientY
+    const startOX = dragOffsetRef.current.x
+    const startOY = dragOffsetRef.current.y
+
+    const onMove = (ev) => {
+      const next = {
+        x: startOX + (ev.clientX - startX),
+        y: startOY + (ev.clientY - startY),
+      }
+      dragOffsetRef.current = next
+      setDragOffset(next)
+    }
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove)
+      window.removeEventListener("mouseup", onUp)
+    }
+    window.addEventListener("mousemove", onMove)
+    window.addEventListener("mouseup", onUp)
+  }, [])
 
   // ── Render ────────────────────────────────────────────────
   return (
@@ -2215,28 +2527,38 @@ const GraphModal = ({
           borderRadius: "12px",
           width: "92vw",
           height: "87vh",
+          minWidth: "520px",
+          minHeight: "360px",
+          maxWidth: "99vw",
+          maxHeight: "97vh",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
           boxShadow: "0 8px 48px rgba(0,0,0,0.35)",
+          resize: "both",
+          boxSizing: "border-box",
+          transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
         }}
       >
         {/* ── Header ── */}
         <div
           style={{
             padding: "10px 16px 0 16px",
-            borderBottom: "1px solid rgb(220,205,185)",
+            borderBottom: "1px solid rgb(220,218,228)",
             flexShrink: 0,
-            background: "rgb(248,244,238)",
+            background: "rgb(246,245,250)",
           }}
         >
           {/* Row 1: title + close */}
           <div
+            onMouseDown={onDragStart}
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               marginBottom: "8px",
+              cursor: "move",
+              userSelect: "none",
             }}
           >
             <span
@@ -2244,8 +2566,88 @@ const GraphModal = ({
                 fontWeight: 700,
                 fontSize: "21px",
                 color: "rgb(35,15,5)",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
               }}
             >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="4" r="2.8" fill="rgb(196,95,40)" />
+                <circle
+                  cx="4"
+                  cy="18"
+                  r="2.8"
+                  fill="rgb(196,95,40)"
+                  opacity="0.75"
+                />
+                <circle
+                  cx="20"
+                  cy="18"
+                  r="2.8"
+                  fill="rgb(196,95,40)"
+                  opacity="0.75"
+                />
+                <circle
+                  cx="12"
+                  cy="13"
+                  r="2.2"
+                  fill="rgb(196,95,40)"
+                  opacity="0.55"
+                />
+                <line
+                  x1="12"
+                  y1="6.8"
+                  x2="12"
+                  y2="10.8"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="10.2"
+                  y1="14.5"
+                  x2="5.8"
+                  y2="15.7"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="13.8"
+                  y1="14.5"
+                  x2="18.2"
+                  y2="15.7"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="6.5"
+                  y1="17"
+                  x2="10"
+                  y2="14.5"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  opacity="0.4"
+                />
+                <line
+                  x1="17.5"
+                  y1="17"
+                  x2="14"
+                  y2="14.5"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  opacity="0.4"
+                />
+              </svg>
               {language === "en" ? "Graph view" : "Vista de grafo"}
             </span>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -2904,23 +3306,25 @@ const GraphModal = ({
               bottom: 0,
               left: 0,
               zIndex: 3,
-              width: 250,
+              width: 262,
               overflowY: "auto",
-              padding: 12,
-              borderRight: "1px solid rgb(220,205,185)",
-              background: "rgb(250,247,242)",
+              padding: "10px 10px 16px",
+              borderRight: "1px solid rgb(220,218,228)",
+              background: "rgb(246,245,250)",
               display: "flex",
               flexDirection: "column",
               gap: 8,
               boxSizing: "border-box",
+              scrollbarWidth: "thin",
             }}
             onMouseDown={(e) => e.stopPropagation()}
             onMouseMove={(e) => e.stopPropagation()}
             onMouseUp={(e) => e.stopPropagation()}
             onWheel={(e) => e.stopPropagation()}
           >
+            {/* ── Vocabulary ── */}
             {schemes?.length > 0 ? (
-              <label style={{ display: "grid", gap: 5 }}>
+              <div style={sideSectionStyle}>
                 <span style={sidePanelLabelStyle}>
                   {language === "en" ? "Vocabulary" : "Vocabulario"}
                 </span>
@@ -2936,22 +3340,56 @@ const GraphModal = ({
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
             ) : (
               title && (
-                <span
-                  style={{
-                    fontSize: "13px",
-                    color: "rgb(80,60,40)",
-                    fontWeight: 600,
-                  }}
-                >
-                  {title}
-                </span>
+                <div style={{ ...sideSectionStyle, padding: "8px 12px" }}>
+                  <span
+                    style={{
+                      fontSize: "13px",
+                      color: "rgb(50,45,65)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {title}
+                  </span>
+                </div>
               )
             )}
 
-            <div style={{ display: "grid", gap: 5 }}>
+            {/* ── Focal concept (ego / radial / force-ego) ── */}
+            {(layoutType === "ego" ||
+              layoutType === "radial" ||
+              (layoutType === "force" && egoFocalId)) &&
+              nodeInfo.length > 0 && (
+                <div style={sideSectionStyle}>
+                  <span style={sidePanelLabelStyle}>
+                    {language === "en" ? "Focal concept" : "Concepto central"}
+                  </span>
+                  <select
+                    value={egoFocalId || ""}
+                    onChange={(e) => setEgoFocalId(e.target.value)}
+                    aria-label={
+                      language === "en" ? "Focal concept" : "Concepto central"
+                    }
+                    style={sideSelectStyle}
+                  >
+                    {nodeInfo
+                      .slice()
+                      .sort((a, b) =>
+                        (a.label || "").localeCompare(b.label || "")
+                      )
+                      .map((n) => (
+                        <option key={n.id} value={n.id}>
+                          {n.label || n.id.split("/").pop()}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
+
+            {/* ── Graph type + Palette ── */}
+            <div style={sideSectionStyle}>
               <span style={sidePanelLabelStyle}>
                 {language === "en" ? "Graph type" : "Tipo de grafo"}
               </span>
@@ -2961,7 +3399,7 @@ const GraphModal = ({
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                  gap: 5,
+                  gap: 4,
                 }}
               >
                 {LAYOUTS.map((l) => {
@@ -2972,22 +3410,25 @@ const GraphModal = ({
                       type="button"
                       onClick={() => handleLayout(l.id)}
                       style={{
-                        minHeight: 30,
-                        padding: "5px 6px",
-                        borderRadius: 6,
-                        border: `1px solid ${
-                          active ? "rgb(196,95,40)" : "rgb(220,205,185)"
+                        height: 28,
+                        padding: "0 6px",
+                        borderRadius: 20,
+                        border: `1.5px solid ${
+                          active ? "rgb(196,95,40)" : "rgb(225,222,232)"
                         }`,
                         background: active ? "rgb(196,95,40)" : "white",
-                        color: active ? "white" : "rgb(80,60,40)",
+                        color: active ? "white" : "rgb(70,65,85)",
                         cursor: "pointer",
                         fontFamily: "inherit",
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: active ? 700 : 400,
                         lineHeight: 1,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
+                        boxShadow: active
+                          ? "0 2px 6px rgba(196,95,40,0.3)"
+                          : "none",
                       }}
                     >
                       {language === "en" ? l.en : l.es}
@@ -2995,12 +3436,13 @@ const GraphModal = ({
                   )
                 })}
               </div>
-              <label
+
+              <div
                 style={{
+                  borderTop: "1px solid rgb(235,233,242)",
+                  paddingTop: 8,
                   display: "grid",
-                  gridTemplateColumns: "auto 1fr",
-                  gap: 8,
-                  alignItems: "center",
+                  gap: 5,
                 }}
               >
                 <span style={sidePanelLabelStyle}>
@@ -3020,16 +3462,24 @@ const GraphModal = ({
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
+
               {(layoutType === "tree-v" || layoutType === "tree-h") && (
-                <div style={{ display: "grid", gap: 5 }}>
+                <div
+                  style={{
+                    borderTop: "1px solid rgb(235,233,242)",
+                    paddingTop: 8,
+                    display: "grid",
+                    gap: 6,
+                  }}
+                >
                   <label style={{ display: "grid", gap: 3 }}>
                     <span
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
                         fontSize: 11,
-                        color: "rgb(100,80,60)",
+                        color: "rgb(110,105,125)",
                       }}
                     >
                       <span>
@@ -3037,7 +3487,7 @@ const GraphModal = ({
                           ? "Horizontal spacing"
                           : "Separacion horizontal"}
                       </span>
-                      <span>{treeSpacingX}</span>
+                      <span style={{ fontWeight: 600 }}>{treeSpacingX}</span>
                     </span>
                     <input
                       type="range"
@@ -3059,7 +3509,7 @@ const GraphModal = ({
                         display: "flex",
                         justifyContent: "space-between",
                         fontSize: 11,
-                        color: "rgb(100,80,60)",
+                        color: "rgb(110,105,125)",
                       }}
                     >
                       <span>
@@ -3067,7 +3517,7 @@ const GraphModal = ({
                           ? "Vertical spacing"
                           : "Separacion vertical"}
                       </span>
-                      <span>{treeSpacingY}</span>
+                      <span style={{ fontWeight: 600 }}>{treeSpacingY}</span>
                     </span>
                     <input
                       type="range"
@@ -3085,75 +3535,122 @@ const GraphModal = ({
                   </label>
                 </div>
               )}
-            </div>
-
-            <div style={sideCheckboxRowStyle}>
-              <span style={sidePanelLabelStyle}>
-                {language === "en" ? "Node labels" : "Etiquetas nodos"}
-              </span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <input
-                  type="checkbox"
-                  checked={showLabels}
-                  onChange={() => setShowLabels((v) => !v)}
-                />
-                <select
-                  value={labelFontSize}
-                  onChange={(e) => setLabelFontSize(Number(e.target.value))}
+              {layoutType === "sunburst" && (
+                <div
                   style={{
-                    ...sideSelectStyle,
-                    width: 76,
+                    borderTop: "1px solid rgb(235,233,242)",
+                    paddingTop: 8,
+                    display: "grid",
+                    gap: 6,
                   }}
                 >
-                  {Array.from({ length: 17 }, (_, i) => i + 8).map((sz) => (
-                    <option key={sz} value={sz}>
-                      {sz}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <label style={{ display: "grid", gap: 3 }}>
+                    <span
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: 11,
+                        color: "rgb(110,105,125)",
+                      }}
+                    >
+                      <span>
+                        {language === "en" ? "Ring width" : "Ancho de anillos"}
+                      </span>
+                      <span style={{ fontWeight: 600 }}>
+                        {sunburstRingScale.toFixed(2)}x
+                      </span>
+                    </span>
+                    <input
+                      type="range"
+                      min={0.4}
+                      max={2.6}
+                      step={0.05}
+                      value={sunburstRingScale}
+                      onChange={(e) =>
+                        setSunburstRingScale(Number(e.target.value))
+                      }
+                      style={{
+                        width: "100%",
+                        accentColor: "rgb(196,95,40)",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </label>
+                </div>
+              )}
             </div>
 
-            {(layoutType === "ego" ||
-              layoutType === "radial" ||
-              (layoutType === "force" && egoFocalId)) && (
-              <div style={sideCheckboxRowStyle}>
+            {/* ── Labels ── */}
+            <div style={sideSectionStyle}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <span style={sidePanelLabelStyle}>
-                  {language === "en"
-                    ? "Relation labels"
-                    : "Etiquetas relaciones"}
+                  {language === "en" ? "Node labels" : "Etiquetas nodos"}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <input
-                    type="checkbox"
-                    checked={egoShowEdgeLabels}
-                    onChange={() => setEgoShowEdgeLabels((v) => !v)}
-                  />
-                  <select
-                    value={edgeLabelFontSize}
-                    onChange={(e) =>
-                      setEdgeLabelFontSize(Number(e.target.value))
+                  <FontSizeSelect
+                    value={labelFontSize}
+                    onChange={setLabelFontSize}
+                    disabled={!showLabels}
+                    label={
+                      language === "en"
+                        ? "Node label size"
+                        : "Tamaño etiquetas nodos"
                     }
-                    style={{
-                      ...sideSelectStyle,
-                      width: 76,
-                    }}
-                  >
-                    {Array.from({ length: 17 }, (_, i) => i + 8).map((sz) => (
-                      <option key={sz} value={sz}>
-                        {sz}
-                      </option>
-                    ))}
-                  </select>
+                  />
+                  {sideToggle(showLabels, () => setShowLabels((v) => !v))}
                 </div>
               </div>
-            )}
 
+              {(layoutType === "ego" ||
+                layoutType === "radial" ||
+                (layoutType === "force" && egoFocalId)) && (
+                <div
+                  style={{
+                    borderTop: "1px solid rgb(235,233,242)",
+                    paddingTop: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span style={sidePanelLabelStyle}>
+                    {language === "en"
+                      ? "Relation labels"
+                      : "Etiquetas relaciones"}
+                  </span>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <FontSizeSelect
+                      value={edgeLabelFontSize}
+                      onChange={setEdgeLabelFontSize}
+                      disabled={!egoShowEdgeLabels}
+                      label={
+                        language === "en"
+                          ? "Relation label size"
+                          : "Tamaño etiquetas relaciones"
+                      }
+                    />
+                    {sideToggle(egoShowEdgeLabels, () =>
+                      setEgoShowEdgeLabels((v) => !v)
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ── Depth + Ring spacing ── */}
             {(layoutType === "ego" ||
               layoutType === "radial" ||
               (layoutType === "force" && egoFocalId)) && (
               <>
-                <div style={{ display: "grid", gap: 5, marginTop: 2 }}>
+                <div style={sideSectionStyle}>
                   <span style={sidePanelLabelStyle}>
                     {language === "en"
                       ? "Hierarchy depth"
@@ -3172,14 +3669,21 @@ const GraphModal = ({
                     onChange={setEgoDepthNarrow}
                   />
                   {(layoutType === "ego" || layoutType === "radial") && (
-                    <label style={{ display: "grid", gap: 4 }}>
+                    <label
+                      style={{
+                        display: "grid",
+                        gap: 4,
+                        borderTop: "1px solid rgb(235,233,242)",
+                        paddingTop: 8,
+                      }}
+                    >
                       <span
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
                           gap: 8,
                           fontSize: 11,
-                          color: "rgb(100,80,60)",
+                          color: "rgb(110,105,125)",
                           whiteSpace: "nowrap",
                         }}
                       >
@@ -3188,12 +3692,14 @@ const GraphModal = ({
                             ? "Ring distance:"
                             : "Distancia anillos:"}
                         </span>
-                        <span>{radialSpacing.toFixed(2)}x</span>
+                        <span style={{ fontWeight: 600 }}>
+                          {radialSpacing.toFixed(2)}x
+                        </span>
                       </span>
                       <input
                         type="range"
-                        min={0.55}
-                        max={1.8}
+                        min={0.35}
+                        max={2.6}
                         step={0.05}
                         value={radialSpacing}
                         onChange={(e) =>
@@ -3209,16 +3715,12 @@ const GraphModal = ({
                   )}
                 </div>
 
-                <div style={{ display: "grid", gap: 4 }}>
+                {/* ── Relations ── */}
+                <div style={sideSectionStyle}>
                   <span style={sidePanelLabelStyle}>
                     {language === "en" ? "Show relations" : "Ver relaciones"}
                   </span>
-                  <div
-                    style={{
-                      display: "grid",
-                      gap: 2,
-                    }}
-                  >
+                  <div style={{ display: "grid", gap: 1 }}>
                     {EGO_RELATION_DEFS.map((rel) => {
                       const checked = enabledEgoRelations.has(rel.id)
                       const col = EGO_PRED_COLORS[rel.id] || "rgb(120,110,100)"
@@ -3228,11 +3730,17 @@ const GraphModal = ({
                           style={{
                             display: "flex",
                             alignItems: "center",
-                            gap: 6,
-                            padding: "2px 0",
-                            color: "rgb(65,45,30)",
-                            fontSize: 13,
+                            gap: 8,
+                            padding: "4px 6px",
+                            borderRadius: 6,
+                            color: checked
+                              ? "rgb(40,35,50)"
+                              : "rgb(140,135,155)",
+                            fontSize: 12,
                             cursor: "pointer",
+                            background: checked
+                              ? "rgb(248,246,255)"
+                              : "transparent",
                           }}
                         >
                           <input
@@ -3244,12 +3752,13 @@ const GraphModal = ({
                               else next.add(rel.id)
                               setEnabledEgoRelations(next)
                             }}
+                            style={{ accentColor: col, width: 13, height: 13 }}
                           />
                           <span
                             style={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
+                              width: 3,
+                              height: 14,
+                              borderRadius: 2,
                               background: col,
                               flexShrink: 0,
                             }}
@@ -3259,87 +3768,69 @@ const GraphModal = ({
                       )
                     })}
                   </div>
-                </div>
-
-                <div style={{ display: "grid", gap: 4 }}>
-                  <div
-                    style={{
-                      display: "grid",
-                      gap: 2,
-                    }}
-                  >
-                    {EGO_EXTERNAL_RELATION_DEFS.map((rel) => {
-                      const checked = enabledExternalRelations.has(rel.id)
-                      const col = EGO_PRED_COLORS[rel.id] || "rgb(120,110,100)"
-                      return (
-                        <label
-                          key={rel.id}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                            padding: "2px 0",
-                            color: "rgb(65,45,30)",
-                            fontSize: 13,
-                            cursor: "pointer",
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => {
-                              const next = new Set(enabledExternalRelations)
-                              if (checked) next.delete(rel.id)
-                              else next.add(rel.id)
-                              setEnabledExternalRelations(next)
-                            }}
-                          />
-                          <span
+                  {EGO_EXTERNAL_RELATION_DEFS.length > 0 && (
+                    <div
+                      style={{
+                        borderTop: "1px solid rgb(235,233,242)",
+                        paddingTop: 6,
+                        display: "grid",
+                        gap: 1,
+                      }}
+                    >
+                      {EGO_EXTERNAL_RELATION_DEFS.map((rel) => {
+                        const checked = enabledExternalRelations.has(rel.id)
+                        const col =
+                          EGO_PRED_COLORS[rel.id] || "rgb(120,110,100)"
+                        return (
+                          <label
+                            key={rel.id}
                             style={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              background: col,
-                              flexShrink: 0,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              padding: "4px 6px",
+                              borderRadius: 6,
+                              color: checked
+                                ? "rgb(40,35,50)"
+                                : "rgb(140,135,155)",
+                              fontSize: 12,
+                              cursor: "pointer",
+                              background: checked
+                                ? "rgb(248,246,255)"
+                                : "transparent",
                             }}
-                          />
-                          {language === "en" ? rel.en : rel.es}
-                        </label>
-                      )
-                    })}
-                  </div>
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                const next = new Set(enabledExternalRelations)
+                                if (checked) next.delete(rel.id)
+                                else next.add(rel.id)
+                                setEnabledExternalRelations(next)
+                              }}
+                              style={{
+                                accentColor: col,
+                                width: 13,
+                                height: 13,
+                              }}
+                            />
+                            <span
+                              style={{
+                                width: 3,
+                                height: 14,
+                                borderRadius: 2,
+                                background: col,
+                                flexShrink: 0,
+                              }}
+                            />
+                            {language === "en" ? rel.en : rel.es}
+                          </label>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-
-                <button
-                  onClick={handleEgoRoot}
-                  style={{
-                    padding: "6px 13px",
-                    borderRadius: "20px",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    border: "1.5px solid rgb(220,205,185)",
-                    background: "white",
-                    color: "rgb(100,80,60)",
-                    cursor: "pointer",
-                  }}
-                >
-                  {language === "en" ? "Back to root" : "Volver a raíz"}
-                </button>
-                <button
-                  onClick={handleEgoReset}
-                  style={{
-                    padding: "6px 13px",
-                    borderRadius: "20px",
-                    fontFamily: "inherit",
-                    fontSize: "13px",
-                    border: "1.5px solid rgb(220,205,185)",
-                    background: "white",
-                    color: "rgb(100,80,60)",
-                    cursor: "pointer",
-                  }}
-                >
-                  {language === "en" ? "Reset positions" : "Reestablecer"}
-                </button>
               </>
             )}
           </div>
@@ -3639,16 +4130,23 @@ const GraphModal = ({
           <div
             style={{
               position: "absolute",
-              bottom: 58,
+              bottom: 72,
               right: 14,
               display: "flex",
               flexDirection: "column",
               gap: 4,
+              zIndex: 5,
             }}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseMove={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
           >
             {[
               {
                 label: "+",
+                title: language === "en" ? "Zoom in" : "Acercar",
                 fn: () => {
                   const s = Math.min(4, scaleRef.current + 0.25)
                   scaleRef.current = s
@@ -3657,6 +4155,7 @@ const GraphModal = ({
               },
               {
                 label: "−",
+                title: language === "en" ? "Zoom out" : "Alejar",
                 fn: () => {
                   const s = Math.max(0.1, scaleRef.current - 0.25)
                   scaleRef.current = s
@@ -3664,7 +4163,28 @@ const GraphModal = ({
                 },
               },
               {
+                label: (
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  >
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                    <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+                    <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+                    <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                  </svg>
+                ),
+                title: language === "en" ? "Fit view" : "Ajustar vista",
+                fn: handleFitView,
+              },
+              {
                 label: "⟲",
+                title: language === "en" ? "Reset view" : "Restablecer vista",
                 fn: () => {
                   panRef.current = { x: 0, y: 0 }
                   setPan({ x: 0, y: 0 })
@@ -3674,8 +4194,9 @@ const GraphModal = ({
               },
             ].map((b) => (
               <button
-                key={b.label}
+                key={b.title}
                 onClick={b.fn}
+                title={b.title}
                 style={{
                   width: 30,
                   height: 30,
@@ -3683,7 +4204,8 @@ const GraphModal = ({
                   borderRadius: 6,
                   background: "white",
                   cursor: "pointer",
-                  fontSize: b.label === "⟲" ? 17 : 18,
+                  fontSize:
+                    typeof b.label === "string" && b.label === "⟲" ? 17 : 18,
                   color: "rgb(35,15,5)",
                   display: "flex",
                   alignItems: "center",
@@ -3695,6 +4217,41 @@ const GraphModal = ({
                 {b.label}
               </button>
             ))}
+            {(layoutType === "ego" ||
+              layoutType === "radial" ||
+              (layoutType === "force" && egoFocalId)) && (
+              <button
+                onClick={handleEgoRoot}
+                title={language === "en" ? "Back to root" : "Volver a raíz"}
+                style={{
+                  width: 30,
+                  height: 30,
+                  border: "1px solid rgb(196,95,40)",
+                  borderRadius: 6,
+                  background: "rgb(255,248,242)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+                  marginTop: 4,
+                }}
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgb(196,95,40)"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+                  <polyline points="9 21 9 12 15 12 15 21" />
+                </svg>
+              </button>
+            )}
           </div>
 
           {/* Hint */}

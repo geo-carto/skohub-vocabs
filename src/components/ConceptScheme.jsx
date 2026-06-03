@@ -7,6 +7,7 @@ import GraphModal from "./GraphModal"
 import { useSkoHubContext } from "../context/Context"
 import { useEffect, useState } from "react"
 import { useLocation } from "@gatsbyjs/reach-router"
+import { withPrefix } from "gatsby"
 
 const ConceptScheme = ({
   pageContext: { node: conceptScheme, embed, customDomain },
@@ -14,9 +15,36 @@ const ConceptScheme = ({
   const { data } = useSkoHubContext()
   const [language, setLanguage] = useState("")
   const [graphOpen, setGraphOpen] = useState(false)
+  const [currentVocabId, setCurrentVocabId] = useState(conceptScheme.id)
+  const [schemeOptions, setSchemeOptions] = useState([])
+
   useEffect(() => {
     setLanguage(data.selectedLanguage)
   }, [data?.selectedLanguage])
+
+  useEffect(() => {
+    fetch(withPrefix("/index.json"))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (!json) return
+        const raw = Array.isArray(json)
+          ? json
+          : json?.conceptSchemes
+          ? json.conceptSchemes
+          : Object.values(json).filter((v) => v?.id)
+        setSchemeOptions(
+          raw
+            .map((cs) => ({
+              id: cs.id,
+              label:
+                i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) ||
+                cs.id,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label))
+        )
+      })
+      .catch(() => {})
+  }, [language])
 
   const pathname = useLocation()
   const description =
@@ -84,11 +112,13 @@ const ConceptScheme = ({
           </div>
           {graphOpen && (
             <GraphModal
-              vocabId={conceptScheme.id}
+              vocabId={currentVocabId}
               customDomain={customDomain}
               language={language}
               title={title && i18n(language)(title)}
               onClose={() => setGraphOpen(false)}
+              schemes={schemeOptions}
+              onVocabChange={setCurrentVocabId}
             />
           )}
           {description && (

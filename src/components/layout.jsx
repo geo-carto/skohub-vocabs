@@ -21,9 +21,11 @@ const Layout = ({ children, topBackground = false }) => {
     display: flex;
     flex-direction: column;
     background: ${topBackground
-      ? `white url(${withPrefix(
-          "/img/header-fondo-2.png"
-        )}) top center / 100% 350px no-repeat`
+      ? `linear-gradient(rgba(255,255,255,0.22), rgba(255,255,255,0.22)),
+         url(${withPrefix(
+           "/img/header-fondo-2.png"
+         )}) top center / 100% 325px no-repeat,
+         white`
       : "white"};
 
     @media only screen and (max-width: 800px) {
@@ -38,6 +40,10 @@ const Layout = ({ children, topBackground = false }) => {
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
       padding: 5px 22px 20px 22px;
       background: transparent;
 

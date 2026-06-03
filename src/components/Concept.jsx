@@ -1,11 +1,11 @@
 import Markdown from "markdown-to-jsx"
-import { Link } from "gatsby"
+import { Link, withPrefix } from "gatsby"
 import JsonLink from "./JsonLink.jsx"
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes.js"
 import { useSkoHubContext } from "../context/Context.jsx"
 import { i18n, getDomId, getFilePath } from "../common"
 import ConceptURI from "./ConceptURI.jsx"
-import ConceptEgoModal from "./ConceptEgoModal.jsx"
+import GraphModal from "./GraphModal.jsx"
 import { useEffect, useState } from "react"
 
 const Concept = ({
@@ -15,13 +15,48 @@ const Concept = ({
   const { data } = useSkoHubContext()
   const [language, setLanguage] = useState("")
   const [graphOpen, setGraphOpen] = useState(false)
+  const [currentVocabId, setCurrentVocabId] = useState(null)
+  const [schemeOptions, setSchemeOptions] = useState([])
   const definition =
     concept?.definition || concept?.description || concept?.dcdescription
   const title = concept?.prefLabel || concept?.title || concept?.dctitle
 
+  const rawScheme = concept.inSchemeAll
+  const vocabId = (
+    Array.isArray(rawScheme) ? rawScheme : rawScheme ? [rawScheme] : []
+  ).filter(Boolean)[0]?.id
+
   useEffect(() => {
     setLanguage(data.selectedLanguage)
   }, [data?.selectedLanguage])
+
+  useEffect(() => {
+    if (vocabId && !currentVocabId) setCurrentVocabId(vocabId)
+  }, [vocabId])
+
+  useEffect(() => {
+    fetch(withPrefix("/index.json"))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (!json) return
+        const raw = Array.isArray(json)
+          ? json
+          : json?.conceptSchemes
+          ? json.conceptSchemes
+          : Object.values(json).filter((v) => v?.id)
+        setSchemeOptions(
+          raw
+            .map((cs) => ({
+              id: cs.id,
+              label:
+                i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) ||
+                cs.id,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label))
+        )
+      })
+      .catch(() => {})
+  }, [language])
 
   return (
     <div id={getDomId(concept.id)}>
@@ -83,12 +118,16 @@ const Concept = ({
         </button>
         <JsonLink to={getFilePath(concept.id, "json", customDomain)} />
       </div>
-      {graphOpen && (
-        <ConceptEgoModal
-          concept={concept}
-          language={language}
+      {graphOpen && currentVocabId && (
+        <GraphModal
+          vocabId={currentVocabId}
           customDomain={customDomain}
+          language={language}
           onClose={() => setGraphOpen(false)}
+          initialLayout="ego"
+          initialFocalId={concept.id}
+          schemes={schemeOptions}
+          onVocabChange={setCurrentVocabId}
         />
       )}
       {concept.isReplacedBy && concept.isReplacedBy.length > 0 && (
