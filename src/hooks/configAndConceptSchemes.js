@@ -93,7 +93,11 @@ export const getConfigAndConceptSchemes = () => {
             ultima_actualizacion
             novedades {
               titulo
+              titulo_en
               fecha
+              descripcion
+              descripcion_en
+              imagen
               nuevo
             }
             carrusel {

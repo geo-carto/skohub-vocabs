@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react"
+﻿import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { css } from "@emotion/react"
 import { withPrefix, navigate } from "gatsby"
 import { i18n, getFilePath, getLanguageFromUrl } from "../common"
@@ -17,6 +17,10 @@ const CATEGORIES = {
       es: "Vocabularios controlados de atributos geológicos y geomorfológicos del modelo de datos estandarizados de cartografía geológica.",
       en: "Controlled vocabularies of geological and geomorphological properties of the geological mapping standardized data model.",
     },
+    longDescription: {
+      es: "Vocabularios controlados de atributos geológicos y geomorfológicos del modelo de datos estandarizados de cartografía geológica. Cada vocabulario contiene el listado de términos, descripciones y jerarquía, si aplica, junto con información relevante sobre su gestión. Están disponibles para descarga en formatos TTL, RDF/XML o JSON-LD.",
+      en: "Controlled vocabularies of geological and geomorphological properties of the geological mapping standardized data model. Each vocabulary contains the list of terms, descriptions and hierarchy where applicable, along with relevant management information. Available for download in TTL, RDF/XML or JSON-LD formats.",
+    },
     image: "categoria-geologia.png",
   },
   TE: {
@@ -24,6 +28,10 @@ const CATEGORIES = {
     description: {
       es: "Vocabularios controlados de propiedades técnicas y administrativas del modelo de datos estandarizados de cartografía geológica.",
       en: "Controlled vocabularies of technical and administrative propierties of the geological mapping standardized data model.",
+    },
+    longDescription: {
+      es: "Vocabularios controlados de propiedades técnicas y administrativas del modelo de datos estandarizados de cartografía geológica. Cada vocabulario contiene el listado de términos, descripciones y jerarquía, si aplica, junto con información relevante sobre su gestión. Están disponibles para descarga en formatos TTL, RDF/XML o JSON-LD.",
+      en: "Controlled vocabularies of technical and administrative properties of the geological mapping standardized data model. Each vocabulary contains the list of terms, descriptions and hierarchy where applicable, along with relevant management information. Available for download in TTL, RDF/XML or JSON-LD formats.",
     },
     image: "categoria-tecnicos.png",
   },
@@ -172,11 +180,11 @@ const pageStyles = css`
 
   .home-section {
     width: 100%;
-    padding: 48px 22px 54px;
+    padding: 30px 22px 34px;
   }
 
   .home-section:first-child {
-    padding-top: 48px;
+    padding-top: 30px;
     background: #e3e0de !important;
   }
 
@@ -184,6 +192,10 @@ const pageStyles = css`
   .home-section.recursos-destacados {
     border-radius: 0;
     overflow: visible;
+  }
+
+  .home-section.cat-panel {
+    padding-bottom: 34px;
   }
 
   .home-section .cat-list {
@@ -206,11 +218,13 @@ const pageStyles = css`
   .home-section > .cat-section-title,
   .home-section > .cat-list,
   .home-section > .home-section-title,
+  .home-section > .home-updates-wrap,
   .home-section > .home-updates-grid,
   .home-section > .recursos-header,
   .home-section > .recursos-grid,
   .home-section > .gallery-slider-wrap,
-  .home-section > .sidebar-suggestion {
+  .home-section > .sidebar-suggestion,
+  .home-section > .cat-section-content {
     width: min(75vw, 1180px);
     max-width: calc(100vw - 44px);
     margin-left: auto;
@@ -241,11 +255,13 @@ const pageStyles = css`
     .home-section > .cat-section-title,
     .home-section > .cat-list,
     .home-section > .home-section-title,
+    .home-section > .home-updates-wrap,
     .home-section > .home-updates-grid,
     .home-section > .recursos-header,
     .home-section > .recursos-grid,
     .home-section > .gallery-slider-wrap,
-    .home-section > .sidebar-suggestion {
+    .home-section > .sidebar-suggestion,
+    .home-section > .cat-section-content {
       width: min(88vw, 980px);
     }
   }
@@ -258,11 +274,13 @@ const pageStyles = css`
     .home-section > .cat-section-title,
     .home-section > .cat-list,
     .home-section > .home-section-title,
+    .home-section > .home-updates-wrap,
     .home-section > .home-updates-grid,
     .home-section > .recursos-header,
     .home-section > .recursos-grid,
     .home-section > .gallery-slider-wrap,
-    .home-section > .sidebar-suggestion {
+    .home-section > .sidebar-suggestion,
+    .home-section > .cat-section-content {
       width: 100%;
       max-width: none;
     }
@@ -272,6 +290,55 @@ const pageStyles = css`
     .home-section > .recursos-header {
       font-size: 34px;
     }
+  }
+
+  /* ── Cat page sections ── */
+  .home-section.cat-nav-section {
+    padding-top: 14px !important;
+    padding-bottom: 0 !important;
+    background: #e3e0de !important;
+  }
+
+  .home-section.cat-panels-section {
+    padding-top: 8px !important;
+    padding-bottom: 18px !important;
+    background: #e3e0de !important;
+  }
+
+  .home-section.cat-explore-section {
+    padding-top: 10px !important;
+    padding-bottom: 14px !important;
+    background: white !important;
+  }
+
+  .home-section.cat-filters-section {
+    padding-top: 10px !important;
+    padding-bottom: 14px !important;
+    background: rgb(245, 246, 247) !important;
+  }
+
+  .cat-panels-row {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: flex-start;
+
+    @media (max-width: 760px) {
+      flex-direction: column;
+    }
+
+    > .cat-filters-col,
+    > .cat-sidebar-col {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .cat-filters-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   .home-section-title {
@@ -286,38 +353,69 @@ const pageStyles = css`
     color: rgb(35, 15, 5);
   }
 
+  .home-updates-wrap {
+    position: relative;
+  }
+
   .home-updates-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 14px;
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .home-update-card {
-    display: grid;
-    gap: 8px;
-    min-height: 132px;
+    position: relative;
+    flex: 0 0 calc((100% - 36px) / 3);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 280px;
     padding: 22px 24px;
     border-radius: 8px;
     background: white;
     box-shadow: none;
+    scroll-snap-align: start;
+
+    @media (max-width: 1100px) {
+      flex-basis: calc((100% - 18px) / 2);
+    }
+
+    @media (max-width: 700px) {
+      flex-basis: 100%;
+    }
   }
 
   .home-update-date {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
     color: rgb(196, 95, 40);
   }
 
   .home-update-title {
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 700;
     line-height: 1.25;
     color: rgb(35, 15, 5);
   }
 
+  .home-update-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgb(80, 60, 40);
+    margin: 0;
+  }
+
   .home-update-new {
-    justify-self: start;
-    align-self: end;
+    position: absolute;
+    top: 16px;
+    right: 16px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -325,6 +423,15 @@ const pageStyles = css`
     background: rgb(45, 140, 80);
     border-radius: 999px;
     padding: 3px 8px;
+  }
+
+  .home-update-img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    object-position: center;
+    margin-top: auto;
+    display: block;
   }
 
   .home-suggestion-card {
@@ -419,7 +526,7 @@ const pageStyles = css`
     border: none;
     border-radius: 8px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.38);
+    background: rgba(255, 255, 255, 0.68);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 6px 18px rgba(35, 15, 5, 0.12);
@@ -668,6 +775,7 @@ const pageStyles = css`
     object-position: center;
     padding: 18px 10px;
     box-sizing: border-box;
+    clip-path: inset(18px 10px round 10px);
 
     @media (max-width: 640px) {
       width: 100%;
@@ -693,8 +801,8 @@ const pageStyles = css`
   }
 
   .cat-card-desc {
-    font-size: 17px;
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.82;
     color: rgb(80, 60, 40);
     margin: 0;
   }
@@ -724,7 +832,7 @@ const pageStyles = css`
   .vocab-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
     width: 100%;
   }
 
@@ -1207,10 +1315,10 @@ const pageStyles = css`
   .sidebar-suggestion {
     flex: 1;
     display: grid;
-    grid-template-columns: 226px 1fr;
+    grid-template-columns: 226px minmax(0, 1fr) minmax(280px, 0.9fr);
     align-items: center;
-    gap: 6px;
-    padding: 8px 8px 8px 0;
+    gap: 18px;
+    padding: 8px 0;
     font-size: 15px;
 
     p {
@@ -1271,6 +1379,38 @@ const pageStyles = css`
 
     &:hover {
       text-decoration: underline;
+    }
+  }
+
+  .suggestion-form {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid rgb(220, 205, 185);
+      border-radius: 6px;
+      background: white;
+      color: rgb(35, 15, 5);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 8px 10px;
+
+      &:focus {
+        outline: none;
+        border-color: rgb(196, 95, 40);
+      }
+
+      &::placeholder {
+        color: rgb(150, 130, 110);
+      }
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
     }
   }
 
@@ -1364,13 +1504,13 @@ const pageStyles = css`
       justify-content: center;
 
       h2 {
-        font-size: 34px;
+        font-size: 42px;
         font-weight: 700;
-        margin: 0 0 6px 0;
+        margin: 0 0 8px 0;
         line-height: 1.1;
       }
       p {
-        font-size: 13px;
+        font-size: 16px;
         line-height: 1.55;
         color: rgb(80, 60, 40);
         margin: 0;
@@ -1504,22 +1644,32 @@ const pageStyles = css`
   /* 3-column grid */
   .cat-content-grid {
     display: grid;
-    grid-template-columns: 250px 1fr 310px;
-    gap: 40px;
+    grid-template-columns: 1fr 310px;
+    column-gap: 40px;
     align-items: start;
+    padding-left: 28px;
 
     @media (max-width: 1100px) {
-      grid-template-columns: 220px 1fr;
-      .cat-sidebar-col {
+      grid-template-columns: 1fr;
+      .cat-right-col {
         display: none;
       }
     }
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
-      .cat-filters-col {
-        display: none;
-      }
     }
+  }
+
+  .cat-content-grid > .vocab-list {
+    grid-column: 1;
+  }
+
+  .cat-right-col {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-self: start;
   }
 
   /* Filters column */
@@ -1531,11 +1681,62 @@ const pageStyles = css`
     box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
   }
 
+  .cat-filters-col.is-horizontal {
+    width: 100%;
+    box-shadow: none;
+    overflow: visible;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
+    order: 2;
+  }
+
+  .cat-filters-col.is-horizontal .filter-header {
+    flex: 1 0 100%;
+    padding: 0;
+    margin-bottom: -8px;
+    background: transparent;
+    border-bottom: none;
+    justify-content: flex-end;
+  }
+
+  .cat-filters-col.is-horizontal .filter-section {
+    flex: 1 1 190px;
+    min-width: 172px;
+    padding: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .cat-filters-col.is-horizontal .filter-section:first-of-type {
+    flex-basis: 280px;
+  }
+
+  .cat-filters-col.is-horizontal .filter-label {
+    min-width: 0;
+    font-size: 12px;
+  }
+
+  .cat-filters-col.is-horizontal select,
+  .cat-filters-col.is-horizontal .filter-search {
+    width: 100%;
+  }
+
+  .cat-filters-col.is-horizontal select {
+    min-width: 0;
+    padding-right: 24px;
+  }
+
   .filter-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
+    padding: 8px 12px;
     background: rgb(244, 244, 244);
     border-bottom: 2px solid rgb(220, 205, 185);
 
@@ -1567,7 +1768,8 @@ const pageStyles = css`
   }
 
   .filter-search {
-    padding: 10px 12px;
+    flex: 1;
+    padding: 0;
     border-bottom: none;
     position: relative;
 
@@ -1581,8 +1783,8 @@ const pageStyles = css`
     }
     input {
       width: 100%;
-      padding: 8px 10px 8px 34px;
-      font-size: 14px;
+      padding: 5px 10px 5px 34px;
+      font-size: 13px;
       border: 1px solid rgb(220, 205, 185);
       border-radius: 6px;
       background: white;
@@ -1602,24 +1804,33 @@ const pageStyles = css`
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 7px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .filter-section {
-    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
     border-bottom: none;
     &:last-child {
       border-bottom: none;
     }
 
+    .filter-label {
+      min-width: 100px;
+    }
+
     select {
-      width: 100%;
-      padding: 7px 28px 7px 10px;
-      font-size: 14px;
+      flex: 1;
+      min-width: 0;
+      padding: 4px 28px 4px 10px;
+      font-size: 13px;
       border: 1px solid rgb(220, 205, 185);
       border-radius: 6px;
       background-color: white;
@@ -1640,25 +1851,24 @@ const pageStyles = css`
 
   /* Vocab cards v2 */
   .vocab-card-v2 {
-    display: flex;
-    align-items: stretch;
-    border: none;
-    border-radius: 6px;
-    overflow: hidden;
-    background: white;
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.08);
-    transition:
-      box-shadow 0.2s,
-      border-color 0.2s;
+    display: block;
     cursor: pointer;
-
-    &:hover {
-      box-shadow: 0 10px 26px rgba(35, 15, 5, 0.12);
-    }
 
     &:hover .vocab-title-link {
       color: rgb(196, 95, 40);
     }
+  }
+
+  .vocab-card-inner {
+    display: flex;
+    align-items: stretch;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .home-section:nth-child(even) .vocab-card-inner {
+    background: rgb(245, 246, 247);
   }
 
   .vocab-card-thumb {
@@ -1671,6 +1881,22 @@ const pageStyles = css`
     text-decoration: none;
     flex-shrink: 0;
     border-right: none;
+
+    @media (max-width: 560px) {
+      width: 100%;
+      min-width: unset;
+      height: 120px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .vocab-card-inner {
+      flex-direction: column;
+    }
+
+    .home-section:nth-child(odd) .vocab-card-thumb {
+      background: white;
+    }
   }
 
   .vocab-card-body {
@@ -1682,7 +1908,7 @@ const pageStyles = css`
     min-width: 0;
 
     .vocab-title-link {
-      font-size: 21px;
+      font-size: 24px;
       font-weight: 700;
       line-height: 1.2;
       color: rgb(35, 15, 5);
@@ -1697,7 +1923,7 @@ const pageStyles = css`
       color: rgb(80, 60, 40);
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       margin: 0;
     }
@@ -1720,9 +1946,9 @@ const pageStyles = css`
       .status-valid {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 3px;
         font-size: 13px;
-        padding: 2px 8px;
+        padding: 1px 5px;
         border-radius: 20px;
         background: rgb(220, 245, 230);
         color: rgb(30, 120, 60);
@@ -1794,6 +2020,193 @@ const pageStyles = css`
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    > .sidebar-panel {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .explore-graph-area {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
+  .cat-sidebar-col.explore-wide {
+    height: auto !important;
+    width: 100%;
+    order: 1;
+    background: #e3e0de;
+  }
+
+  .cat-sidebar-col.explore-wide > .sidebar-panel {
+    min-height: 118px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    background: #e3e0de !important;
+    box-shadow: none !important;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .cat-sidebar-col.explore-wide .sidebar-panel-header {
+    border-bottom: none;
+    border-right: none;
+    background: #e3e0de !important;
+    padding: 2px 0 2px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
+    text-align: left;
+  }
+
+  .cat-sidebar-col.explore-wide .panel-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+    font-size: 42px;
+    line-height: 1.15;
+    text-transform: none;
+    letter-spacing: 0;
+    color: #a74c01;
+  }
+
+  .cat-sidebar-col.explore-wide .panel-title svg {
+    display: none;
+  }
+
+  .cat-sidebar-col.explore-wide .explore-header-btn {
+    align-self: flex-end;
+    margin-top: 18px;
+    border: none;
+    border-radius: 18px;
+    padding: 8px 18px;
+    background: rgba(196, 95, 40, 0.92);
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .explore-panel-desc {
+    margin: 18px 0 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: rgb(80, 60, 40);
+    max-width: 620px;
+  }
+
+  .explore-copy-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+
+    .explore-panel-desc {
+      flex: 1;
+    }
+  }
+
+  .cat-sidebar-col.explore-wide .explore-header-btn:hover {
+    background: rgb(196, 95, 40);
+  }
+
+  .cat-sidebar-col.explore-wide .panel-title svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cat-sidebar-col.explore-wide .explore-graph-area {
+    border-top: none;
+    min-height: 72px;
+    max-height: 82px;
+    padding: 8px 14px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .explore-graph-img {
+    height: 143px;
+    width: auto;
+    display: block;
+    border-radius: 10px;
+    border: 1px solid rgb(210, 190, 165);
+  }
+
+  .explore-image-box {
+    padding: 8px 0 8px 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 0;
+    position: relative;
+  }
+
+  .explore-img-label {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    z-index: 2;
+    font-size: 18px;
+    font-weight: 700;
+    color: rgb(35, 15, 5);
+    pointer-events: none;
+  }
+
+  .explore-img-sublabel {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    z-index: 2;
+    font-size: 13px;
+    color: rgb(80, 60, 40);
+    pointer-events: none;
+    max-width: 200px;
+    line-height: 1.4;
+  }
+
+  .explore-img-btn {
+    position: absolute;
+    bottom: 18px;
+    left: 20px;
+    z-index: 2;
+    background: rgba(196, 95, 40, 0.92);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    font-weight: 700;
+
+    &:hover {
+      background: rgb(196, 95, 40);
+    }
+  }
+
+  .cat-sidebar-col.explore-wide .explore-overlay {
+    display: none;
+  }
+
+  @media (max-width: 760px) {
+    .cat-sidebar-col.explore-wide > .sidebar-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .cat-sidebar-col.explore-wide .sidebar-panel-header {
+      border-right: none;
+      border-bottom: 1px solid rgb(220, 205, 185);
+    }
   }
 
   .consultado-item {
@@ -1957,12 +2370,31 @@ const pageStyles = css`
     transform: translateY(-1px);
   }
 
+  .cat-sidebar-col.explore-wide .explore-graph-area {
+    border-top: none;
+    min-height: 72px;
+    max-height: 82px;
+    padding: 8px 14px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   /* ── Recursos Destacados ── */
   .recursos-destacados {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: none;
     height: auto;
+  }
+
+  .recursos-destacados .recursos-header {
+    margin-bottom: 30px;
+  }
+
+  .recursos-destacados .recursos-grid {
+    padding-bottom: 10px;
   }
 
   .sidebar > .sidebar-panel {
@@ -2102,6 +2534,9 @@ const IndexPage = ({ location }) => {
   const [sortBy, setSortBy] = useState("az")
   const [graphVocab, setGraphVocab] = useState(null)
   const [exploreCs, setExploreCs] = useState(null)
+  const [suggestionName, setSuggestionName] = useState("")
+  const [suggestionSubject, setSuggestionSubject] = useState("")
+  const [suggestionMessage, setSuggestionMessage] = useState("")
 
   const { data, updateState } = useSkoHubContext()
   const { config } = getConfigAndConceptSchemes()
@@ -2119,6 +2554,28 @@ const IndexPage = ({ location }) => {
   }))
   const [galleryIndex, setGalleryIndex] = useState(null)
   const sliderRef = useRef(null)
+  const updatesSliderRef = useRef(null)
+  const filterColRef = useRef(null)
+  const [sidebarH, setSidebarH] = useState(null)
+  const handleSuggestionSubmit = (e) => {
+    e.preventDefault()
+    const subject =
+      suggestionSubject.trim() ||
+      (language === "en"
+        ? "Repository suggestion"
+        : "Sugerencia para el repositorio")
+    const body = [
+      suggestionName.trim()
+        ? `${language === "en" ? "Name" : "Nombre"}: ${suggestionName.trim()}`
+        : null,
+      suggestionMessage.trim(),
+    ]
+      .filter(Boolean)
+      .join("\n\n")
+    window.location.href = `mailto:vocabularios.cientificos@igme.es?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`
+  }
   const normalizeConceptSchemes = (value) => {
     if (Array.isArray(value)) return value
     if (value?.conceptSchemes && Array.isArray(value.conceptSchemes)) {
@@ -2156,8 +2613,16 @@ const IndexPage = ({ location }) => {
   useEffect(() => {
     if (location.state?.category) {
       setSelectedCategory(location.state.category)
-      window.history.replaceState({}, document.title, window.location.pathname)
+      window.history.replaceState({ category: location.state.category }, "")
     }
+  }, [])
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      setSelectedCategory(e.state?.category || null)
+    }
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
   }, [])
 
   useEffect(() => {
@@ -2226,6 +2691,23 @@ const IndexPage = ({ location }) => {
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [galleryIndex, galleryItems.length])
 
+  useLayoutEffect(() => {
+    if (!selectedCategory || !filterColRef.current) return
+    const sync = () => {
+      if (filterColRef.current) setSidebarH(filterColRef.current.offsetHeight)
+    }
+    sync()
+    window.addEventListener("resize", sync)
+    return () => window.removeEventListener("resize", sync)
+  }, [
+    selectedCategory,
+    language,
+    searchTerm,
+    filterIdioma,
+    filterEstado,
+    sortBy,
+  ])
+
   const getTitle = (cs) =>
     i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
 
@@ -2267,6 +2749,14 @@ const IndexPage = ({ location }) => {
     return cat.description[language] || cat.description["es"] || ""
   }
 
+  const getCategoryLongDescription = (code) => {
+    const cat = CATEGORIES[code]
+    if (!cat) return ""
+    const src = cat.longDescription || cat.description
+    if (!src) return ""
+    return src[language] || src["es"] || ""
+  }
+
   const availableCategories = Object.keys(CATEGORIES).filter((code) =>
     conceptSchemes.some((cs) => cs.theme === code)
   )
@@ -2295,6 +2785,20 @@ const IndexPage = ({ location }) => {
 
   const lastModified = (() => {
     const dates = conceptSchemes.map((cs) => cs.modified).filter(Boolean)
+    if (!dates.length) return null
+    const max = dates.sort().at(-1)
+    return new Date(max).toLocaleDateString(
+      language === "en" ? "en-GB" : "es-ES",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }
+    )
+  })()
+
+  const catLastModified = (() => {
+    const dates = filteredSchemes.map((cs) => cs.modified).filter(Boolean)
     if (!dates.length) return null
     const max = dates.sort().at(-1)
     return new Date(max).toLocaleDateString(
@@ -2365,14 +2869,14 @@ const IndexPage = ({ location }) => {
                 <div className="sidebar-suggestion-title">
                   {language === "en"
                     ? "Write to us and contact us"
-                    : "Escríbenos y contacta con nosotros"}
+                    : "Escribe y contacta con nosotros"}
                 </div>
                 <p>
                   {language === "en"
                     ? "Your feedback helps us improve the repository."
                     : "Tu opinión nos ayuda a mejorar el repositorio."}
                 </p>
-                <p>Escríbenos y contacta con nosotros.</p>
+                <p>Escribe y contacta con nosotros.</p>
                 <a
                   href="mailto:vocabularios.cientificos@igme.es"
                   className="sidebar-suggestion-btn"
@@ -2415,9 +2919,13 @@ const IndexPage = ({ location }) => {
                     </div>
                     <div className="timeline-content">
                       <div className="timeline-title">
-                        {item.titulo}
+                        {language === "en" && item.titulo_en
+                          ? item.titulo_en
+                          : item.titulo}
                         {item.nuevo && (
-                          <span className="timeline-new">NUEVO</span>
+                          <span className="timeline-new">
+                            {language === "en" ? "NEW" : "NUEVO"}
+                          </span>
                         )}
                       </div>
                       {item.fecha && (
@@ -2524,7 +3032,7 @@ const IndexPage = ({ location }) => {
   }
 
   return (
-    <Layout language={language} topBackground={!selectedCategory}>
+    <Layout language={language} topBackground={true}>
       <SEO title="Concept Schemes" keywords={["conceptSchemes"]} />
 
       <div
@@ -2536,7 +3044,7 @@ const IndexPage = ({ location }) => {
                 minHeight: "100%",
                 padding: "0",
                 boxSizing: "border-box",
-                background: "white",
+                background: "transparent",
               }
             : {
                 width: "100%",
@@ -2556,1096 +3064,1160 @@ const IndexPage = ({ location }) => {
            CATEGORY PAGE — 3-column layout
         ══════════════════════════════════════ */
           <div className="cat-page">
-            {/* Breadcrumb */}
-            <div className="cat-breadcrumb">
-              <div className="breadcrumb-path">
-                <button
-                  onClick={() => {
-                    setSelectedCategory(null)
-                    resetFilters()
-                  }}
-                >
-                  {language === "en" ? "Home" : "Inicio"}
-                </button>
-                <span className="sep">›</span>
-                <span className="current">
-                  {getCategoryLabel(selectedCategory)}
-                </span>
-              </div>
-              <button
-                className="back-btn-top"
-                onClick={() => {
-                  setSelectedCategory(null)
-                  resetFilters()
-                }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-                {language === "en" ? "Back" : "Volver atrás"}
-              </button>
-            </div>
-
-            {/* Hero + Stats — two separate panels */}
-            <div className="cat-top-row">
-              {/* Hero panel */}
-              <div className="cat-hero-panel">
-                <div className="cat-hero-text">
-                  <h2 style={{ color: config.colors.skoHubDarkColor }}>
+            {/* ── Hero (same layout as home page) ── */}
+            <div className="home-top-band">
+              <div className="hero">
+                <div className="hero-text">
+                  <h1 style={{ color: config.colors.skoHubDarkColor }}>
                     {getCategoryLabel(selectedCategory)}
-                  </h2>
-                  <p>{getCategoryDescription(selectedCategory)}</p>
+                  </h1>
+                  <p style={{ color: config.colors.skoHubDarkColor }}>
+                    {getCategoryLongDescription(selectedCategory)}
+                  </p>
                 </div>
-                <div className="cat-hero-logo-wrap">
-                  <img
-                    src={withPrefix("/img/logo-gi-carto.png")}
-                    alt=""
-                    className="cat-hero-logo"
-                  />
-                </div>
-              </div>
-              {/* Stats panel */}
-              <div className="cat-stats-panel">
-                <div className="stat-item">
-                  <span className="stat-icon-bg">
-                    <svg
-                      className="stat-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                  </span>
-                  <div
-                    className="stat-value"
-                    style={{ color: config.colors.skoHubDarkColor }}
-                  >
-                    {filteredSchemes.length}
-                  </div>
-                  <div className="stat-label">
-                    {language === "en" ? "vocabularies" : "vocabularios"}
-                  </div>
-                </div>
-                {catTerms > 0 && (
-                  <div className="stat-item">
-                    <span className="stat-icon-bg">
-                      <svg
-                        className="stat-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                <div className="hero-stats-col">
+                  <div className="stats-bar">
+                    <div className="stat-item">
+                      <span className="stat-icon-bg">
+                        <svg
+                          className="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                        </svg>
+                      </span>
+                      <div
+                        className="stat-value"
+                        style={{ color: config.colors.skoHubDarkColor }}
                       >
-                        <line x1="8" y1="6" x2="21" y2="6" />
-                        <line x1="8" y1="12" x2="21" y2="12" />
-                        <line x1="8" y1="18" x2="21" y2="18" />
-                        <line x1="3" y1="6" x2="3.01" y2="6" />
-                        <line x1="3" y1="12" x2="3.01" y2="12" />
-                        <line x1="3" y1="18" x2="3.01" y2="18" />
-                      </svg>
-                    </span>
-                    <div
-                      className="stat-date"
-                      style={{ color: config.colors.skoHubDarkColor }}
-                    >
-                      {catTerms.toLocaleString(
-                        language === "en" ? "en-GB" : "es-ES"
-                      )}
+                        {filteredSchemes.length}
+                      </div>
+                      <div className="stat-label">
+                        {language === "en" ? "vocabularies" : "vocabularios"}
+                      </div>
                     </div>
-                    <div className="stat-update-label">
-                      {language === "en" ? "terms" : "términos"}
-                    </div>
-                  </div>
-                )}
-                <div className="stat-item">
-                  <span className="stat-icon-bg">
-                    <svg
-                      className="stat-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                  </span>
-                  <div
-                    className="stat-value"
-                    style={{ color: config.colors.skoHubDarkColor }}
-                  >
-                    {catLanguages.length}
-                  </div>
-                  <div className="stat-label">
-                    {language === "en" ? "languages" : "idiomas"} ·{" "}
-                    {catLanguages.join(" · ")}
-                  </div>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-icon-bg">
-                    <svg
-                      className="stat-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                    </svg>
-                  </span>
-                  <div
-                    className="stat-value"
-                    style={{ color: config.colors.skoHubDarkColor }}
-                  >
-                    3
-                  </div>
-                  <div className="stat-label">
-                    {language === "en" ? "formats" : "formatos"}
-                  </div>
-                </div>
-                {homeConfig.ultima_actualizacion && (
-                  <div className="stat-item">
-                    <span className="stat-icon-bg">
-                      <svg
-                        className="stat-icon"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                    {catTerms > 0 && (
+                      <div className="stat-item">
+                        <span className="stat-icon-bg">
+                          <svg
+                            className="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                          </svg>
+                        </span>
+                        <div
+                          className="stat-value"
+                          style={{ color: config.colors.skoHubDarkColor }}
+                        >
+                          {catTerms.toLocaleString(
+                            language === "en" ? "en-GB" : "es-ES",
+                            { useGrouping: false }
+                          )}
+                        </div>
+                        <div className="stat-update-label">
+                          {language === "en" ? "terms" : "términos"}
+                        </div>
+                      </div>
+                    )}
+                    <div className="stat-item">
+                      <span className="stat-icon-bg">
+                        <svg
+                          className="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="2" y1="12" x2="22" y2="12" />
+                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                      </span>
+                      <div
+                        className="stat-value"
+                        style={{ color: config.colors.skoHubDarkColor }}
                       >
-                        <rect
-                          x="3"
-                          y="4"
-                          width="18"
-                          height="18"
-                          rx="2"
-                          ry="2"
-                        />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                      </svg>
-                    </span>
-                    <div className="stat-date">
-                      {homeConfig.ultima_actualizacion}
+                        {catLanguages.length}
+                      </div>
+                      <div className="stat-label">
+                        {language === "en" ? "languages" : "idiomas"} ·{" "}
+                        {catLanguages.join(" · ")}
+                      </div>
                     </div>
-                    <div className="stat-update-label">
-                      {language === "en" ? "Updated" : "actualizado"}
+                    <div className="stat-item">
+                      <span className="stat-icon-bg">
+                        <svg
+                          className="stat-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </span>
+                      <div
+                        className="stat-value"
+                        style={{ color: config.colors.skoHubDarkColor }}
+                      >
+                        3
+                      </div>
+                      <div className="stat-label">
+                        {language === "en" ? "formats" : "formatos"}
+                      </div>
                     </div>
+                    {catLastModified && (
+                      <div className="stat-item">
+                        <span className="stat-icon-bg">
+                          <svg
+                            className="stat-icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect
+                              x="3"
+                              y="4"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              ry="2"
+                            />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                        </span>
+                        <div className="stat-date">{catLastModified}</div>
+                        <div className="stat-update-label">
+                          {language === "en" ? "updated" : "actualizado"}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
-            {/* 3-column: Filters | List | Sidebar */}
-            <div className="cat-content-grid">
-              {/* Left: Filters */}
-              <div className="cat-filters-col">
-                <div className="filter-header">
-                  <span className="filter-title">
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
+            {/* ── Single-column sections ── */}
+            <div className="home-scroll">
+              {/* Nav: breadcrumb + back button */}
+              <div className="home-section cat-nav-section">
+                <div className="cat-section-content">
+                  <div className="cat-breadcrumb">
+                    <div className="breadcrumb-path">
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(null)
+                          window.history.pushState(null, "")
+                          resetFilters()
+                        }}
+                      >
+                        {language === "en" ? "Home" : "Inicio"}
+                      </button>
+                      <span className="sep">›</span>
+                      <span className="current">
+                        {getCategoryLabel(selectedCategory)}
+                      </span>
+                    </div>
+                    <button
+                      className="back-btn-top"
+                      onClick={() => {
+                        setSelectedCategory(null)
+                        resetFilters()
+                      }}
                     >
-                      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-                    </svg>
-                    {language === "en" ? "Filters" : "Filtros"}
-                  </span>
-                  <button className="filter-clear" onClick={resetFilters}>
-                    {language === "en" ? "Clear all" : "Limpiar todo"}
-                    <svg
-                      width="11"
-                      height="11"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <polyline points="1 4 1 10 7 10" />
-                      <path d="M3.51 15a9 9 0 1 0 .49-3.51" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="filter-search">
-                  <div className="filter-label">
-                    <svg
-                      style={{ position: "static" }}
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <line x1="4" y1="6" x2="20" y2="6" />
-                      <line x1="4" y1="12" x2="14" y2="12" />
-                    </svg>
-                    {language === "en"
-                      ? "Vocabulary name"
-                      : "Nombre vocabulario"}
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                      {language === "en" ? "Back" : "Volver atrás"}
+                    </button>
                   </div>
-                  <div style={{ position: "relative" }}>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input
-                      type="text"
-                      placeholder={
-                        language === "en"
-                          ? "Search by text..."
-                          : "Buscar por texto..."
-                      }
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="filter-section">
-                  <div className="filter-label">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <rect x="3" y="3" width="7" height="7" />
-                      <rect x="14" y="3" width="7" height="7" />
-                      <rect x="14" y="14" width="7" height="7" />
-                      <rect x="3" y="14" width="7" height="7" />
-                    </svg>
-                    {language === "en" ? "Format" : "Formato"}
-                  </div>
-                  <select value="" onChange={() => {}}>
-                    <option value="">
-                      {language === "en" ? "All" : "Todos"}
-                    </option>
-                    <option value="ttl">TTL</option>
-                    <option value="rdf">RDF/XML</option>
-                    <option value="jsonld">JSON-LD</option>
-                  </select>
-                </div>
-                <div className="filter-section">
-                  <div className="filter-label">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                    {language === "en" ? "Language" : "Idioma"}
-                  </div>
-                  <select
-                    value={filterIdioma}
-                    onChange={(e) => setFilterIdioma(e.target.value)}
-                  >
-                    <option value="">
-                      {language === "en" ? "All" : "Todos"}
-                    </option>
-                    <option value="es">
-                      {language === "en" ? "Spanish" : "Español"}
-                    </option>
-                    <option value="en">
-                      {language === "en" ? "English" : "Inglés"}
-                    </option>
-                  </select>
-                </div>
-                <div className="filter-section">
-                  <div className="filter-label">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    {language === "en" ? "Status" : "Estado"}
-                  </div>
-                  <select
-                    value={filterEstado}
-                    onChange={(e) => setFilterEstado(e.target.value)}
-                  >
-                    <option value="">
-                      {language === "en" ? "All" : "Todos"}
-                    </option>
-                    <option value="valido">
-                      {language === "en" ? "Valid" : "Válido"}
-                    </option>
-                    <option value="retirado">
-                      {language === "en" ? "Retired" : "Retirado"}
-                    </option>
-                    <option value="sustituido">
-                      {language === "en" ? "Superseded" : "Sustituido"}
-                    </option>
-                    <option value="propuesto">
-                      {language === "en" ? "Proposed" : "Propuesto"}
-                    </option>
-                    <option value="invalido">
-                      {language === "en" ? "Invalid" : "Inválido"}
-                    </option>
-                  </select>
-                </div>
-                <div className="filter-section">
-                  <div className="filter-label">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <line x1="8" y1="6" x2="21" y2="6" />
-                      <line x1="8" y1="12" x2="21" y2="12" />
-                      <line x1="8" y1="18" x2="21" y2="18" />
-                      <line x1="3" y1="6" x2="3.01" y2="6" />
-                      <line x1="3" y1="12" x2="3.01" y2="12" />
-                      <line x1="3" y1="18" x2="3.01" y2="18" />
-                    </svg>
-                    {language === "en" ? "Sort by" : "Ordenar por"}
-                  </div>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option value="az">A → Z</option>
-                    <option value="za">Z → A</option>
-                    <option value="terms-desc">
-                      {language === "en"
-                        ? "Terms count \u2193"
-                        : "N\u00famero de t\u00e9rminos \u2193"}
-                    </option>
-                    <option value="terms-asc">
-                      {language === "en"
-                        ? "Terms count \u2191"
-                        : "N\u00famero de t\u00e9rminos \u2191"}
-                    </option>
-                  </select>
                 </div>
               </div>
 
-              {/* Center: Vocab list */}
-              <div className="vocab-list">
-                {displayedSchemes.map((cs) => (
-                  <div
-                    key={cs.id}
-                    className="vocab-card-v2"
-                    onClick={() => {
-                      updateState({
-                        ...data,
-                        conceptSchemeLanguages: [...cs.languages],
-                        currentScheme: cs,
-                        selectedLanguage: cs.languages.includes(language)
-                          ? language
-                          : cs.languages[0],
-                      })
-                      navigate(getFilePath(cs.id, "html", customDomain))
-                    }}
-                  >
-                    <div className="vocab-card-thumb">
-                      <VocabIcon vocabId={cs.id} colors={config.colors} />
-                    </div>
-                    <div className="vocab-card-body">
-                      <span className="vocab-title-link">{getTitle(cs)}</span>
-                      <p className="vocab-desc">{getDescription(cs)}</p>
-                      <div className="vocab-meta-row">
-                        <span className="meta-item">
+              {/* Section 1: Filters + Explore Vocabularios */}
+              <div className="home-section cat-panels-section">
+                <div className="cat-section-content">
+                  <div className="cat-panels-row">
+                    {/* Left: Filters */}
+                    <div
+                      className="cat-filters-col is-horizontal"
+                      ref={filterColRef}
+                    >
+                      <div className="filter-header">
+                        <button className="filter-clear" onClick={resetFilters}>
+                          {language === "en" ? "Clear all" : "Limpiar todo"}
                           <svg
-                            width="12"
-                            height="12"
+                            width="11"
+                            height="11"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
                           >
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="2" y1="12" x2="22" y2="12" />
-                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            <polyline points="1 4 1 10 7 10" />
+                            <path d="M3.51 15a9 9 0 1 0 .49-3.51" />
                           </svg>
-                          {cs.languages
-                            .map((l) =>
-                              l === "es"
-                                ? "Es"
-                                : l === "en"
-                                ? "En"
-                                : l.toUpperCase()
-                            )
-                            .join(" · ")}
-                        </span>
-                        {cs.termCount > 0 && (
-                          <span className="meta-item">
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <line x1="8" y1="6" x2="21" y2="6" />
-                              <line x1="8" y1="12" x2="21" y2="12" />
-                              <line x1="8" y1="18" x2="21" y2="18" />
-                              <line x1="3" y1="6" x2="3.01" y2="6" />
-                              <line x1="3" y1="12" x2="3.01" y2="12" />
-                              <line x1="3" y1="18" x2="3.01" y2="18" />
-                            </svg>
-                            {cs.termCount.toLocaleString(
-                              language === "en" ? "en-GB" : "es-ES"
-                            )}{" "}
-                            {language === "en" ? "terms" : "términos"}
-                          </span>
-                        )}
-                        {cs.collectionCount > 0 && (
-                          <span className="meta-item">
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M3 7h6l2 3h10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
-                              <path d="M3 7V5a2 2 0 0 1 2-2h4l2 4" />
-                            </svg>
-                            {cs.collectionCount.toLocaleString(
-                              language === "en" ? "en-GB" : "es-ES"
-                            )}{" "}
-                            {language === "en"
-                              ? cs.collectionCount === 1
-                                ? "collection"
-                                : "collections"
-                              : cs.collectionCount === 1
-                              ? "colecci\u00f3n"
-                              : "colecciones"}
-                          </span>
-                        )}
-                        {cs.modified && (
-                          <span className="meta-item">
-                            <svg
-                              width="12"
-                              height="12"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <rect
-                                x="3"
-                                y="4"
-                                width="18"
-                                height="18"
-                                rx="2"
-                                ry="2"
-                              />
-                              <line x1="16" y1="2" x2="16" y2="6" />
-                              <line x1="8" y1="2" x2="8" y2="6" />
-                              <line x1="3" y1="10" x2="21" y2="10" />
-                            </svg>
-                            {new Date(cs.modified).toLocaleDateString(
-                              language === "en" ? "en-GB" : "es-ES",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
-                          </span>
-                        )}
-                        <button
-                          className="btn-ver-grafo"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setGraphVocab(cs)
-                          }}
-                        >
-                          <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <circle cx="5" cy="12" r="3" />
-                            <circle cx="19" cy="5" r="3" />
-                            <circle cx="19" cy="19" r="3" />
-                            <line x1="8" y1="11" x2="16" y2="6" />
-                            <line x1="8" y1="13" x2="16" y2="18" />
-                          </svg>
-                          {language === "en" ? "View graph" : "Ver grafo"}
                         </button>
-                        <span className="status-valid">
+                      </div>
+                      <div className="filter-section">
+                        <div className="filter-label">
                           <svg
-                            width="10"
-                            height="10"
+                            style={{ position: "static" }}
+                            width="12"
+                            height="12"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2.5"
                           >
-                            <polyline points="20 6 9 17 4 12" />
+                            <line x1="4" y1="6" x2="20" y2="6" />
+                            <line x1="4" y1="12" x2="14" y2="12" />
                           </svg>
-                          {language === "en" ? "Valid" : "Válido"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="vocab-card-dl-col">
-                      {[
-                        { label: "TTL", ext: "ttl" },
-                        { label: "RDF/XML", ext: "rdf" },
-                        { label: "JSON-LD", ext: "jsonld" },
-                      ].map(({ label, ext }) => {
-                        const slug = cs.id.split("/").pop()
-                        return (
-                          <a
-                            key={ext}
-                            className="vocab-download-link"
-                            href={`${
-                              customDomain || "/"
-                            }downloads/${slug}.${ext}`}
-                            download
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {label}
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right: Sidebar */}
-              <div className="cat-sidebar-col">
-                {/* Explora Vocabularios */}
-                {conceptSchemes.length > 0 &&
-                  exploreCs &&
-                  (() => {
-                    const W = 280,
-                      H = 148,
-                      cx = 140,
-                      cy = 74
-                    const τ = Math.PI * 2,
-                      cos = Math.cos,
-                      sin = Math.sin
-                    const lp = {
-                      stroke: "rgb(210,90,70)",
-                      strokeWidth: "1.2",
-                      opacity: "0.5",
-                    }
-                    const C = {
-                      d: "rgb(155,35,35)",
-                      m: "rgb(200,85,65)",
-                      ml: "rgb(232,148,128)",
-                      l: "rgb(248,205,193)",
-                      s: "rgb(250,220,215)",
-                    }
-                    const FORCE_SLIDE_INDEX = 1
-
-                    // Slide 0 — Ego
-                    const eg1 = Array.from({ length: 6 }, (_, i) => ({
-                      x: cx + 52 * cos((i / 6) * τ - τ / 4),
-                      y: cy + 42 * sin((i / 6) * τ - τ / 4),
-                    }))
-                    const eg2 = Array.from({ length: 5 }, (_, i) => ({
-                      x: cx + 80 * cos(((i + 0.4) / 5) * τ - τ / 4),
-                      y: cy + 60 * sin(((i + 0.4) / 5) * τ - τ / 4),
-                      pi: Math.floor((i * 6) / 5),
-                    }))
-
-                    // Slide 1 — Fuerza
-                    const FN = [
-                      { x: 140, y: 74, r: 13 },
-                      { x: 88, y: 34, r: 8 },
-                      { x: 200, y: 30, r: 8 },
-                      { x: 62, y: 90, r: 8 },
-                      { x: 220, y: 97, r: 8 },
-                      { x: 140, y: 14, r: 8 },
-                      { x: 105, y: 120, r: 7 },
-                      { x: 178, y: 126, r: 7 },
-                      { x: 52, y: 46, r: 6 },
-                      { x: 235, y: 52, r: 6 },
-                      { x: 38, y: 122, r: 5 },
-                      { x: 248, y: 118, r: 5 },
-                    ]
-                    const FC = [
-                      C.d,
-                      C.m,
-                      C.m,
-                      C.m,
-                      C.m,
-                      C.m,
-                      C.ml,
-                      C.ml,
-                      C.ml,
-                      C.ml,
-                      C.l,
-                      C.l,
-                    ]
-                    const FE = [
-                      [0, 1],
-                      [0, 2],
-                      [0, 3],
-                      [0, 4],
-                      [0, 5],
-                      [1, 8],
-                      [2, 9],
-                      [3, 10],
-                      [4, 11],
-                      [1, 6],
-                      [4, 7],
-                    ]
-
-                    // Slide 2 — Árbol-H
-                    const TN = [
-                      { x: 14, y: 74, r: 11 },
-                      { x: 88, y: 26, r: 8 },
-                      { x: 88, y: 74, r: 8 },
-                      { x: 88, y: 122, r: 8 },
-                      { x: 163, y: 12, r: 6 },
-                      { x: 163, y: 36, r: 6 },
-                      { x: 163, y: 70, r: 6 },
-                      { x: 163, y: 100, r: 6 },
-                      { x: 163, y: 130, r: 6 },
-                      { x: 236, y: 8, r: 5 },
-                      { x: 236, y: 22, r: 5 },
-                      { x: 236, y: 38, r: 5 },
-                      { x: 236, y: 56, r: 5 },
-                      { x: 236, y: 74, r: 5 },
-                      { x: 236, y: 92, r: 5 },
-                      { x: 236, y: 110, r: 5 },
-                      { x: 236, y: 130, r: 5 },
-                    ]
-                    const TC = [
-                      C.d,
-                      C.m,
-                      C.m,
-                      C.m,
-                      C.ml,
-                      C.ml,
-                      C.ml,
-                      C.ml,
-                      C.ml,
-                      C.l,
-                      C.l,
-                      C.l,
-                      C.l,
-                      C.l,
-                      C.l,
-                      C.l,
-                      C.l,
-                    ]
-                    const TE = [
-                      [0, 1],
-                      [0, 2],
-                      [0, 3],
-                      [1, 4],
-                      [1, 5],
-                      [2, 6],
-                      [2, 7],
-                      [3, 8],
-                      [4, 9],
-                      [5, 10],
-                      [5, 11],
-                      [6, 12],
-                      [6, 13],
-                      [7, 14],
-                      [8, 15],
-                      [8, 16],
-                    ]
-
-                    // Slide 3 — Sunburst (arcs)
-                    const arcPath = (r1, r2, a1, a2) => {
-                      const g = 0.06,
-                        la = a2 - a1 > Math.PI ? 1 : 0
-                      const [pa1, pa2] = [a1 + g, a2 - g]
-                      const x1 = cx + r1 * cos(pa1),
-                        y1 = cy + r1 * sin(pa1),
-                        x2 = cx + r1 * cos(pa2),
-                        y2 = cy + r1 * sin(pa2)
-                      const x3 = cx + r2 * cos(pa2),
-                        y3 = cy + r2 * sin(pa2),
-                        x4 = cx + r2 * cos(pa1),
-                        y4 = cy + r2 * sin(pa1)
-                      return `M${x1.toFixed(1)},${y1.toFixed(
-                        1
-                      )} A${r1},${r1} 0 ${la} 1 ${x2.toFixed(1)},${y2.toFixed(
-                        1
-                      )} L${x3.toFixed(1)},${y3.toFixed(
-                        1
-                      )} A${r2},${r2} 0 ${la} 0 ${x4.toFixed(1)},${y4.toFixed(
-                        1
-                      )}Z`
-                    }
-                    const SB_R1C = [C.d, "rgb(175,45,45)", "rgb(165,38,38)"]
-                    const SB_R2C = [
-                      C.m,
-                      "rgb(210,95,75)",
-                      C.m,
-                      "rgb(210,95,75)",
-                      C.m,
-                      "rgb(210,95,75)",
-                    ]
-                    const SB_R3C = [
-                      C.ml,
-                      C.l,
-                      C.ml,
-                      C.l,
-                      C.ml,
-                      C.l,
-                      C.ml,
-                      C.l,
-                      C.ml,
-                    ]
-
-                    const slideContent = [
-                      // 0 Ego
-                      <g key="ego">
-                        {eg1.map((n, i) => (
-                          <line
-                            key={i}
-                            x1={cx}
-                            y1={cy}
-                            x2={n.x}
-                            y2={n.y}
-                            {...lp}
-                          />
-                        ))}
-                        {eg2.map((n, i) => (
-                          <line
-                            key={i}
-                            x1={eg1[n.pi % 6].x}
-                            y1={eg1[n.pi % 6].y}
-                            x2={n.x}
-                            y2={n.y}
-                            {...lp}
-                            opacity="0.32"
-                          />
-                        ))}
-                        {eg2.map((n, i) => (
-                          <circle key={i} cx={n.x} cy={n.y} r={4} fill={C.l} />
-                        ))}
-                        {eg1.map((n, i) => (
-                          <circle key={i} cx={n.x} cy={n.y} r={7} fill={C.m} />
-                        ))}
-                        <circle cx={cx} cy={cy} r={15} fill={C.d} />
-                      </g>,
-                      // 1 Fuerza
-                      <g key="force">
-                        {FE.map(([a, b], i) => (
-                          <line
-                            key={i}
-                            x1={FN[a].x}
-                            y1={FN[a].y}
-                            x2={FN[b].x}
-                            y2={FN[b].y}
-                            {...lp}
-                          />
-                        ))}
-                        {FN.map((n, i) => (
-                          <circle
-                            key={i}
-                            cx={n.x}
-                            cy={n.y}
-                            r={n.r}
-                            fill={FC[i]}
-                          />
-                        ))}
-                      </g>,
-                      // 2 Árbol-H
-                      <g key="tree">
-                        {TE.map(([a, b], i) => (
-                          <line
-                            key={i}
-                            x1={TN[a].x}
-                            y1={TN[a].y}
-                            x2={TN[b].x}
-                            y2={TN[b].y}
-                            {...lp}
-                          />
-                        ))}
-                        {TN.map((n, i) => (
-                          <circle
-                            key={i}
-                            cx={n.x}
-                            cy={n.y}
-                            r={n.r}
-                            fill={TC[i]}
-                          />
-                        ))}
-                      </g>,
-                      // 3 Sunburst
-                      <g key="sunburst">
-                        <circle cx={cx} cy={cy} r={17} fill={C.d} />
-                        {SB_R1C.map((c, i) => (
-                          <path
-                            key={i}
-                            d={arcPath(
-                              19,
-                              40,
-                              (i / 3) * τ - τ / 4,
-                              ((i + 1) / 3) * τ - τ / 4
-                            )}
-                            fill={c}
-                          />
-                        ))}
-                        {SB_R2C.map((c, i) => (
-                          <path
-                            key={i}
-                            d={arcPath(
-                              42,
-                              63,
-                              (i / 6) * τ - τ / 4,
-                              ((i + 1) / 6) * τ - τ / 4
-                            )}
-                            fill={c}
-                          />
-                        ))}
-                        {SB_R3C.map((c, i) => (
-                          <path
-                            key={i}
-                            d={arcPath(
-                              65,
-                              82,
-                              (i / 9) * τ - τ / 4,
-                              ((i + 1) / 9) * τ - τ / 4
-                            )}
-                            fill={c}
-                          />
-                        ))}
-                      </g>,
-                    ]
-
-                    return (
-                      <div className="sidebar-panel">
-                        <div className="sidebar-panel-header">
-                          <span className="panel-title">
-                            <svg
-                              width="15"
-                              height="15"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <circle cx="12" cy="12" r="3" />
-                              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                            </svg>
-                            {language === "en"
-                              ? "Explore Vocabularies"
-                              : "Explora Vocabularios"}
-                          </span>
+                          {language === "en"
+                            ? "Search vocabulary"
+                            : "Buscar vocabulario"}
                         </div>
-                        <div
-                          className="explore-graph-area"
-                          onClick={() => setGraphVocab(exploreCs)}
-                        >
+                        <div className="filter-search">
                           <svg
-                            width={W}
-                            height={H}
-                            viewBox={`0 0 ${W} ${H}`}
-                            style={{
-                              width: "100%",
-                              height: "auto",
-                              display: "block",
-                            }}
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
                           >
-                            {slideContent[FORCE_SLIDE_INDEX]}
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                           </svg>
-                          <div className="explore-overlay">
-                            <span className="explore-overlay-btn">
-                              {language === "en"
-                                ? "Open graph →"
-                                : "Ver grafo →"}
-                            </span>
-                          </div>
+                          <input
+                            type="text"
+                            placeholder={
+                              language === "en"
+                                ? "Search by text..."
+                                : "Buscar por texto..."
+                            }
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                          />
                         </div>
                       </div>
-                    )
-                  })()}
-
-                {/* Últimas actualizaciones — timeline */}
-                {homeConfig.novedades?.length > 0 && (
-                  <div className="sidebar-panel">
-                    <div className="sidebar-panel-header">
-                      <span className="panel-title">
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        {language === "en"
-                          ? "Latest updates"
-                          : "Últimas actualizaciones"}
-                      </span>
-                    </div>
-                    <div className="timeline-panel-body">
-                      {homeConfig.novedades.map((item, i) => (
-                        <div key={i} className="timeline-item">
-                          <div className="timeline-dot-col">
-                            <div className="timeline-dot" />
-                            <div className="timeline-line" />
-                          </div>
-                          <div className="timeline-content">
-                            <div className="timeline-title">
-                              {item.titulo}
-                              {item.nuevo && (
-                                <span className="timeline-new">NUEVO</span>
-                              )}
-                            </div>
-                            <div className="timeline-date">{item.fecha}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* Destacados */}
-                {homeConfig.destacados?.length > 0 && (
-                  <div className="sidebar-panel">
-                    <div className="sidebar-panel-header">
-                      <span className="panel-title">
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                        {language === "en"
-                          ? "Featured"
-                          : "Vocabularios destacados"}
-                      </span>
-                    </div>
-                    <div className="sidebar-panel-body">
-                      {homeConfig.destacados.map((item, i) => {
-                        const matched = conceptSchemes.find((cs) => {
-                          const t =
-                            cs.title?.[language] ||
-                            cs.title?.es ||
-                            cs.title?.en ||
-                            cs.prefLabel?.[language] ||
-                            cs.prefLabel?.es ||
-                            cs.prefLabel?.en ||
-                            ""
-                          return t.toLowerCase() === item.titulo.toLowerCase()
-                        })
-                        return matched ? (
-                          <a
-                            key={i}
-                            className="sidebar-item-link"
-                            href={getFilePath(
-                              matched.id,
-                              "html",
-                              config.customDomain
-                            )}
-                            onClick={() =>
-                              updateState({
-                                ...data,
-                                conceptSchemeLanguages: [...matched.languages],
-                                currentScheme: matched,
-                                selectedLanguage: matched.languages.includes(
-                                  language
-                                )
-                                  ? language
-                                  : matched.languages[0],
-                              })
-                            }
+                      <div className="filter-section">
+                        <div className="filter-label">
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
                           >
-                            <div className="item-info">
-                              <span
-                                className="badge-destacado"
-                                style={{ marginRight: "8px" }}
-                              >
-                                ★
-                              </span>
-                              <span className="item-title">{item.titulo}</span>
-                            </div>
-                            <svg
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
+                            <rect x="3" y="3" width="7" height="7" />
+                            <rect x="14" y="3" width="7" height="7" />
+                            <rect x="14" y="14" width="7" height="7" />
+                            <rect x="3" y="14" width="7" height="7" />
+                          </svg>
+                          {language === "en" ? "Format" : "Formato"}
+                        </div>
+                        <select value="" onChange={() => {}}>
+                          <option value="">
+                            {language === "en" ? "All" : "Todos"}
+                          </option>
+                          <option value="ttl">TTL</option>
+                          <option value="rdf">RDF/XML</option>
+                          <option value="jsonld">JSON-LD</option>
+                        </select>
+                      </div>
+                      <div className="filter-section">
+                        <div className="filter-label">
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                          </svg>
+                          {language === "en" ? "Language" : "Idioma"}
+                        </div>
+                        <select
+                          value={filterIdioma}
+                          onChange={(e) => setFilterIdioma(e.target.value)}
+                        >
+                          <option value="">
+                            {language === "en" ? "All" : "Todos"}
+                          </option>
+                          <option value="es">
+                            {language === "en" ? "Spanish" : "Español"}
+                          </option>
+                          <option value="en">
+                            {language === "en" ? "English" : "Inglés"}
+                          </option>
+                        </select>
+                      </div>
+                      <div className="filter-section">
+                        <div className="filter-label">
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          {language === "en" ? "Status" : "Estado"}
+                        </div>
+                        <select
+                          value={filterEstado}
+                          onChange={(e) => setFilterEstado(e.target.value)}
+                        >
+                          <option value="">
+                            {language === "en" ? "All" : "Todos"}
+                          </option>
+                          <option value="valido">
+                            {language === "en" ? "Valid" : "Válido"}
+                          </option>
+                          <option value="retirado">
+                            {language === "en" ? "Retired" : "Retirado"}
+                          </option>
+                          <option value="sustituido">
+                            {language === "en" ? "Superseded" : "Sustituido"}
+                          </option>
+                          <option value="propuesto">
+                            {language === "en" ? "Proposed" : "Propuesto"}
+                          </option>
+                          <option value="invalido">
+                            {language === "en" ? "Invalid" : "Inválido"}
+                          </option>
+                        </select>
+                      </div>
+                      <div className="filter-section">
+                        <div className="filter-label">
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <line x1="8" y1="6" x2="21" y2="6" />
+                            <line x1="8" y1="12" x2="21" y2="12" />
+                            <line x1="8" y1="18" x2="21" y2="18" />
+                            <line x1="3" y1="6" x2="3.01" y2="6" />
+                            <line x1="3" y1="12" x2="3.01" y2="12" />
+                            <line x1="3" y1="18" x2="3.01" y2="18" />
+                          </svg>
+                          {language === "en" ? "Sort by" : "Ordenar por"}
+                        </div>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                        >
+                          <option value="az">A → Z</option>
+                          <option value="za">Z → A</option>
+                          <option value="terms-desc">
+                            {language === "en"
+                              ? "Terms count \u2193"
+                              : "N\u00famero de t\u00e9rminos \u2193"}
+                          </option>
+                          <option value="terms-asc">
+                            {language === "en"
+                              ? "Terms count \u2191"
+                              : "N\u00famero de t\u00e9rminos \u2191"}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Right: Sidebar */}
+                    <div
+                      className="cat-sidebar-col explore-wide"
+                      style={{
+                        background: "#e3e0de",
+                        ...(sidebarH ? { height: `${sidebarH}px` } : {}),
+                      }}
+                    >
+                      {/* Explora Vocabularios */}
+                      {conceptSchemes.length > 0 &&
+                        exploreCs &&
+                        (() => {
+                          const W = 280,
+                            H = 148,
+                            cx = 140,
+                            cy = 74
+                          const τ = Math.PI * 2,
+                            cos = Math.cos,
+                            sin = Math.sin
+                          const lp = {
+                            stroke: "rgb(210,90,70)",
+                            strokeWidth: "1.2",
+                            opacity: "0.5",
+                          }
+                          const C = {
+                            d: "rgb(155,35,35)",
+                            m: "rgb(200,85,65)",
+                            ml: "rgb(232,148,128)",
+                            l: "rgb(248,205,193)",
+                            s: "rgb(250,220,215)",
+                          }
+                          const FORCE_SLIDE_INDEX = 1
+
+                          // Slide 0 — Ego
+                          const eg1 = Array.from({ length: 6 }, (_, i) => ({
+                            x: cx + 52 * cos((i / 6) * τ - τ / 4),
+                            y: cy + 42 * sin((i / 6) * τ - τ / 4),
+                          }))
+                          const eg2 = Array.from({ length: 5 }, (_, i) => ({
+                            x: cx + 80 * cos(((i + 0.4) / 5) * τ - τ / 4),
+                            y: cy + 60 * sin(((i + 0.4) / 5) * τ - τ / 4),
+                            pi: Math.floor((i * 6) / 5),
+                          }))
+
+                          // Slide 1 — Fuerza
+                          const FN = [
+                            { x: 140, y: 74, r: 13 },
+                            { x: 88, y: 34, r: 8 },
+                            { x: 200, y: 30, r: 8 },
+                            { x: 62, y: 90, r: 8 },
+                            { x: 220, y: 97, r: 8 },
+                            { x: 140, y: 14, r: 8 },
+                            { x: 105, y: 120, r: 7 },
+                            { x: 178, y: 126, r: 7 },
+                            { x: 52, y: 46, r: 6 },
+                            { x: 235, y: 52, r: 6 },
+                            { x: 38, y: 122, r: 5 },
+                            { x: 248, y: 118, r: 5 },
+                          ]
+                          const FC = [
+                            C.d,
+                            C.m,
+                            C.m,
+                            C.m,
+                            C.m,
+                            C.m,
+                            C.ml,
+                            C.ml,
+                            C.ml,
+                            C.ml,
+                            C.l,
+                            C.l,
+                          ]
+                          const FE = [
+                            [0, 1],
+                            [0, 2],
+                            [0, 3],
+                            [0, 4],
+                            [0, 5],
+                            [1, 8],
+                            [2, 9],
+                            [3, 10],
+                            [4, 11],
+                            [1, 6],
+                            [4, 7],
+                          ]
+
+                          // Slide 2 — Árbol-H
+                          const TN = [
+                            { x: 14, y: 74, r: 11 },
+                            { x: 88, y: 26, r: 8 },
+                            { x: 88, y: 74, r: 8 },
+                            { x: 88, y: 122, r: 8 },
+                            { x: 163, y: 12, r: 6 },
+                            { x: 163, y: 36, r: 6 },
+                            { x: 163, y: 70, r: 6 },
+                            { x: 163, y: 100, r: 6 },
+                            { x: 163, y: 130, r: 6 },
+                            { x: 236, y: 8, r: 5 },
+                            { x: 236, y: 22, r: 5 },
+                            { x: 236, y: 38, r: 5 },
+                            { x: 236, y: 56, r: 5 },
+                            { x: 236, y: 74, r: 5 },
+                            { x: 236, y: 92, r: 5 },
+                            { x: 236, y: 110, r: 5 },
+                            { x: 236, y: 130, r: 5 },
+                          ]
+                          const TC = [
+                            C.d,
+                            C.m,
+                            C.m,
+                            C.m,
+                            C.ml,
+                            C.ml,
+                            C.ml,
+                            C.ml,
+                            C.ml,
+                            C.l,
+                            C.l,
+                            C.l,
+                            C.l,
+                            C.l,
+                            C.l,
+                            C.l,
+                            C.l,
+                          ]
+                          const TE = [
+                            [0, 1],
+                            [0, 2],
+                            [0, 3],
+                            [1, 4],
+                            [1, 5],
+                            [2, 6],
+                            [2, 7],
+                            [3, 8],
+                            [4, 9],
+                            [5, 10],
+                            [5, 11],
+                            [6, 12],
+                            [6, 13],
+                            [7, 14],
+                            [8, 15],
+                            [8, 16],
+                          ]
+
+                          // Slide 3 — Sunburst (arcs)
+                          const arcPath = (r1, r2, a1, a2) => {
+                            const g = 0.06,
+                              la = a2 - a1 > Math.PI ? 1 : 0
+                            const [pa1, pa2] = [a1 + g, a2 - g]
+                            const x1 = cx + r1 * cos(pa1),
+                              y1 = cy + r1 * sin(pa1),
+                              x2 = cx + r1 * cos(pa2),
+                              y2 = cy + r1 * sin(pa2)
+                            const x3 = cx + r2 * cos(pa2),
+                              y3 = cy + r2 * sin(pa2),
+                              x4 = cx + r2 * cos(pa1),
+                              y4 = cy + r2 * sin(pa1)
+                            return `M${x1.toFixed(1)},${y1.toFixed(
+                              1
+                            )} A${r1},${r1} 0 ${la} 1 ${x2.toFixed(
+                              1
+                            )},${y2.toFixed(1)} L${x3.toFixed(1)},${y3.toFixed(
+                              1
+                            )} A${r2},${r2} 0 ${la} 0 ${x4.toFixed(
+                              1
+                            )},${y4.toFixed(1)}Z`
+                          }
+                          const SB_R1C = [
+                            C.d,
+                            "rgb(175,45,45)",
+                            "rgb(165,38,38)",
+                          ]
+                          const SB_R2C = [
+                            C.m,
+                            "rgb(210,95,75)",
+                            C.m,
+                            "rgb(210,95,75)",
+                            C.m,
+                            "rgb(210,95,75)",
+                          ]
+                          const SB_R3C = [
+                            C.ml,
+                            C.l,
+                            C.ml,
+                            C.l,
+                            C.ml,
+                            C.l,
+                            C.ml,
+                            C.l,
+                            C.ml,
+                          ]
+
+                          const slideContent = [
+                            // 0 Ego
+                            <g key="ego">
+                              {eg1.map((n, i) => (
+                                <line
+                                  key={i}
+                                  x1={cx}
+                                  y1={cy}
+                                  x2={n.x}
+                                  y2={n.y}
+                                  {...lp}
+                                />
+                              ))}
+                              {eg2.map((n, i) => (
+                                <line
+                                  key={i}
+                                  x1={eg1[n.pi % 6].x}
+                                  y1={eg1[n.pi % 6].y}
+                                  x2={n.x}
+                                  y2={n.y}
+                                  {...lp}
+                                  opacity="0.32"
+                                />
+                              ))}
+                              {eg2.map((n, i) => (
+                                <circle
+                                  key={i}
+                                  cx={n.x}
+                                  cy={n.y}
+                                  r={4}
+                                  fill={C.l}
+                                />
+                              ))}
+                              {eg1.map((n, i) => (
+                                <circle
+                                  key={i}
+                                  cx={n.x}
+                                  cy={n.y}
+                                  r={7}
+                                  fill={C.m}
+                                />
+                              ))}
+                              <circle cx={cx} cy={cy} r={15} fill={C.d} />
+                            </g>,
+                            // 1 Fuerza
+                            <g key="force">
+                              {FE.map(([a, b], i) => (
+                                <line
+                                  key={i}
+                                  x1={FN[a].x}
+                                  y1={FN[a].y}
+                                  x2={FN[b].x}
+                                  y2={FN[b].y}
+                                  {...lp}
+                                />
+                              ))}
+                              {FN.map((n, i) => (
+                                <circle
+                                  key={i}
+                                  cx={n.x}
+                                  cy={n.y}
+                                  r={n.r}
+                                  fill={FC[i]}
+                                />
+                              ))}
+                            </g>,
+                            // 2 Árbol-H
+                            <g key="tree">
+                              {TE.map(([a, b], i) => (
+                                <line
+                                  key={i}
+                                  x1={TN[a].x}
+                                  y1={TN[a].y}
+                                  x2={TN[b].x}
+                                  y2={TN[b].y}
+                                  {...lp}
+                                />
+                              ))}
+                              {TN.map((n, i) => (
+                                <circle
+                                  key={i}
+                                  cx={n.x}
+                                  cy={n.y}
+                                  r={n.r}
+                                  fill={TC[i]}
+                                />
+                              ))}
+                            </g>,
+                            // 3 Sunburst
+                            <g key="sunburst">
+                              <circle cx={cx} cy={cy} r={17} fill={C.d} />
+                              {SB_R1C.map((c, i) => (
+                                <path
+                                  key={i}
+                                  d={arcPath(
+                                    19,
+                                    40,
+                                    (i / 3) * τ - τ / 4,
+                                    ((i + 1) / 3) * τ - τ / 4
+                                  )}
+                                  fill={c}
+                                />
+                              ))}
+                              {SB_R2C.map((c, i) => (
+                                <path
+                                  key={i}
+                                  d={arcPath(
+                                    42,
+                                    63,
+                                    (i / 6) * τ - τ / 4,
+                                    ((i + 1) / 6) * τ - τ / 4
+                                  )}
+                                  fill={c}
+                                />
+                              ))}
+                              {SB_R3C.map((c, i) => (
+                                <path
+                                  key={i}
+                                  d={arcPath(
+                                    65,
+                                    82,
+                                    (i / 9) * τ - τ / 4,
+                                    ((i + 1) / 9) * τ - τ / 4
+                                  )}
+                                  fill={c}
+                                />
+                              ))}
+                            </g>,
+                          ]
+
+                          return (
+                            <div
+                              className="sidebar-panel"
                               style={{
-                                color: "rgb(130,110,90)",
-                                flexShrink: 0,
+                                background: "#e3e0de",
+                                boxShadow: "none",
                               }}
                             >
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                          </a>
-                        ) : (
-                          <div key={i} className="sidebar-item">
-                            <span className="badge-destacado">★</span>
-                            <span className="item-title">{item.titulo}</span>
+                              <div
+                                className="sidebar-panel-header"
+                                style={{ background: "#e3e0de" }}
+                              >
+                                <span className="panel-title">
+                                  <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  >
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                                  </svg>
+                                  {language === "en"
+                                    ? "Explore Vocabularies"
+                                    : "Explora Vocabularios"}
+                                </span>
+                                <div className="explore-copy-row">
+                                  <p className="explore-panel-desc">
+                                    {language === "en"
+                                      ? "Browse the vocabulary list to discover all topics. Search and filter vocabularies, explore their terms, learn their meaning and visualize their relationships."
+                                      : "Navega por el listado de vocabularios para descubrir todas las temáticas. Busca y filtra vocabularios, explora sus términos, aprende su significado y visualiza sus relaciones."}
+                                  </p>
+                                </div>
+                              </div>
+                              <div
+                                className="explore-image-box"
+                                onClick={() => setGraphVocab(exploreCs)}
+                              >
+                                <span className="explore-img-label">
+                                  {language === "en"
+                                    ? "Visualize Relationships"
+                                    : "Visualiza Relaciones"}
+                                </span>
+                                <span className="explore-img-sublabel">
+                                  {language === "en"
+                                    ? "Explore the hierarchies and relationships between terms"
+                                    : "Profundiza en las jerarquías y las relaciones entre términos"}
+                                </span>
+                                <button
+                                  type="button"
+                                  className="explore-img-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setGraphVocab(exploreCs)
+                                  }}
+                                >
+                                  {language === "en"
+                                    ? "Open graph →"
+                                    : "Ver grafo →"}
+                                </button>
+                                <img
+                                  className="explore-graph-img"
+                                  src={withPrefix("/img/ver-grafo.png")}
+                                  alt=""
+                                  loading="lazy"
+                                />
+                              </div>
+                            </div>
+                          )
+                        })()}
+
+                      {/* Últimas actualizaciones — timeline */}
+                      {false && homeConfig.novedades?.length > 0 && (
+                        <div className="sidebar-panel">
+                          <div className="sidebar-panel-header">
+                            <span className="panel-title">
+                              <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                              </svg>
+                              {language === "en"
+                                ? "Latest updates"
+                                : "Últimas actualizaciones"}
+                            </span>
                           </div>
-                        )
-                      })}
+                          <div className="timeline-panel-body">
+                            {homeConfig.novedades.map((item, i) => (
+                              <div key={i} className="timeline-item">
+                                <div className="timeline-dot-col">
+                                  <div className="timeline-dot" />
+                                  <div className="timeline-line" />
+                                </div>
+                                <div className="timeline-content">
+                                  <div className="timeline-title">
+                                    {item.titulo}
+                                    {item.nuevo && (
+                                      <span className="timeline-new">
+                                        NUEVO
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="timeline-date">
+                                    {item.fecha}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* Destacados */}
+                      {false && homeConfig.destacados?.length > 0 && (
+                        <div className="sidebar-panel">
+                          <div className="sidebar-panel-header">
+                            <span className="panel-title">
+                              <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                              </svg>
+                              {language === "en"
+                                ? "Featured"
+                                : "Vocabularios destacados"}
+                            </span>
+                          </div>
+                          <div className="sidebar-panel-body">
+                            {homeConfig.destacados.map((item, i) => {
+                              const matched = conceptSchemes.find((cs) => {
+                                const t =
+                                  cs.title?.[language] ||
+                                  cs.title?.es ||
+                                  cs.title?.en ||
+                                  cs.prefLabel?.[language] ||
+                                  cs.prefLabel?.es ||
+                                  cs.prefLabel?.en ||
+                                  ""
+                                return (
+                                  t.toLowerCase() === item.titulo.toLowerCase()
+                                )
+                              })
+                              return matched ? (
+                                <a
+                                  key={i}
+                                  className="sidebar-item-link"
+                                  href={getFilePath(
+                                    matched.id,
+                                    "html",
+                                    config.customDomain
+                                  )}
+                                  onClick={() =>
+                                    updateState({
+                                      ...data,
+                                      conceptSchemeLanguages: [
+                                        ...matched.languages,
+                                      ],
+                                      currentScheme: matched,
+                                      selectedLanguage:
+                                        matched.languages.includes(language)
+                                          ? language
+                                          : matched.languages[0],
+                                    })
+                                  }
+                                >
+                                  <div className="item-info">
+                                    <span
+                                      className="badge-destacado"
+                                      style={{ marginRight: "8px" }}
+                                    >
+                                      ★
+                                    </span>
+                                    <span className="item-title">
+                                      {item.titulo}
+                                    </span>
+                                  </div>
+                                  <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                      color: "rgb(130,110,90)",
+                                      flexShrink: 0,
+                                    }}
+                                  >
+                                    <polyline points="9 18 15 12 9 6" />
+                                  </svg>
+                                </a>
+                              ) : (
+                                <div key={i} className="sidebar-item">
+                                  <span className="badge-destacado">★</span>
+                                  <span className="item-title">
+                                    {item.titulo}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
+
+              {/* Sections: one vocabulary per section */}
+              {displayedSchemes.map((cs) => (
+                <div className="home-section" key={cs.id}>
+                  <div className="cat-section-content">
+                    <div
+                      className="vocab-card-v2"
+                      onClick={() => {
+                        updateState({
+                          ...data,
+                          conceptSchemeLanguages: [...cs.languages],
+                          currentScheme: cs,
+                          selectedLanguage: cs.languages.includes(language)
+                            ? language
+                            : cs.languages[0],
+                        })
+                        navigate(getFilePath(cs.id, "html", customDomain))
+                      }}
+                    >
+                      <div className="vocab-card-inner">
+                        <div className="vocab-card-thumb">
+                          <VocabIcon vocabId={cs.id} colors={config.colors} />
+                        </div>
+                        <div className="vocab-card-body">
+                          <span className="vocab-title-link">
+                            {getTitle(cs)}
+                          </span>
+                          <p className="vocab-desc">{getDescription(cs)}</p>
+                          <div className="vocab-meta-row">
+                            <span className="meta-item">
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                              </svg>
+                              {cs.languages
+                                .map((l) =>
+                                  l === "es"
+                                    ? "Es"
+                                    : l === "en"
+                                    ? "En"
+                                    : l.toUpperCase()
+                                )
+                                .join(" · ")}
+                            </span>
+                            {cs.termCount > 0 && (
+                              <span className="meta-item">
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <line x1="8" y1="6" x2="21" y2="6" />
+                                  <line x1="8" y1="12" x2="21" y2="12" />
+                                  <line x1="8" y1="18" x2="21" y2="18" />
+                                  <line x1="3" y1="6" x2="3.01" y2="6" />
+                                  <line x1="3" y1="12" x2="3.01" y2="12" />
+                                  <line x1="3" y1="18" x2="3.01" y2="18" />
+                                </svg>
+                                {cs.termCount.toLocaleString(
+                                  language === "en" ? "en-GB" : "es-ES"
+                                )}{" "}
+                                {language === "en" ? "terms" : "términos"}
+                              </span>
+                            )}
+                            {cs.collectionCount > 0 && (
+                              <span className="meta-item">
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <path d="M3 7h6l2 3h10v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" />
+                                  <path d="M3 7V5a2 2 0 0 1 2-2h4l2 4" />
+                                </svg>
+                                {cs.collectionCount.toLocaleString(
+                                  language === "en" ? "en-GB" : "es-ES"
+                                )}{" "}
+                                {language === "en"
+                                  ? cs.collectionCount === 1
+                                    ? "collection"
+                                    : "collections"
+                                  : cs.collectionCount === 1
+                                  ? "colecci\u00f3n"
+                                  : "colecciones"}
+                              </span>
+                            )}
+                            {cs.modified && (
+                              <span className="meta-item">
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <rect
+                                    x="3"
+                                    y="4"
+                                    width="18"
+                                    height="18"
+                                    rx="2"
+                                    ry="2"
+                                  />
+                                  <line x1="16" y1="2" x2="16" y2="6" />
+                                  <line x1="8" y1="2" x2="8" y2="6" />
+                                  <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                {new Date(cs.modified).toLocaleDateString(
+                                  language === "en" ? "en-GB" : "es-ES",
+                                  {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </span>
+                            )}
+                            <button
+                              className="btn-ver-grafo"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setGraphVocab(cs)
+                              }}
+                            >
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <circle cx="5" cy="12" r="3" />
+                                <circle cx="19" cy="5" r="3" />
+                                <circle cx="19" cy="19" r="3" />
+                                <line x1="8" y1="11" x2="16" y2="6" />
+                                <line x1="8" y1="13" x2="16" y2="18" />
+                              </svg>
+                              {language === "en" ? "View graph" : "Ver grafo"}
+                            </button>
+                            <span className="status-valid">
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                              >
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              {language === "en" ? "Valid" : "Válido"}
+                            </span>
+                            {[
+                              { label: "TTL", ext: "ttl" },
+                              { label: "RDF/XML", ext: "rdf" },
+                              { label: "JSON-LD", ext: "jsonld" },
+                            ].map(({ label, ext }, i) => {
+                              const slug = cs.id.split("/").pop()
+                              return (
+                                <a
+                                  key={ext}
+                                  className="btn-ver-grafo"
+                                  href={`${
+                                    customDomain || "/"
+                                  }downloads/${slug}.${ext}`}
+                                  download
+                                  onClick={(e) => e.stopPropagation()}
+                                  style={{
+                                    fontSize: "12px",
+                                    lineHeight: "1",
+                                    background: "rgb(245, 240, 232)",
+                                    borderColor: "rgb(210, 190, 165)",
+                                    ...(i === 0 ? { marginLeft: "auto" } : {}),
+                                  }}
+                                >
+                                  {label}
+                                </a>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : (
@@ -3727,7 +4299,8 @@ const IndexPage = ({ location }) => {
                             style={{ color: config.colors.skoHubDarkColor }}
                           >
                             {totalTerms.toLocaleString(
-                              language === "en" ? "en-GB" : "es-ES"
+                              language === "en" ? "en-GB" : "es-ES",
+                              { useGrouping: false }
                             )}
                           </div>
                           <div className="stat-label">
@@ -3822,7 +4395,7 @@ const IndexPage = ({ location }) => {
                             {lastModified || homeConfig.ultima_actualizacion}
                           </span>
                           <span className="stat-update-label">
-                            {language === "en" ? "Updated" : "actualizado"}
+                            {language === "en" ? "updated" : "actualizado"}
                           </span>
                         </div>
                       )}
@@ -3879,7 +4452,10 @@ const IndexPage = ({ location }) => {
                         <button
                           key={code}
                           className="cat-card"
-                          onClick={() => setSelectedCategory(code)}
+                          onClick={() => {
+                            setSelectedCategory(code)
+                            window.history.pushState({ category: code }, "")
+                          }}
                         >
                           <img
                             src={withPrefix(`/img/${cat.image}`)}
@@ -3919,7 +4495,7 @@ const IndexPage = ({ location }) => {
                 </section>
               )}
 
-              {/* Ultimas actualizaciones */}
+              {/* Novedades */}
               {!selectedCategory && homeConfig.novedades?.length > 0 && (
                 <section className="home-section">
                   <div className="home-section-title">
@@ -3934,22 +4510,113 @@ const IndexPage = ({ location }) => {
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
-                    {language === "en"
-                      ? "Latest updates"
-                      : "Últimas actualizaciones"}
+                    {language === "en" ? "News" : "Novedades"}
                   </div>
-                  <div className="home-updates-grid">
-                    {homeConfig.novedades.map((item, i) => (
-                      <article key={i} className="home-update-card">
-                        {item.fecha && (
-                          <div className="home-update-date">{item.fecha}</div>
-                        )}
-                        <div className="home-update-title">{item.titulo}</div>
-                        {item.nuevo && (
-                          <span className="home-update-new">NUEVO</span>
-                        )}
-                      </article>
-                    ))}
+                  <div className="home-updates-wrap">
+                    <div className="home-updates-grid" ref={updatesSliderRef}>
+                      {homeConfig.novedades.map((item, i) => {
+                        const title = (item.titulo || "").toLowerCase()
+                        const updateImage =
+                          item.imagen ||
+                          (title.includes("public")
+                            ? "publicacion.png"
+                            : title.includes("grafo")
+                            ? "grafo-2.png"
+                            : title.includes("filtro")
+                            ? "filtros.png"
+                            : null)
+                        return (
+                          <article key={i} className="home-update-card">
+                            {item.nuevo && (
+                              <span className="home-update-new">
+                                {language === "en" ? "NEW" : "NUEVO"}
+                              </span>
+                            )}
+                            {item.fecha && (
+                              <div className="home-update-date">
+                                {item.fecha}
+                              </div>
+                            )}
+                            <div className="home-update-title">
+                              {language === "en" && item.titulo_en
+                                ? item.titulo_en
+                                : item.titulo}
+                            </div>
+                            {(item.descripcion || item.descripcion_en) && (
+                              <p className="home-update-desc">
+                                {language === "en" && item.descripcion_en
+                                  ? item.descripcion_en
+                                  : item.descripcion}
+                              </p>
+                            )}
+                            {updateImage && (
+                              <img
+                                className="home-update-img"
+                                src={withPrefix(`/img/${updateImage}`)}
+                                alt=""
+                                loading="lazy"
+                              />
+                            )}
+                          </article>
+                        )
+                      })}
+                    </div>
+                    {homeConfig.novedades.length > 3 && (
+                      <>
+                        <button
+                          type="button"
+                          className="gallery-nav-btn gallery-nav-prev"
+                          onClick={() => {
+                            const el = updatesSliderRef.current
+                            if (!el) return
+                            const itemW = el.firstElementChild?.offsetWidth || 0
+                            el.scrollBy({
+                              left: -(itemW + 18),
+                              behavior: "smooth",
+                            })
+                          }}
+                          aria-label={
+                            language === "en" ? "Previous" : "Anterior"
+                          }
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <polyline points="15 18 9 12 15 6" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="gallery-nav-btn gallery-nav-next"
+                          onClick={() => {
+                            const el = updatesSliderRef.current
+                            if (!el) return
+                            const itemW = el.firstElementChild?.offsetWidth || 0
+                            el.scrollBy({
+                              left: itemW + 18,
+                              behavior: "smooth",
+                            })
+                          }}
+                          aria-label={language === "en" ? "Next" : "Siguiente"}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </section>
               )}
@@ -3983,22 +4650,84 @@ const IndexPage = ({ location }) => {
                       <div className="sidebar-suggestion-title">
                         {language === "en"
                           ? "Write to us and contact us"
-                          : "Escríbenos y contacta con nosotros"}
+                          : "Escribe y contacta con nosotros"}
                       </div>
                       <p>
                         {language === "en"
                           ? "Your feedback helps us improve the repository."
                           : "Tu opinión nos ayuda a mejorar el repositorio."}
                       </p>
-                      <a
-                        href="mailto:vocabularios.cientificos@igme.es"
-                        className="sidebar-suggestion-btn"
+                    </div>
+                    <form
+                      className="suggestion-form"
+                      onSubmit={handleSuggestionSubmit}
+                    >
+                      <div
+                        style={{ display: "flex", justifyContent: "flex-end" }}
                       >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSuggestionName("")
+                            setSuggestionSubject("")
+                            setSuggestionMessage("")
+                          }}
+                          style={{
+                            fontSize: "12px",
+                            color: "rgb(130, 110, 90)",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            fontFamily: "inherit",
+                            padding: 0,
+                          }}
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-label={
+                              language === "en"
+                                ? "Clear form"
+                                : "Limpiar formulario"
+                            }
+                          >
+                            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+                          </svg>
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        value={suggestionName}
+                        onChange={(e) => setSuggestionName(e.target.value)}
+                        placeholder={language === "en" ? "Name" : "Nombre"}
+                        aria-label={language === "en" ? "Name" : "Nombre"}
+                      />
+                      <input
+                        type="text"
+                        value={suggestionSubject}
+                        onChange={(e) => setSuggestionSubject(e.target.value)}
+                        placeholder={language === "en" ? "Subject" : "Asunto"}
+                        aria-label={language === "en" ? "Subject" : "Asunto"}
+                      />
+                      <textarea
+                        value={suggestionMessage}
+                        onChange={(e) => setSuggestionMessage(e.target.value)}
+                        placeholder={language === "en" ? "Message" : "Mensaje"}
+                        aria-label={language === "en" ? "Message" : "Mensaje"}
+                        required
+                      />
+                      <button type="submit" className="sidebar-suggestion-btn">
                         {language === "en"
                           ? "Send suggestion →"
                           : "Enviar sugerencia →"}
-                      </a>
-                    </div>
+                      </button>
+                    </form>
                   </div>
                 </section>
               )}
@@ -4134,7 +4863,7 @@ const IndexPage = ({ location }) => {
               )}
 
               {/* Galeria */}
-              {!selectedCategory && galleryItems.length > 0 && (
+              {false && !selectedCategory && galleryItems.length > 0 && (
                 <section className="home-section home-gallery-card">
                   <div className="recursos-header">
                     <svg

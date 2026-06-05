@@ -22,10 +22,10 @@ const Layout = ({ children, topBackground = false }) => {
     display: flex;
     flex-direction: column;
     background: ${topBackground
-      ? `linear-gradient(rgba(255,255,255,0.22), rgba(255,255,255,0.22)),
+      ? `linear-gradient(to right, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 70%),
          url(${withPrefix(
            "/img/header-fondo-2.png"
-         )}) top center / 100% 380px no-repeat,
+         )}) top center / 100% auto no-repeat,
          white`
       : "white"};
 

@@ -14,8 +14,8 @@ const Header = ({ siteTitle, transparent = false }) => {
     background: ${transparent
       ? "transparent"
       : `url(${withPrefix(
-          "/img/header-fondo.png"
-        )}) center bottom/cover no-repeat`};
+          "/img/header-fondo-2.png"
+        )}) center 70%/cover no-repeat`};
 
     .headerContent {
       padding: 8px 20px 3px;
@@ -23,6 +23,10 @@ const Header = ({ siteTitle, transparent = false }) => {
       align-items: center;
       position: relative;
       z-index: 5;
+
+      @media only screen and (max-width: 480px) {
+        padding-bottom: 42px;
+      }
     }
 
     .skohubLogo {
@@ -85,6 +89,15 @@ const Header = ({ siteTitle, transparent = false }) => {
       top: 18px;
       right: 20px;
       z-index: 6;
+
+      @media only screen and (max-width: 800px) {
+        top: 26px;
+      }
+
+      @media only screen and (max-width: 480px) {
+        top: auto;
+        bottom: 8px;
+      }
 
       li {
         display: inline;

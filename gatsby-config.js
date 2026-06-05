@@ -46,7 +46,7 @@ module.exports = {
         background_color: `#ffffff`,
         theme_color: `#26c884`,
         display: `minimal-ui`,
-        icon: `src/images/skohub-icon.png`, // This path is relative to the root of the site.
+        icon: `src/images/logo-voc-icon.png`, // This path is relative to the root of the site.
       },
     },
   ],

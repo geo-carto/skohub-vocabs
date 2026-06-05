@@ -267,7 +267,11 @@ exports.createSchemaCustomization = ({ actions }) => {
   createTypes(`
     type SiteHomeNovedades {
       titulo: String
+      titulo_en: String
       fecha: String
+      descripcion: String
+      descripcion_en: String
+      imagen: String
       nuevo: Boolean
     }
     type SiteHomeCarrusel {
