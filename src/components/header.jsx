@@ -103,7 +103,7 @@ const Header = ({ siteTitle, transparent = false }) => {
         display: inline;
 
         button {
-          background: none;
+          background: rgba(255, 255, 255, 0.65);
           width: 2rem;
           height: 2rem;
           display: inline-block;

@@ -79,8 +79,8 @@ const VOCAB_ICONS = {
   "contribucion-rol": "/img/vocab-contribucion-rol.png",
   "convencion-codigo": "/img/vocab-convencion-codigo.png",
   "archivo-tipo": "/img/vocab-archivo-tipo.png",
-  "responsible-party-role": "/img/vocab-responsible-party-role.png",
-  "valor-razon-vacio": "/img/vocab-valor-razon-vacio.png",
+  "rol-parte-responsable": "/img/vocab-rol-parte-responsable.png",
+  "motivo-vacio-valor": "/img/vocab-motivo-vacio-valor.png",
   estado: "/img/vocab-estado.png",
 }
 
@@ -166,7 +166,19 @@ const pageStyles = css`
 
   /* ── Hero ── */
   .home-top-band {
+    margin-top: -81px;
+    margin-left: -22px;
+    margin-right: -22px;
     margin-bottom: 0;
+    padding-top: 81px;
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+  }
+
+  .cat-page .home-top-band {
+    margin-left: -22px;
+    margin-right: -22px;
   }
 
   .home-scroll {
@@ -180,11 +192,11 @@ const pageStyles = css`
 
   .home-section {
     width: 100%;
-    padding: 30px 22px 34px;
+    padding: 50px 22px 54px;
   }
 
   .home-section:first-child {
-    padding-top: 30px;
+    padding-top: 58px;
     background: #e3e0de !important;
   }
 
@@ -195,7 +207,7 @@ const pageStyles = css`
   }
 
   .home-section.cat-panel {
-    padding-bottom: 34px;
+    padding-bottom: 90px;
   }
 
   .home-section .cat-list {
@@ -359,6 +371,7 @@ const pageStyles = css`
 
   .home-updates-grid {
     display: flex;
+    flex-wrap: wrap;
     gap: 18px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -448,12 +461,10 @@ const pageStyles = css`
 
   .hero {
     background: transparent;
-    background-size: cover;
-    background-position: center;
     border-radius: 0;
     box-shadow: none;
-    padding: 12px 36px 24px;
-    height: auto;
+    padding: 44px 36px 30px;
+    min-height: calc(100vh - 700px);
     margin: 0;
     box-sizing: border-box;
     display: flex;
@@ -464,17 +475,25 @@ const pageStyles = css`
     @media (max-width: 900px) {
       flex-direction: column;
       align-items: flex-start;
+      justify-content: center;
       gap: 16px;
+      min-height: 60vh;
+      padding: 40px 20px;
     }
 
     @media (max-width: 640px) {
-      height: auto;
-      padding: 12px 20px 34px;
+      min-height: 50vh;
+      padding: 30px 20px;
     }
   }
 
+  .cat-page .hero {
+    min-height: 0;
+    padding-top: 22px;
+  }
+
   .hero-text {
-    max-width: 50%;
+    max-width: 45%;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -489,16 +508,17 @@ const pageStyles = css`
     }
 
     h1 {
-      font-size: 48px;
+      font-size: 75px;
       font-weight: 700;
       line-height: 1.1;
-      margin: 0 0 30px 0;
+      margin: 0 0 28px 0;
     }
 
     h2 {
-      font-size: 24px;
+      font-size: 34px;
       font-weight: 700;
-      margin: 0 0 28px 0;
+      line-height: 1.4;
+      margin: 0 0 36px 0;
     }
 
     p {
@@ -506,6 +526,7 @@ const pageStyles = css`
       line-height: 1.82;
       margin: 0;
       color: rgb(80, 60, 40);
+      max-width: 86%;
     }
 
     @media (max-width: 640px) {
@@ -545,10 +566,10 @@ const pageStyles = css`
         height: 18px;
       }
       .stat-value {
-        font-size: 22px;
+        font-size: 25px;
       }
       .stat-label {
-        font-size: 12px;
+        font-size: 14px;
       }
     }
 
@@ -562,20 +583,28 @@ const pageStyles = css`
     min-width: 0;
     align-self: stretch;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-end;
     padding-right: 20px;
 
     .stats-bar {
       margin-bottom: 0;
-      height: 125px;
+      height: auto;
       width: fit-content;
+      max-width: 100%;
       justify-content: center;
+      flex-wrap: wrap;
 
       .stat-item {
         flex: 0 0 auto;
-        padding: 14px 14px;
+        padding: 22px 14px;
         gap: 8px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .stats-bar .stat-item {
+        padding: 10px 10px;
       }
     }
 
@@ -640,7 +669,7 @@ const pageStyles = css`
     }
 
     .stat-date {
-      font-size: 15px;
+      font-size: 25px;
       font-weight: 700;
       color: rgb(35, 15, 5);
       line-height: 1.15;
@@ -648,7 +677,7 @@ const pageStyles = css`
     }
 
     .stat-update-label {
-      font-size: 13px;
+      font-size: 14px;
       color: rgb(130, 110, 90);
       line-height: 1.2;
       white-space: nowrap;
@@ -699,7 +728,7 @@ const pageStyles = css`
   .cat-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 32px;
   }
 
   .main-col {
@@ -2066,7 +2095,7 @@ const pageStyles = css`
     align-items: flex-start;
     flex-direction: column;
     gap: 0;
-    font-size: 42px;
+    font-size: 50px;
     line-height: 1.15;
     text-transform: none;
     letter-spacing: 0;
@@ -3033,7 +3062,7 @@ const IndexPage = ({ location }) => {
 
   return (
     <Layout language={language} topBackground={true}>
-      <SEO title="Concept Schemes" keywords={["conceptSchemes"]} />
+      <SEO title="Vocabularios IGME" keywords={["conceptSchemes"]} />
 
       <div
         css={pageStyles}
@@ -3065,7 +3094,12 @@ const IndexPage = ({ location }) => {
         ══════════════════════════════════════ */
           <div className="cat-page">
             {/* ── Hero (same layout as home page) ── */}
-            <div className="home-top-band">
+            <div
+              className="home-top-band"
+              style={{
+                backgroundImage: `url(${withPrefix("/img/portada.png")})`,
+              }}
+            >
               <div className="hero">
                 <div className="hero-text">
                   <h1 style={{ color: config.colors.skoHubDarkColor }}>
@@ -3215,7 +3249,12 @@ const IndexPage = ({ location }) => {
                             <line x1="3" y1="10" x2="21" y2="10" />
                           </svg>
                         </span>
-                        <div className="stat-date">{catLastModified}</div>
+                        <div className="stat-date">
+                          {(catLastModified || "").replace(
+                            /\b20(\d{2})\b/,
+                            "$1"
+                          )}
+                        </div>
                         <div className="stat-update-label">
                           {language === "en" ? "updated" : "actualizado"}
                         </div>
@@ -4225,14 +4264,19 @@ const IndexPage = ({ location }) => {
            HOME PAGE — 2-column grid
         ══════════════════════════════════════ */
           <>
-            <div className="home-top-band">
+            <div
+              className="home-top-band"
+              style={{
+                backgroundImage: `url(${withPrefix("/img/portada.png")})`,
+              }}
+            >
               <div className="hero">
                 <div className="hero-text">
                   <h1 style={{ color: config.colors.skoHubDarkColor }}>
                     {config.title || "Repositorio de Vocabularios"}
                   </h1>
                   {homeConfig.subtitle && (
-                    <h2 style={{ color: config.colors.skoHubDarkColor }}>
+                    <h2 style={{ color: "rgb(125, 126, 128)" }}>
                       {language === "en" && homeConfig.subtitle_en
                         ? homeConfig.subtitle_en
                         : homeConfig.subtitle}
@@ -4332,9 +4376,7 @@ const IndexPage = ({ location }) => {
                         </div>
                         <div>
                           <div className="stat-label">
-                            {language === "en" ? "languages" : "idiomas"}
-                          </div>
-                          <div className="stat-label">
+                            {language === "en" ? "languages" : "idiomas"} ·{" "}
                             {allLanguages.join(" · ")}
                           </div>
                         </div>
@@ -4392,7 +4434,11 @@ const IndexPage = ({ location }) => {
                             </svg>
                           </span>
                           <span className="stat-date">
-                            {lastModified || homeConfig.ultima_actualizacion}
+                            {(
+                              lastModified ||
+                              homeConfig.ultima_actualizacion ||
+                              ""
+                            ).replace(/\b20(\d{2})\b/, "$1")}
                           </span>
                           <span className="stat-update-label">
                             {language === "en" ? "updated" : "actualizado"}
@@ -4527,7 +4573,7 @@ const IndexPage = ({ location }) => {
                             : null)
                         return (
                           <article key={i} className="home-update-card">
-                            {item.nuevo && (
+                            {i === 0 && item.nuevo && (
                               <span className="home-update-new">
                                 {language === "en" ? "NEW" : "NUEVO"}
                               </span>

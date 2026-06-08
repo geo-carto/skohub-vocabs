@@ -21,13 +21,7 @@ const Layout = ({ children, topBackground = false }) => {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: ${topBackground
-      ? `linear-gradient(to right, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.15) 70%),
-         url(${withPrefix(
-           "/img/header-fondo-2.png"
-         )}) top center / 100% auto no-repeat,
-         white`
-      : "white"};
+    background: ${topBackground ? "transparent" : "white"};
 
     @media only screen and (max-width: 800px) {
       display: block;
