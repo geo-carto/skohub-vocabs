@@ -5,6 +5,7 @@ export const conceptStyle = (colors) => css`
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  color: rgb(65, 58, 52);
 
   @media only screen and (max-width: 800px) {
     display: block;

@@ -161,8 +161,6 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         versionInfo,
         status,
         theme,
-        // "vann:preferredNamespaceUri": preferredNamespaceUri,
-        // "vann:preferredNamespacePrefix": preferredNamespacePrefix,
         ...properties
       } = graph
       const type = Array.isArray(properties.type)

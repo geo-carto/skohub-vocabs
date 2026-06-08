@@ -6,10 +6,10 @@ import {
   getLanguageFromUrl,
   replaceFilePathInUrl,
 } from "../common"
-import NestedList from "../components/nestedList"
+import NestedList from "../components/NestedList"
 import TreeControls from "../components/TreeControls"
-import Layout from "../components/layout"
-import SEO from "../components/seo"
+import Layout from "../components/Layout"
+import SEO from "../components/Seo"
 import Search from "../components/Search"
 
 import { conceptStyle } from "../styles/concepts.css.js"
@@ -211,17 +211,9 @@ const App = ({ pageContext, children, location }) => {
     })
   }, [selectedCollectionId])
   const toggleClick = (e) => setLabels({ ...labels, [e]: !labels[e] })
-  const title =
-    pageContext.node?.prefLabel ||
-    pageContext.node?.title ||
-    pageContext.node?.dc_title
 
   return (
     <Layout>
-      <SEO
-        title={i18n(language)(title)}
-        keywords={["Concept", i18n(language)(title)]}
-      />
       {data?.currentScheme?.id && (
         <div
           style={{
@@ -415,6 +407,20 @@ const App = ({ pageContext, children, location }) => {
       </div>
     </Layout>
   )
+}
+
+export const Head = ({ pageContext }) => {
+  const raw =
+    pageContext.node?.prefLabel ||
+    pageContext.node?.title ||
+    pageContext.node?.dc_title
+  const titleStr =
+    typeof raw === "string"
+      ? raw
+      : raw
+      ? raw.es || raw.en || Object.values(raw)[0] || ""
+      : "Vocabularios Geocientíficos"
+  return <SEO title={titleStr} keywords={["concepto", titleStr]} />
 }
 
 export default App

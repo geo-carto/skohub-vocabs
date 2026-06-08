@@ -90,7 +90,6 @@ export const getConfigAndConceptSchemes = () => {
             subtitle_en
             description
             description_en
-            ultima_actualizacion
             novedades {
               titulo
               titulo_en
@@ -99,17 +98,6 @@ export const getConfigAndConceptSchemes = () => {
               descripcion_en
               imagen
               nuevo
-            }
-            carrusel {
-              imagen
-            }
-            destacados {
-              titulo
-            }
-            documentacion {
-              titulo
-              descripcion
-              url
             }
             enlaces {
               titulo

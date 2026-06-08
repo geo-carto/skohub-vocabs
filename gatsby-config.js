@@ -6,8 +6,8 @@ const config = loadConfig("./config.yaml", "./config.default.yaml")
 module.exports = {
   siteMetadata: {
     title: `${config.title}`,
-    description: `Static site generator for Simple Knowledge Management Systems (SKOS)`,
-    author: `Hochschulbibliothekszentrum des Landes Nordrhein-Westfalen (hbz)`,
+    description: `Repositorio de vocabularios geológicos del CN IGME-CSIC en formato SKOS`,
+    author: `CN IGME-CSIC`,
     tokenizer: config.tokenizer,
     colors: config.colors,
     logo: config.logo,
