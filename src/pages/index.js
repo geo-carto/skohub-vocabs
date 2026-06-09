@@ -939,7 +939,17 @@ const IndexPage = ({ location }) => {
 
               {/* Categories */}
               {!selectedCategory && availableCategories.length > 0 && (
-                <section className="home-section cat-panel">
+                <section
+                  className="home-section cat-panel"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, transparent 0%, #e2e2e2 42%), url(${withPrefix(
+                      "/img/sec-voc.png"
+                    )})`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "100% 100%, auto 100%",
+                    backgroundPosition: "0 0, left center",
+                  }}
+                >
                   <div className="section-title-block">
                     <span className="section-title-icon-wrap">
                       <svg

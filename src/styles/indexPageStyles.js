@@ -33,12 +33,66 @@ export const getPageStyles = (colors) => css`
 
   .home-section {
     width: 100%;
-    padding: 50px 22px 54px;
+    padding: 50px 150px 54px 100px;
   }
 
   .home-section:first-child {
     padding-top: 58px;
-    background: #e2e2e2 !important;
+    background-color: #e2e2e2 !important;
+  }
+
+  .home-section.nov-section {
+    padding: 0 !important;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .nov-panel-inner {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .nov-panel-content {
+    flex: 1;
+    min-width: 0;
+    padding: 50px 32px 54px 100px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nov-panel-img-col {
+    flex: 0 0 33%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nov-panel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    -webkit-mask-image: linear-gradient(to left, black 50%, transparent 92%);
+    mask-image: linear-gradient(to left, black 50%, transparent 92%);
+  }
+
+  .home-section.content-right > .section-title-block,
+  .home-section.content-right > .home-updates-wrap,
+  .home-section.content-right > .home-updates-grid,
+  .home-section.content-right > .recursos-grid,
+  .home-section.content-right > .sidebar-suggestion {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  .home-section.content-left > .section-title-block,
+  .home-section.content-left > .home-updates-wrap,
+  .home-section.content-left > .home-updates-grid,
+  .home-section.content-left > .recursos-grid,
+  .home-section.content-left > .sidebar-suggestion {
+    margin-left: 0;
+    margin-right: auto;
   }
 
   .home-section.cat-panel,
@@ -48,8 +102,8 @@ export const getPageStyles = (colors) => css`
   }
 
   .home-section.cat-panel {
-    padding-top: 80px;
-    padding-bottom: 24px;
+    padding-left: 60px !important;
+    padding-right: 60px !important;
     min-height: calc(100vh - 390px);
     box-sizing: border-box;
   }
@@ -238,7 +292,7 @@ export const getPageStyles = (colors) => css`
     background: transparent;
     border-radius: 0;
     box-shadow: none;
-    padding: 28px 36px 20px;
+    padding: 28px 64px 20px;
     min-height: calc(100vh - 820px);
     margin: 0;
     box-sizing: border-box;

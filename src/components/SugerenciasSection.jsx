@@ -12,7 +12,7 @@ const SugerenciasSection = ({
   setSuggestionMessage,
 }) => {
   return (
-    <section className="home-section home-suggestion-card">
+    <section className="home-section home-suggestion-card content-right">
       <div className="section-title-block">
         <span className="section-title-icon-wrap">
           <svg

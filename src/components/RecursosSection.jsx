@@ -73,7 +73,7 @@ const ICONS = [
 
 const RecursosSection = ({ enlaces, language }) => {
   return (
-    <section className="home-section recursos-destacados">
+    <section className="home-section recursos-destacados content-left">
       <div className="section-title-block">
         <span className="section-title-icon-wrap">
           <svg
