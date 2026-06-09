@@ -74,20 +74,29 @@ const ICONS = [
 const RecursosSection = ({ enlaces, language }) => {
   return (
     <section className="home-section recursos-destacados">
-      <h2 className="recursos-header">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-        {language === "en" ? "Featured Resources" : "Recursos Destacados"}
-      </h2>
+      <div className="section-title-block">
+        <span className="section-title-icon-wrap">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgb(196,95,40)"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </span>
+        <div className="section-title-text">
+          <span className="section-eyebrow">
+            {language === "en" ? "RECOMMENDED" : "RECOMENDADO"}
+          </span>
+          <h2 className="home-section-title">
+            {language === "en" ? "Featured Resources" : "Recursos Destacados"}
+          </h2>
+        </div>
+      </div>
       <div className="recursos-grid">
         {enlaces.map((item, i) => {
           const logo = getResourceLogo(item)

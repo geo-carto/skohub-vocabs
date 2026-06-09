@@ -1,9 +1,10 @@
 ﻿import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { withPrefix, navigate } from "gatsby"
-import { i18n, getFilePath, getLanguageFromUrl } from "../common"
+import { getFilePath, getLanguageFromUrl } from "../common"
 import { useSkoHubContext } from "../context/Context"
 import { getUserLang } from "../hooks/getUserLanguage"
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes.js"
+import { useVocabFilter } from "../hooks/useVocabFilter"
 
 import Layout from "../components/Layout"
 import SEO from "../components/Seo"
@@ -45,11 +46,7 @@ const CATEGORIES = {
 const IndexPage = ({ location }) => {
   const [conceptSchemes, setConceptSchemes] = useState([])
   const [language, setLanguage] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [filterIdioma, setFilterIdioma] = useState("")
-  const [filterEstado, setFilterEstado] = useState("")
-  const [sortBy, setSortBy] = useState("az")
   const [graphVocab, setGraphVocab] = useState(null)
   const [exploreCs, setExploreCs] = useState(null)
   const [suggestionName, setSuggestionName] = useState("")
@@ -65,6 +62,30 @@ const IndexPage = ({ location }) => {
   const updatesSliderRef = useRef(null)
   const filterColRef = useRef(null)
   const [sidebarH, setSidebarH] = useState(null)
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    filterIdioma,
+    setFilterIdioma,
+    filterEstado,
+    setFilterEstado,
+    sortBy,
+    setSortBy,
+    getTitle,
+    getDescription,
+    filteredSchemes,
+    displayedSchemes,
+    allLanguages,
+    catLanguages,
+    totalTerms,
+    catTerms,
+    lastModified,
+    catLastModified,
+    sortedGraphSchemeOptions,
+    resetFilters,
+  } = useVocabFilter({ conceptSchemes, selectedCategory, language, graphVocab })
+
   const handleSuggestionSubmit = (e) => {
     e.preventDefault()
     const subject =
@@ -116,6 +137,7 @@ const IndexPage = ({ location }) => {
       }
     }
     fetchConceptData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -123,6 +145,7 @@ const IndexPage = ({ location }) => {
       setSelectedCategory(location.state.category)
       window.history.replaceState({ category: location.state.category }, "")
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -160,6 +183,7 @@ const IndexPage = ({ location }) => {
         currentScheme: {},
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.languages, data?.selectedLanguage])
 
   useEffect(() => {
@@ -180,6 +204,7 @@ const IndexPage = ({ location }) => {
       )
       setExploreCs(sortedPool[0])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conceptSchemes, selectedCategory, exploreCs, language])
 
   useLayoutEffect(() => {
@@ -198,35 +223,6 @@ const IndexPage = ({ location }) => {
     filterEstado,
     sortBy,
   ])
-
-  const getTitle = (cs) =>
-    i18n(language)(cs?.title || cs?.prefLabel || cs?.dc_title) || cs.id
-
-  const sortSchemeOptions = (items) =>
-    items
-      .map((cs) => ({
-        id: cs.id,
-        label: getTitle(cs),
-      }))
-      .sort((a, b) =>
-        a.label.localeCompare(b.label, language === "en" ? "en" : "es", {
-          sensitivity: "base",
-        })
-      )
-
-  const schemeOptions = sortSchemeOptions(conceptSchemes)
-
-  const graphSchemeOptions =
-    graphVocab?.theme || selectedCategory
-      ? conceptSchemes.filter(
-          (cs) => cs.theme === (graphVocab?.theme || selectedCategory)
-        )
-      : conceptSchemes
-
-  const sortedGraphSchemeOptions = sortSchemeOptions(graphSchemeOptions)
-
-  const getDescription = (cs) =>
-    i18n(language)(cs?.description || cs?.dc_description) || ""
 
   const getCategoryLabel = (code) => {
     const cat = CATEGORIES[code]
@@ -251,82 +247,6 @@ const IndexPage = ({ location }) => {
   const availableCategories = Object.keys(CATEGORIES).filter((code) =>
     conceptSchemes.some((cs) => cs.theme === code)
   )
-
-  const filteredSchemes = selectedCategory
-    ? conceptSchemes.filter((cs) => cs.theme === selectedCategory)
-    : conceptSchemes
-
-  const allLanguages = Array.from(
-    new Set(conceptSchemes.flatMap((cs) => cs.languages))
-  )
-
-  const catLanguages = Array.from(
-    new Set(filteredSchemes.flatMap((cs) => cs.languages))
-  )
-
-  const totalTerms = conceptSchemes.reduce(
-    (sum, cs) => sum + (cs.termCount || 0),
-    0
-  )
-
-  const catTerms = filteredSchemes.reduce(
-    (sum, cs) => sum + (cs.termCount || 0),
-    0
-  )
-
-  const lastModified = (() => {
-    const dates = conceptSchemes.map((cs) => cs.modified).filter(Boolean)
-    if (!dates.length) return null
-    const max = dates.sort().at(-1)
-    return new Date(max).toLocaleDateString(
-      language === "en" ? "en-GB" : "es-ES",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
-    )
-  })()
-
-  const catLastModified = (() => {
-    const dates = filteredSchemes.map((cs) => cs.modified).filter(Boolean)
-    if (!dates.length) return null
-    const max = dates.sort().at(-1)
-    return new Date(max).toLocaleDateString(
-      language === "en" ? "en-GB" : "es-ES",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
-    )
-  })()
-
-  const resetFilters = () => {
-    setSearchTerm("")
-    setFilterIdioma("")
-    setFilterEstado("")
-    setSortBy("az")
-  }
-
-  const displayedSchemes = filteredSchemes
-    .filter((cs) => !filterIdioma || cs.languages.includes(filterIdioma))
-    .filter(
-      (cs) =>
-        !searchTerm ||
-        getTitle(cs).toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
-      const tA = getTitle(a),
-        tB = getTitle(b)
-      if (sortBy === "terms-desc") {
-        return (b.termCount || 0) - (a.termCount || 0)
-      }
-      if (sortBy === "terms-asc") {
-        return (a.termCount || 0) - (b.termCount || 0)
-      }
-      return sortBy === "za" ? tB.localeCompare(tA) : tA.localeCompare(tB)
-    })
 
   return (
     <Layout language={language} topBackground={true}>
@@ -369,7 +289,28 @@ const IndexPage = ({ location }) => {
               <div className="hero">
                 <div className="hero-text">
                   <h1>{getCategoryLabel(selectedCategory)}</h1>
-                  <p>{getCategoryLongDescription(selectedCategory)}</p>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "stretch",
+                      gap: "16px",
+                    }}
+                  >
+                    <p style={{ margin: 0, flex: 1 }}>
+                      {getCategoryLongDescription(selectedCategory)}
+                    </p>
+                    <img
+                      src={withPrefix("/img/logo-gi-carto.png")}
+                      alt=""
+                      style={{
+                        width: "auto",
+                        maxHeight: "130px",
+                        objectFit: "contain",
+                        flexShrink: 0,
+                        alignSelf: "center",
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="hero-stats-col">
                   <StatsBar
@@ -635,7 +576,7 @@ const IndexPage = ({ location }) => {
                     <div
                       className="cat-sidebar-col explore-wide"
                       style={{
-                        background: "#e3e0de",
+                        background: "#e2e2e2",
                         ...(sidebarH ? { height: `${sidebarH}px` } : {}),
                       }}
                     >
@@ -644,17 +585,32 @@ const IndexPage = ({ location }) => {
                         <div className="sidebar-panel">
                           <div className="sidebar-panel-header">
                             <span className="panel-title">
-                              <svg
-                                width="15"
-                                height="15"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
+                              <div
+                                style={{
+                                  width: "52px",
+                                  height: "52px",
+                                  borderRadius: "50%",
+                                  background: "rgba(196, 95, 40, 0.12)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
                               >
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                              </svg>
+                                <svg
+                                  width="26"
+                                  height="26"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="rgb(196, 95, 40)"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <circle cx="11" cy="11" r="8" />
+                                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                              </div>
                               {language === "en"
                                 ? "Explore Vocabularies"
                                 : "Explora Vocabularios"}
@@ -984,8 +940,33 @@ const IndexPage = ({ location }) => {
               {/* Categories */}
               {!selectedCategory && availableCategories.length > 0 && (
                 <section className="home-section cat-panel">
-                  <div className="cat-section-title">
-                    {language === "en" ? "Categories" : "Categorías"}
+                  <div className="section-title-block">
+                    <span className="section-title-icon-wrap">
+                      <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="rgb(196,95,40)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                      </svg>
+                    </span>
+                    <div className="section-title-text">
+                      <span className="section-eyebrow">
+                        {language === "en" ? "EXPLORE" : "EXPLORA"}
+                      </span>
+                      <div className="home-section-title">
+                        {language === "en"
+                          ? "Discover and consult the vocabularies"
+                          : "Descubre y consulta los vocabularios"}
+                      </div>
+                    </div>
                   </div>
                   <div className="cat-list">
                     {availableCategories.map((code) => {
@@ -1008,29 +989,101 @@ const IndexPage = ({ location }) => {
                             className="cat-card-img"
                           />
                           <div className="cat-card-body">
-                            <h3 className="cat-card-title">
-                              {getCategoryLabel(code)}
-                            </h3>
-                            <p className="cat-card-desc">
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "14px",
+                                marginBottom: "10px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: "46px",
+                                  height: "46px",
+                                  borderRadius: "50%",
+                                  background: "rgba(196, 95, 40, 0.12)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {code === "GE" ? (
+                                  <svg
+                                    width="22"
+                                    height="22"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="rgb(196, 95, 40)"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M3 20h18L12 5 8 13l-3-2z" />
+                                    <path d="M8 13l4-8 5 9" />
+                                  </svg>
+                                ) : (
+                                  <svg
+                                    width="22"
+                                    height="22"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="rgb(196, 95, 40)"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                                  </svg>
+                                )}
+                              </div>
+                              <h3
+                                className="cat-card-title"
+                                style={{ flex: 1, margin: 0 }}
+                              >
+                                {getCategoryLabel(code)}
+                              </h3>
+                            </div>
+                            <p
+                              className="cat-card-desc"
+                              style={{
+                                paddingLeft: "60px",
+                                paddingRight: "48px",
+                              }}
+                            >
                               {getCategoryDescription(code)}
                             </p>
-                            <span className="cat-card-count">
-                              {count}{" "}
-                              {language === "en"
-                                ? "vocabularies"
-                                : "vocabularios"}
-                            </span>
+                            <div
+                              style={{
+                                paddingLeft: "60px",
+                                paddingRight: "48px",
+                                marginTop: "6px",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                              }}
+                            >
+                              <span className="cat-card-count">
+                                {count}{" "}
+                                {language === "en"
+                                  ? "vocabularies"
+                                  : "vocabularios"}
+                              </span>
+                            </div>
                           </div>
                           <div className="cat-card-arrow">
                             <svg
-                              width="20"
-                              height="20"
+                              width="32"
+                              height="32"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
-                              strokeWidth="2"
+                              strokeWidth="1.5"
                             >
-                              <polyline points="9 18 15 12 9 6" />
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="8" y1="12" x2="16" y2="12" />
+                              <polyline points="12 8 16 12 12 16" />
                             </svg>
                           </div>
                         </button>
@@ -1098,7 +1151,7 @@ const IndexPage = ({ location }) => {
 
 export const Head = () => (
   <SEO
-    title="Vocabularios Geocientíficos"
+    title="Vocabularios IGME"
     keywords={["vocabularios", "SKOS", "geología"]}
   />
 )

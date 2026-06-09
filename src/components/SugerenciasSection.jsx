@@ -13,20 +13,29 @@ const SugerenciasSection = ({
 }) => {
   return (
     <section className="home-section home-suggestion-card">
-      <h2 className="recursos-header">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-        {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
-      </h2>
+      <div className="section-title-block">
+        <span className="section-title-icon-wrap">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgb(196,95,40)"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </span>
+        <div className="section-title-text">
+          <span className="section-eyebrow">
+            {language === "en" ? "PARTICIPATE" : "PARTICIPA"}
+          </span>
+          <h2 className="home-section-title">
+            {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
+          </h2>
+        </div>
+      </div>
       <div className="sidebar-suggestion">
         <img
           src={withPrefix("/img/sugerencias.png")}

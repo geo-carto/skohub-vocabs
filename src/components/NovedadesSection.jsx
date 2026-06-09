@@ -4,21 +4,30 @@ import { withPrefix } from "gatsby"
 const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
   return (
     <section className="home-section">
-      <h2 className="home-section-title">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        {language === "en" ? "News" : "Novedades"}
-      </h2>
+      <div className="section-title-block">
+        <span className="section-title-icon-wrap">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="rgb(196,95,40)"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </span>
+        <div className="section-title-text">
+          <span className="section-eyebrow">
+            {language === "en" ? "UPDATES" : "ACTUALIDAD"}
+          </span>
+          <h2 className="home-section-title">
+            {language === "en" ? "News" : "Novedades"}
+          </h2>
+        </div>
+      </div>
       <div className="home-updates-wrap">
         <div className="home-updates-grid" ref={updatesSliderRef}>
           {novedades.map((item, i) => {

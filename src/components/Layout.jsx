@@ -124,12 +124,6 @@ const Layout = ({ children, topBackground = false }) => {
             box-sizing: inherit;
           }
 
-          * {
-            -webkit-transition: all 0.5s ease;
-            -moz-transition: all 0.5s ease;
-            transition: all 0.5s ease;
-          }
-
           html,
           body {
             height: 100%; /* needed for proper layout */

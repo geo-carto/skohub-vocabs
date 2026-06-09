@@ -1,4 +1,8 @@
 ﻿import { css } from "@emotion/react"
+import { novedadesStyles } from "./NovedadesSection.styles"
+import { sugerenciasStyles } from "./SugerenciasSection.styles"
+import { recursosStyles } from "./RecursosSection.styles"
+import { statsBarStyles } from "./StatsBar.styles"
 
 export const getPageStyles = (colors) => css`
   /* ── Hero ── */
@@ -34,7 +38,7 @@ export const getPageStyles = (colors) => css`
 
   .home-section:first-child {
     padding-top: 58px;
-    background: #e3e0de !important;
+    background: #e2e2e2 !important;
   }
 
   .home-section.cat-panel,
@@ -44,7 +48,10 @@ export const getPageStyles = (colors) => css`
   }
 
   .home-section.cat-panel {
-    padding-bottom: 90px;
+    padding-top: 80px;
+    padding-bottom: 24px;
+    min-height: calc(100vh - 390px);
+    box-sizing: border-box;
   }
 
   .home-section .cat-list {
@@ -64,12 +71,10 @@ export const getPageStyles = (colors) => css`
     background: rgb(241, 242, 243);
   }
 
-  .home-section > .cat-section-title,
+  .home-section > .section-title-block,
   .home-section > .cat-list,
-  .home-section > .home-section-title,
   .home-section > .home-updates-wrap,
   .home-section > .home-updates-grid,
-  .home-section > .recursos-header,
   .home-section > .recursos-grid,
   .home-section > .gallery-slider-wrap,
   .home-section > .sidebar-suggestion,
@@ -80,11 +85,46 @@ export const getPageStyles = (colors) => css`
     margin-right: auto;
   }
 
-  .home-section > .cat-section-title,
-  .home-section > .home-section-title,
-  .home-section > .recursos-header {
+  .section-title-block {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 52px;
+  }
+
+  .section-title-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    align-self: flex-end;
+  }
+
+  .section-title-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(196, 95, 40);
+    margin-bottom: 1px;
+  }
+
+  .section-title-text .home-section-title,
+  .section-title-text > div > .home-section-title,
+  .section-title-text > h2,
+  .section-title-text > div > h2 {
     padding: 0;
-    margin-bottom: 22px;
+    margin: 0;
     background: transparent;
     border-bottom: none;
     font-size: 42px;
@@ -92,21 +132,14 @@ export const getPageStyles = (colors) => css`
     font-weight: 700;
     letter-spacing: 0;
     text-transform: none;
-    color: #a74c01;
-  }
-
-  .home-section > .home-section-title svg,
-  .home-section > .recursos-header svg {
-    display: none;
+    color: rgb(20, 10, 0);
   }
 
   @media (max-width: 1100px) {
-    .home-section > .cat-section-title,
+    .home-section > .section-title-block,
     .home-section > .cat-list,
-    .home-section > .home-section-title,
     .home-section > .home-updates-wrap,
     .home-section > .home-updates-grid,
-    .home-section > .recursos-header,
     .home-section > .recursos-grid,
     .home-section > .gallery-slider-wrap,
     .home-section > .sidebar-suggestion,
@@ -120,12 +153,10 @@ export const getPageStyles = (colors) => css`
       padding: 34px 14px 40px;
     }
 
-    .home-section > .cat-section-title,
+    .home-section > .section-title-block,
     .home-section > .cat-list,
-    .home-section > .home-section-title,
     .home-section > .home-updates-wrap,
     .home-section > .home-updates-grid,
-    .home-section > .recursos-header,
     .home-section > .recursos-grid,
     .home-section > .gallery-slider-wrap,
     .home-section > .sidebar-suggestion,
@@ -134,9 +165,10 @@ export const getPageStyles = (colors) => css`
       max-width: none;
     }
 
-    .home-section > .cat-section-title,
-    .home-section > .home-section-title,
-    .home-section > .recursos-header {
+    .section-title-text .home-section-title,
+    .section-title-text > div > .home-section-title,
+    .section-title-text > h2,
+    .section-title-text > div > h2 {
       font-size: 34px;
     }
   }
@@ -145,13 +177,13 @@ export const getPageStyles = (colors) => css`
   .home-section.cat-nav-section {
     padding-top: 14px !important;
     padding-bottom: 0 !important;
-    background: #e3e0de !important;
+    background: #e2e2e2 !important;
   }
 
   .home-section.cat-panels-section {
     padding-top: 8px !important;
     padding-bottom: 18px !important;
-    background: #e3e0de !important;
+    background: #e2e2e2 !important;
   }
 
   .home-section.cat-explore-section {
@@ -202,100 +234,12 @@ export const getPageStyles = (colors) => css`
     color: rgb(35, 15, 5);
   }
 
-  .home-updates-wrap {
-    position: relative;
-  }
-
-  .home-updates-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  .home-update-card {
-    position: relative;
-    flex: 0 0 calc((100% - 36px) / 3);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-height: 280px;
-    padding: 22px 24px;
-    border-radius: 8px;
-    background: white;
-    box-shadow: none;
-    scroll-snap-align: start;
-
-    @media (max-width: 1100px) {
-      flex-basis: calc((100% - 18px) / 2);
-    }
-
-    @media (max-width: 700px) {
-      flex-basis: 100%;
-    }
-  }
-
-  .home-update-date {
-    font-size: 17px;
-    font-weight: 700;
-    color: rgb(168, 78, 28);
-  }
-
-  .home-update-title {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.25;
-    color: rgb(35, 15, 5);
-  }
-
-  .home-update-desc {
-    font-size: 14px;
-    line-height: 1.55;
-    color: rgb(80, 60, 40);
-    margin: 0;
-  }
-
-  .home-update-new {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    color: white;
-    background: rgb(45, 140, 80);
-    border-radius: 999px;
-    padding: 3px 8px;
-  }
-
-  .home-update-img {
-    width: 100%;
-    height: 150px;
-    object-fit: contain;
-    object-position: center;
-    margin-top: auto;
-    display: block;
-  }
-
-  .home-suggestion-card {
-    border-radius: 0;
-    overflow: hidden;
-    box-shadow: none;
-  }
-
   .hero {
     background: transparent;
     border-radius: 0;
     box-shadow: none;
-    padding: 44px 36px 30px;
-    min-height: calc(100vh - 700px);
+    padding: 28px 36px 20px;
+    min-height: calc(100vh - 820px);
     margin: 0;
     box-sizing: border-box;
     display: flex;
@@ -339,10 +283,10 @@ export const getPageStyles = (colors) => css`
     }
 
     h1 {
-      font-size: 75px;
+      font-size: 68px;
       font-weight: 700;
       line-height: 1.1;
-      margin: 0 0 28px 0;
+      margin: 0 0 16px 0;
       color: ${colors.skoHubDarkColor};
     }
 
@@ -350,8 +294,8 @@ export const getPageStyles = (colors) => css`
       font-size: 34px;
       font-weight: 700;
       line-height: 1.4;
-      margin: 0 0 36px 0;
-      color: rgb(125, 126, 128);
+      margin: 0 0 20px 0;
+      color: rgb(178, 84, 30);
     }
 
     p {
@@ -377,43 +321,6 @@ export const getPageStyles = (colors) => css`
   }
 
   /* ── Stats ── */
-  .stats-bar {
-    display: flex;
-    gap: 0;
-    margin-bottom: 14px;
-    border: none;
-    border-radius: 8px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.68);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 6px 18px rgba(35, 15, 5, 0.12);
-
-    .stat-item {
-      padding: 5px 10px;
-      gap: 8px;
-
-      .stat-icon-bg {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-      }
-      .stat-icon {
-        width: 18px;
-        height: 18px;
-      }
-      .stat-value {
-        font-size: 25px;
-      }
-      .stat-label {
-        font-size: 14px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      flex-wrap: wrap;
-    }
-  }
 
   .hero-stats-col {
     flex: 1;
@@ -459,72 +366,6 @@ export const getPageStyles = (colors) => css`
           gap: 8px;
         }
       }
-    }
-  }
-
-  .stat-item {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
-    padding: 18px 20px;
-    border-right: none;
-
-    &:last-child {
-      border-right: none;
-    }
-
-    .stat-icon-bg {
-      flex-shrink: 0;
-      width: 52px;
-      height: 52px;
-      min-width: 52px;
-      border-radius: 50%;
-      background: rgba(196, 95, 40, 0.14);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .stat-icon {
-      width: 28px;
-      height: 28px;
-      color: rgb(196, 95, 40);
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1;
-      color: ${colors.skoHubDarkColor};
-    }
-
-    .stat-label {
-      font-size: 16px;
-      color: rgb(105, 87, 70);
-      line-height: 1.3;
-    }
-
-    .stat-date {
-      font-size: 25px;
-      font-weight: 700;
-      color: rgb(35, 15, 5);
-      line-height: 1.15;
-      white-space: nowrap;
-    }
-
-    .stat-update-label {
-      font-size: 14px;
-      color: rgb(130, 110, 90);
-      line-height: 1.2;
-      white-space: nowrap;
-      max-width: none;
-    }
-
-    @media (max-width: 640px) {
-      flex: 1 1 50%;
-      border-bottom: 1px solid rgb(220, 205, 185);
     }
   }
 
@@ -602,12 +443,14 @@ export const getPageStyles = (colors) => css`
     align-items: stretch;
     background: rgb(255, 255, 255);
     border: none;
+    border-left: 3px solid rgb(196, 95, 40);
     border-radius: 8px;
     overflow: hidden;
+    position: relative;
     cursor: pointer;
     transition:
-      border-color 0.2s,
-      box-shadow 0.2s;
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
     box-shadow: none;
     text-align: left;
     font-family: inherit;
@@ -615,11 +458,8 @@ export const getPageStyles = (colors) => css`
     --cat-card-title-color: rgb(35, 15, 5);
 
     &:hover {
-      --cat-card-title-color: rgb(196, 95, 40);
-    }
-
-    &:hover .cat-card-title {
-      color: rgb(196, 95, 40);
+      transform: translateX(7px);
+      box-shadow: 0 8px 24px rgba(35, 15, 5, 0.1);
     }
 
     @media (max-width: 640px) {
@@ -655,7 +495,7 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-title {
-    font-size: 35px;
+    font-size: 30px;
     font-weight: 700;
     margin: 0;
     color: var(--cat-card-title-color);
@@ -679,10 +519,10 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-arrow {
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    color: rgb(130, 110, 90);
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+    color: rgb(196, 95, 40);
 
     @media (max-width: 640px) {
       display: none;
@@ -796,141 +636,6 @@ export const getPageStyles = (colors) => css`
     display: block;
     background: rgb(245, 240, 232);
     transition: opacity 0.15s;
-  }
-
-  .gallery-nav-btn {
-    position: absolute;
-    top: calc(50% - 9px);
-    transform: translateY(-50%);
-    z-index: 2;
-    border: 1.5px solid rgba(210, 195, 175, 0.85);
-    background: rgba(255, 255, 255, 0.88);
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: rgb(100, 80, 60);
-    padding: 0;
-    transition: all 0.15s;
-
-    &:hover {
-      background: white;
-      border-color: rgb(176, 118, 48);
-      color: rgb(176, 118, 48);
-    }
-
-    &.gallery-nav-prev {
-      left: 2px;
-    }
-
-    &.gallery-nav-next {
-      right: 2px;
-    }
-  }
-
-  .sidebar-suggestion {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 226px minmax(0, 1fr) minmax(280px, 0.9fr);
-    align-items: center;
-    gap: 18px;
-    padding: 8px 0;
-    font-size: 15px;
-
-    p {
-      margin: 0 0 10px 0;
-      color: rgb(80, 60, 40);
-      line-height: 1.4;
-    }
-
-    p + p {
-      display: none;
-    }
-
-    @media (max-width: 760px) {
-      grid-template-columns: 1fr;
-      padding: 16px;
-      text-align: left;
-    }
-  }
-
-  .sidebar-suggestion-img {
-    width: 238px;
-    height: 188px;
-    object-fit: contain;
-    display: block;
-
-    @media (max-width: 760px) {
-      width: min(100%, 260px);
-      height: auto;
-      justify-self: center;
-    }
-  }
-
-  .sidebar-suggestion-content {
-    min-width: 0;
-  }
-
-  .sidebar-suggestion-title {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.3;
-    color: rgb(35, 15, 5);
-    margin: 0 0 6px;
-  }
-
-  .sidebar-suggestion-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 19px;
-    font-weight: 700;
-    color: rgb(196, 95, 40);
-    text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    font-family: inherit;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  .suggestion-form {
-    display: grid;
-    gap: 8px;
-    min-width: 0;
-
-    input,
-    textarea {
-      width: 100%;
-      border: 1px solid rgb(220, 205, 185);
-      border-radius: 6px;
-      background: white;
-      color: rgb(35, 15, 5);
-      font-family: inherit;
-      font-size: 14px;
-      padding: 8px 10px;
-
-      &:focus {
-        outline: none;
-        border-color: rgb(196, 95, 40);
-      }
-
-      &::placeholder {
-        color: rgb(150, 130, 110);
-      }
-    }
-
-    textarea {
-      min-height: 86px;
-      resize: vertical;
-    }
   }
 
   /* ═══════════════════════════════════════
@@ -1357,7 +1062,7 @@ export const getPageStyles = (colors) => css`
     height: auto !important;
     width: 100%;
     order: 1;
-    background: #e3e0de;
+    background: #e2e2e2;
   }
 
   .cat-sidebar-col.explore-wide > .sidebar-panel {
@@ -1365,7 +1070,7 @@ export const getPageStyles = (colors) => css`
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: stretch;
-    background: #e3e0de !important;
+    background: #e2e2e2 !important;
     box-shadow: none !important;
     border-radius: 0;
     overflow: visible;
@@ -1374,7 +1079,7 @@ export const getPageStyles = (colors) => css`
   .cat-sidebar-col.explore-wide .sidebar-panel-header {
     border-bottom: none;
     border-right: none;
-    background: #e3e0de !important;
+    background: #e2e2e2 !important;
     padding: 2px 0 2px 0;
     flex-direction: column;
     align-items: flex-start;
@@ -1384,18 +1089,14 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-sidebar-col.explore-wide .panel-title {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0;
+    align-items: center;
+    flex-direction: row;
+    gap: 14px;
     font-size: 50px;
     line-height: 1.15;
     text-transform: none;
     letter-spacing: 0;
-    color: #a74c01;
-  }
-
-  .cat-sidebar-col.explore-wide .panel-title svg {
-    display: none;
+    color: rgb(178, 84, 30);
   }
 
   .cat-sidebar-col.explore-wide .explore-header-btn {
@@ -1434,11 +1135,6 @@ export const getPageStyles = (colors) => css`
 
   .cat-sidebar-col.explore-wide .explore-header-btn:hover {
     background: rgb(196, 95, 40);
-  }
-
-  .cat-sidebar-col.explore-wide .panel-title svg {
-    width: 22px;
-    height: 22px;
   }
 
   .cat-sidebar-col.explore-wide .explore-graph-area {
@@ -1544,21 +1240,6 @@ export const getPageStyles = (colors) => css`
   }
 
   /* ── Recursos Destacados ── */
-  .recursos-destacados {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: none;
-    height: auto;
-  }
-
-  .recursos-destacados .recursos-header {
-    margin-bottom: 30px;
-  }
-
-  .recursos-destacados .recursos-grid {
-    padding-bottom: 10px;
-  }
-
   .recursos-header {
     display: flex;
     align-items: center;
@@ -1573,111 +1254,8 @@ export const getPageStyles = (colors) => css`
     color: rgb(35, 15, 5);
   }
 
-  .recursos-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    background: transparent;
-
-    @media (max-width: 1100px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .recurso-card {
-    display: grid;
-    grid-template-columns: 96px 1fr;
-    align-items: center;
-    gap: 14px;
-    min-height: 150px;
-    padding: 22px 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: none;
-    border-right: none;
-    border-bottom: none;
-    text-decoration: none;
-    color: inherit;
-    text-align: left;
-    transition: background 0.15s;
-
-    &:last-child {
-      border-right: none;
-    }
-
-    @media (max-width: 1100px) {
-      border-bottom: none;
-
-      &:nth-child(2n) {
-        border-right: none;
-      }
-    }
-
-    @media (max-width: 640px) {
-      grid-template-columns: 96px 1fr;
-      border-right: none;
-    }
-
-    &:hover {
-      background: rgb(250, 247, 242);
-    }
-
-    &:hover .recurso-link {
-      text-decoration: underline;
-    }
-  }
-
-  .recurso-icon-wrap {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-  }
-
-  .recurso-logo {
-    width: 100%;
-    max-height: 88px;
-    object-fit: contain;
-    display: block;
-  }
-
-  .recurso-body {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-
-    .recurso-vector-icon {
-      color: rgb(196, 95, 40);
-      margin-bottom: 5px;
-      line-height: 0;
-    }
-
-    .recurso-title {
-      font-size: 21px;
-      font-weight: 700;
-      line-height: 1.3;
-      color: rgb(35, 15, 5);
-      margin: 0 0 4px;
-    }
-
-    .recurso-desc {
-      font-size: 16px;
-      line-height: 1.5;
-      color: rgb(80, 60, 40);
-      margin: 0 0 8px;
-    }
-
-    .recurso-link {
-      font-size: 16px;
-      color: rgb(196, 95, 40);
-      font-weight: 600;
-    }
-  }
+  ${novedadesStyles}
+  ${sugerenciasStyles}
+  ${statsBarStyles(colors)}
+  ${recursosStyles}
 `
