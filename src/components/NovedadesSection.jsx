@@ -3,7 +3,12 @@ import { withPrefix } from "gatsby"
 
 const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
   return (
-    <section className="home-section content-left nov-section">
+    <section
+      className="home-section content-left nov-section"
+      style={{
+        backgroundColor: "rgb(168, 176, 189)",
+      }}
+    >
       <div className="nov-panel-inner">
         <div className="nov-panel-content">
           <div className="section-title-block">
@@ -127,16 +132,7 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
             )}
           </div>
         </div>
-        {/* nov-panel-content */}
-        <div className="nov-panel-img-col">
-          <img
-            src={withPrefix("/img/sec-nov.png")}
-            alt=""
-            className="nov-panel-img"
-          />
-        </div>
       </div>
-      {/* nov-panel-inner */}
     </section>
   )
 }

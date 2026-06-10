@@ -12,7 +12,17 @@ const SugerenciasSection = ({
   setSuggestionMessage,
 }) => {
   return (
-    <section className="home-section home-suggestion-card content-right">
+    <section
+      className="home-section home-suggestion-card content-right"
+      style={{
+        backgroundImage: `linear-gradient(to right, transparent 0%, #e2e2e2 42%), url(${withPrefix(
+          "/img/sec-voc.png"
+        )})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "100% 100%, auto 100%",
+        backgroundPosition: "0 0, left center",
+      }}
+    >
       <div className="section-title-block">
         <span className="section-title-icon-wrap">
           <svg

@@ -3,6 +3,7 @@ import { novedadesStyles } from "./NovedadesSection.styles"
 import { sugerenciasStyles } from "./SugerenciasSection.styles"
 import { recursosStyles } from "./RecursosSection.styles"
 import { statsBarStyles } from "./StatsBar.styles"
+import { dashboardStyles } from "./DashboardSection.styles"
 
 export const getPageStyles = (colors) => css`
   /* ── Hero ── */
@@ -12,14 +13,36 @@ export const getPageStyles = (colors) => css`
     margin-right: -22px;
     margin-bottom: 0;
     padding-top: 81px;
+    min-height: calc(100vh - 30px);
     background-size: cover;
-    background-position: top center;
+    background-position: center center;
     background-repeat: no-repeat;
+    box-sizing: border-box;
+    border-bottom: 18px solid rgb(32, 42, 56);
   }
 
   .cat-page .home-top-band {
     margin-left: -22px;
     margin-right: -22px;
+    padding-top: 0;
+    min-height: 0;
+    max-height: none;
+    overflow: hidden;
+    background: none;
+    position: relative;
+  }
+
+  .cat-hero-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .cat-hero-overlay {
+    position: absolute !important;
+    inset: 0;
+    padding-top: 110px !important;
+    min-height: 0 !important;
   }
 
   .home-scroll {
@@ -28,7 +51,7 @@ export const getPageStyles = (colors) => css`
     gap: 0;
     padding: 0;
     width: calc(100% + 44px);
-    margin: 0 -22px;
+    margin: 0 -22px -20px;
   }
 
   .home-section {
@@ -43,8 +66,13 @@ export const getPageStyles = (colors) => css`
 
   .home-section.nov-section {
     padding: 0 !important;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
+  }
+
+  .home-section.home-suggestion-card {
+    background-color: #e2e2e2 !important;
+    padding-top: 90px !important;
   }
 
   .nov-panel-inner {
@@ -56,25 +84,10 @@ export const getPageStyles = (colors) => css`
   .nov-panel-content {
     flex: 1;
     min-width: 0;
-    padding: 50px 32px 54px 100px;
+    max-width: 100%;
+    padding: 68px 150px 100px 150px;
     display: flex;
     flex-direction: column;
-  }
-
-  .nov-panel-img-col {
-    flex: 0 0 33%;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .nov-panel-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    -webkit-mask-image: linear-gradient(to left, black 50%, transparent 92%);
-    mask-image: linear-gradient(to left, black 50%, transparent 92%);
   }
 
   .home-section.content-right > .section-title-block,
@@ -101,11 +114,20 @@ export const getPageStyles = (colors) => css`
     overflow: visible;
   }
 
+  .home-section.recursos-destacados {
+    padding-top: 90px !important;
+    padding-left: 150px !important;
+    background-color: rgb(247, 245, 246) !important;
+  }
+
   .home-section.cat-panel {
+    padding-top: 80px !important;
+    padding-bottom: 140px !important;
     padding-left: 60px !important;
     padding-right: 60px !important;
     min-height: calc(100vh - 390px);
     box-sizing: border-box;
+    background-color: #e2e2e2 !important;
   }
 
   .home-section .cat-list {
@@ -147,16 +169,11 @@ export const getPageStyles = (colors) => css`
   }
 
   .section-title-icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 52px;
-    height: 52px;
-    border-radius: 10px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    align-self: flex-end;
+    display: none;
+  }
+
+  .nov-section .section-title-icon-wrap {
+    background: rgb(240, 240, 240);
   }
 
   .section-title-text {
@@ -164,8 +181,16 @@ export const getPageStyles = (colors) => css`
     flex-direction: column;
   }
 
+  .section-subtitle {
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgb(80, 60, 40);
+    margin: 10px 0 0 0;
+    max-width: 620px;
+  }
+
   .section-eyebrow {
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -181,7 +206,7 @@ export const getPageStyles = (colors) => css`
     margin: 0;
     background: transparent;
     border-bottom: none;
-    font-size: 42px;
+    font-size: 54px;
     line-height: 1.15;
     font-weight: 700;
     letter-spacing: 0;
@@ -292,8 +317,8 @@ export const getPageStyles = (colors) => css`
     background: transparent;
     border-radius: 0;
     box-shadow: none;
-    padding: 28px 64px 20px;
-    min-height: calc(100vh - 820px);
+    padding: calc((100vh - 129px) / 12) 64px 60px 120px;
+    min-height: calc(100vh - 129px);
     margin: 0;
     box-sizing: border-box;
     display: flex;
@@ -318,16 +343,14 @@ export const getPageStyles = (colors) => css`
 
   .cat-page .hero {
     min-height: 0;
-    padding-top: 22px;
   }
 
   .hero-text {
-    max-width: 45%;
+    max-width: 35%;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 0;
-
     @media (max-width: 900px) {
       max-width: 100%;
     }
@@ -337,27 +360,31 @@ export const getPageStyles = (colors) => css`
     }
 
     h1 {
-      font-size: 68px;
+      font-size: 112px;
       font-weight: 700;
-      line-height: 1.1;
-      margin: 0 0 16px 0;
+      line-height: 1.05;
+      margin: 0 0 52px 0;
       color: ${colors.skoHubDarkColor};
     }
 
     h2 {
-      font-size: 34px;
+      font-size: 44px;
       font-weight: 700;
-      line-height: 1.4;
-      margin: 0 0 20px 0;
+      line-height: 1.35;
+      margin: 0 0 30px 0;
       color: rgb(178, 84, 30);
     }
 
     p {
-      font-size: 15px;
-      line-height: 1.82;
+      font-size: 19px;
+      line-height: 1.75;
       margin: 0;
       color: rgb(80, 60, 40);
-      max-width: 86%;
+      max-width: 100%;
+      text-align: justify;
+      background: rgba(248, 248, 251, 0.8);
+      padding: 10px 14px 10px 0;
+      border-radius: 4px;
     }
 
     @media (max-width: 640px) {
@@ -372,6 +399,18 @@ export const getPageStyles = (colors) => css`
 
   .cat-page .hero-text p {
     color: ${colors.skoHubDarkColor};
+    font-size: 15px;
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .cat-page .hero-text h1 {
+    font-size: 72px;
+    margin-bottom: 16px;
+  }
+
+  .cat-page .hero-text {
+    max-width: 46%;
   }
 
   /* ── Stats ── */
@@ -461,7 +500,7 @@ export const getPageStyles = (colors) => css`
   .cat-list {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 52px;
   }
 
   .cat-panel {
@@ -498,9 +537,10 @@ export const getPageStyles = (colors) => css`
     background: rgb(255, 255, 255);
     border: none;
     border-left: 3px solid rgb(196, 95, 40);
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     position: relative;
+    padding: 0;
     cursor: pointer;
     transition:
       transform 0.2s ease,
@@ -509,7 +549,19 @@ export const getPageStyles = (colors) => css`
     text-align: left;
     font-family: inherit;
     width: 100%;
+    max-height: 220px;
     --cat-card-title-color: rgb(35, 15, 5);
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(to right, transparent 30%, white 100%);
+      pointer-events: none;
+    }
 
     &:hover {
       transform: translateX(7px);
@@ -522,26 +574,34 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-img {
-    width: 220px;
-    min-width: 220px;
-    height: 100%;
+    width: 50%;
+    min-width: 0;
+    flex-shrink: 0;
+    height: 220px;
     display: block;
-    object-fit: contain;
+    object-fit: cover;
     object-position: center;
-    padding: 18px 10px;
-    box-sizing: border-box;
-    clip-path: inset(18px 10px round 10px);
+    padding: 0;
 
     @media (max-width: 640px) {
       width: 100%;
-      min-width: unset;
       height: 180px;
+    }
+  }
+
+  .cat-list .cat-card:first-child {
+    flex-direction: row-reverse;
+
+    &::after {
+      left: auto;
+      right: 0;
+      background: linear-gradient(to left, transparent 30%, white 100%);
     }
   }
 
   .cat-card-body {
     flex: 1;
-    padding: 20px 24px;
+    padding: 52px 24px 36px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -549,10 +609,10 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-title {
-    font-size: 30px;
+    font-size: 36px;
     font-weight: 700;
     margin: 0;
-    color: var(--cat-card-title-color);
+    color: rgb(35, 15, 5);
   }
 
   .cat-card-desc {
@@ -697,7 +757,7 @@ export const getPageStyles = (colors) => css`
   ═══════════════════════════════════════ */
 
   .cat-page {
-    padding-top: 16px;
+    padding-top: 0;
     padding-bottom: 40px;
   }
 
@@ -1312,4 +1372,5 @@ export const getPageStyles = (colors) => css`
   ${sugerenciasStyles}
   ${statsBarStyles(colors)}
   ${recursosStyles}
+  ${dashboardStyles}
 `

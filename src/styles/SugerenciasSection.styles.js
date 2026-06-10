@@ -8,7 +8,7 @@ export const sugerenciasStyles = `
   .sidebar-suggestion {
     flex: 1;
     display: grid;
-    grid-template-columns: 226px minmax(0, 1fr) minmax(280px, 0.9fr);
+    grid-template-columns: 290px minmax(0, 1fr) minmax(280px, 0.9fr);
     align-items: center;
     gap: 18px;
     padding: 8px 0;
@@ -32,8 +32,8 @@ export const sugerenciasStyles = `
   }
 
   .sidebar-suggestion-img {
-    width: 238px;
-    height: 188px;
+    width: 290px;
+    height: 240px;
     object-fit: contain;
     display: block;
 
@@ -49,7 +49,7 @@ export const sugerenciasStyles = `
   }
 
   .sidebar-suggestion-title {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1.3;
     color: rgb(35, 15, 5);

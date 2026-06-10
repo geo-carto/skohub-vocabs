@@ -5,9 +5,12 @@ export const novedadesStyles = `
 
   .home-updates-grid {
     display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
+    flex-wrap: nowrap;
+    gap: 28px;
     overflow-x: auto;
+    padding-bottom: 20px;
+    margin-bottom: -20px;
+    padding-right: 20px;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-width: none;
@@ -19,15 +22,15 @@ export const novedadesStyles = `
 
   .home-update-card {
     position: relative;
-    flex: 0 0 calc((100% - 36px) / 3);
+    flex: 0 0 calc((100% - 84px) / 4);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
     min-height: 280px;
     padding: 22px 24px;
     border-radius: 8px;
-    background: white;
-    box-shadow: none;
+    background: rgb(240, 240, 240);
+    box-shadow: 0 4px 16px rgba(35, 15, 5, 0.10), 0 8px 10px -2px rgba(35, 15, 5, 0.08);
     scroll-snap-align: start;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -52,7 +55,7 @@ export const novedadesStyles = `
   }
 
   .home-update-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 1.25;
     color: rgb(35, 15, 5);

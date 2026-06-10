@@ -13,9 +13,7 @@ const Header = ({ siteTitle, transparent = false }) => {
   const style = css`
     background: ${transparent
       ? "transparent"
-      : `url(${withPrefix(
-          "/img/header-fondo-2.png"
-        )}) center 70%/cover no-repeat`};
+      : `url(${withPrefix("/img/header-voc.png")}) center 70%/cover no-repeat`};
 
     .headerContent {
       padding: 8px 20px 3px;

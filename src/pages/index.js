@@ -11,7 +11,7 @@ import SEO from "../components/Seo"
 import GraphModal from "../components/GraphModal"
 import VocabIcon from "../components/VocabIcon"
 import { getPageStyles } from "../styles/indexPageStyles"
-import StatsBar from "../components/StatsBar"
+import DashboardSection from "../components/DashboardSection"
 import NovedadesSection from "../components/NovedadesSection"
 import SugerenciasSection from "../components/SugerenciasSection"
 import RecursosSection from "../components/RecursosSection"
@@ -157,6 +157,12 @@ const IndexPage = ({ location }) => {
   }, [])
 
   useEffect(() => {
+    if (selectedCategory) {
+      window.scrollTo({ top: 0, behavior: "instant" })
+    }
+  }, [selectedCategory])
+
+  useEffect(() => {
     const languageFromUrl = getLanguageFromUrl(location)
     if (languageFromUrl && !data.selectedLanguage) {
       const userLang = getUserLang({
@@ -279,14 +285,14 @@ const IndexPage = ({ location }) => {
            CATEGORY PAGE — 3-column layout
         ══════════════════════════════════════ */
           <div className="cat-page">
-            {/* ── Hero (same layout as home page) ── */}
-            <div
-              className="home-top-band"
-              style={{
-                backgroundImage: `url(${withPrefix("/img/portada.png")})`,
-              }}
-            >
-              <div className="hero">
+            {/* ── Hero ── */}
+            <div className="home-top-band cat-hero-img-band">
+              <img
+                src={withPrefix("/img/sec-listado.png")}
+                alt=""
+                className="cat-hero-img"
+              />
+              <div className="hero cat-hero-overlay">
                 <div className="hero-text">
                   <h1>{getCategoryLabel(selectedCategory)}</h1>
                   <div
@@ -312,20 +318,20 @@ const IndexPage = ({ location }) => {
                     />
                   </div>
                 </div>
-                <div className="hero-stats-col">
-                  <StatsBar
-                    vocabCount={filteredSchemes.length}
-                    termCount={catTerms}
-                    languages={catLanguages}
-                    lastModified={catLastModified}
-                    language={language}
-                  />
-                </div>
               </div>
             </div>
 
             {/* ── Single-column sections ── */}
             <div className="home-scroll">
+              {/* Dashboard */}
+              <DashboardSection
+                vocabCount={filteredSchemes.length}
+                termCount={catTerms}
+                languages={catLanguages}
+                lastModified={catLastModified}
+                language={language}
+              />
+
               {/* Nav: breadcrumb + back button */}
               <div className="home-section cat-nav-section">
                 <div className="cat-section-content">
@@ -871,7 +877,7 @@ const IndexPage = ({ location }) => {
             <div
               className="home-top-band"
               style={{
-                backgroundImage: `url(${withPrefix("/img/portada.png")})`,
+                backgroundImage: `url(${withPrefix("/img/sec-portada.png")})`,
               }}
             >
               <div className="hero">
@@ -892,21 +898,21 @@ const IndexPage = ({ location }) => {
                     </p>
                   )}
                 </div>
-                {conceptSchemes.length > 0 && (
-                  <div className="hero-stats-col">
-                    <StatsBar
-                      vocabCount={conceptSchemes.length}
-                      termCount={totalTerms}
-                      languages={allLanguages}
-                      lastModified={lastModified}
-                      language={language}
-                    />
-                  </div>
-                )}
               </div>
             </div>
 
             <div className="home-scroll">
+              {/* Dashboard */}
+              {conceptSchemes.length > 0 && (
+                <DashboardSection
+                  vocabCount={conceptSchemes.length}
+                  termCount={totalTerms}
+                  languages={allLanguages}
+                  lastModified={lastModified}
+                  language={language}
+                />
+              )}
+
               {/* ── Columna principal ── */}
               {/* Search */}
               {!selectedCategory &&
@@ -976,6 +982,11 @@ const IndexPage = ({ location }) => {
                           ? "Discover and consult the vocabularies"
                           : "Descubre y consulta los vocabularios"}
                       </div>
+                      <p className="section-subtitle">
+                        {language === "en"
+                          ? "Access controlled vocabularies that structure and standardize geoscientific knowledge. Available in Spanish and English and in multiple formats for download."
+                          : "Accede a vocabularios controlados que estructuran y normalizan el conocimiento geocientífico. Disponibles en español e inglés y en múltiples formatos para su descarga."}
+                      </p>
                     </div>
                   </div>
                   <div className="cat-list">
