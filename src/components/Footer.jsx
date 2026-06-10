@@ -20,7 +20,7 @@ const Footer = () => {
   const [modalOpen, setModalOpen] = useState(false)
 
   const style = css`
-    background: #4a2f2f;
+    background: rgb(66, 36, 15);
     color: ${config.colors.skoHubWhite};
 
     .footerContent {

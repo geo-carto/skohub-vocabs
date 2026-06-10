@@ -70,9 +70,19 @@ export const getPageStyles = (colors) => css`
     min-height: 0;
   }
 
+  .nov-section .home-updates-wrap,
+  .nov-section .home-updates-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   .home-section.home-suggestion-card {
     background-color: #e2e2e2 !important;
     padding-top: 90px !important;
+  }
+
+  .home-suggestion-card .section-title-block {
+    margin-bottom: 0;
   }
 
   .nov-panel-inner {
@@ -117,7 +127,13 @@ export const getPageStyles = (colors) => css`
   .home-section.recursos-destacados {
     padding-top: 90px !important;
     padding-left: 150px !important;
+    padding-right: 150px !important;
     background-color: rgb(247, 245, 246) !important;
+  }
+
+  .home-section.recursos-destacados > .recursos-grid {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .home-section.cat-panel {
@@ -185,7 +201,7 @@ export const getPageStyles = (colors) => css`
     font-size: 17px;
     line-height: 1.6;
     color: rgb(80, 60, 40);
-    margin: 10px 0 0 0;
+    margin: 42px 0 0 0;
     max-width: 620px;
   }
 
@@ -626,7 +642,7 @@ export const getPageStyles = (colors) => css`
     display: inline-block;
     font-size: 15px;
     color: rgb(130, 110, 90);
-    background: rgb(245, 240, 232);
+    background: rgba(196, 95, 40, 0.12);
     border-radius: 20px;
     padding: 3px 12px;
     align-self: flex-start;

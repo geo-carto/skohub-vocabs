@@ -6,7 +6,7 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
     <section
       className="home-section content-left nov-section"
       style={{
-        backgroundColor: "rgb(168, 176, 189)",
+        backgroundColor: "rgb(76, 82, 97)",
       }}
     >
       <div className="nov-panel-inner">
@@ -33,6 +33,11 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
               <h2 className="home-section-title">
                 {language === "en" ? "News" : "Novedades"}
               </h2>
+              <p className="section-subtitle">
+                {language === "en"
+                  ? "Stay up to date with the latest updates and changes in the repository and news of interest related to semantics, knowledge systems and linked data."
+                  : "Manténte al día de las últimas actualizaciones y cambios en el repositorio y de novedades de interés relacionados con la semántica, los sistemas de conocimiento y los datos enlazados."}
+              </p>
             </div>
           </div>
           <div className="home-updates-wrap">

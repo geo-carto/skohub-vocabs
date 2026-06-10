@@ -1080,7 +1080,7 @@ const IndexPage = ({ location }) => {
                               style={{
                                 paddingLeft: "60px",
                                 paddingRight: "48px",
-                                marginTop: "6px",
+                                marginTop: "-18px",
                                 display: "flex",
                                 justifyContent: "flex-end",
                               }}

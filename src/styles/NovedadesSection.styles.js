@@ -22,14 +22,14 @@ export const novedadesStyles = `
 
   .home-update-card {
     position: relative;
-    flex: 0 0 calc((100% - 84px) / 4);
+    flex: 1 0 calc((100% - 84px) / 4);
     display: flex;
     flex-direction: column;
     gap: 16px;
     min-height: 280px;
     padding: 22px 24px;
     border-radius: 8px;
-    background: rgb(240, 240, 240);
+    background: rgb(234, 234, 234);
     box-shadow: 0 4px 16px rgba(35, 15, 5, 0.10), 0 8px 10px -2px rgba(35, 15, 5, 0.08);
     scroll-snap-align: start;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -88,6 +88,11 @@ export const novedadesStyles = `
     object-position: center;
     margin-top: auto;
     display: block;
+  }
+
+  .nov-section .home-section-title,
+  .nov-section .section-subtitle {
+    color: white;
   }
 
   .gallery-nav-btn {

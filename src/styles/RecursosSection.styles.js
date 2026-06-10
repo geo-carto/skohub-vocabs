@@ -1,6 +1,6 @@
 export const recursosStyles = `
   .recursos-destacados {
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: none;
     height: auto;
@@ -17,7 +17,7 @@ export const recursosStyles = `
   .recursos-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    gap: 36px;
     background: transparent;
 
     @media (max-width: 1100px) {
@@ -37,7 +37,7 @@ export const recursosStyles = `
     min-height: 150px;
     padding: 22px 20px;
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     box-shadow: none;
     border-right: none;
     border-bottom: none;

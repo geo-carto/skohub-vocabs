@@ -95,6 +95,11 @@ const RecursosSection = ({ enlaces, language }) => {
           <h2 className="home-section-title">
             {language === "en" ? "Featured Resources" : "Recursos Destacados"}
           </h2>
+          <p className="section-subtitle">
+            {language === "en"
+              ? "Expand your knowledge of geoscientific vocabularies by exploring other sources of information."
+              : "Amplia tus conocimientos sobre vocabularios geocientíficos explorando otras fuentes de información."}
+          </p>
         </div>
       </div>
       <div className="recursos-grid">

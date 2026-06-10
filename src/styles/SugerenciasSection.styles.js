@@ -8,9 +8,9 @@ export const sugerenciasStyles = `
   .sidebar-suggestion {
     flex: 1;
     display: grid;
-    grid-template-columns: 290px minmax(0, 1fr) minmax(280px, 0.9fr);
+    grid-template-columns: minmax(0, 1fr) 420px minmax(340px, 1fr);
     align-items: center;
-    gap: 18px;
+    gap: 8px;
     padding: 8px 0;
     font-size: 15px;
 
@@ -32,8 +32,8 @@ export const sugerenciasStyles = `
   }
 
   .sidebar-suggestion-img {
-    width: 290px;
-    height: 240px;
+    width: 420px;
+    height: 400px;
     object-fit: contain;
     display: block;
 
@@ -46,6 +46,10 @@ export const sugerenciasStyles = `
 
   .sidebar-suggestion-content {
     min-width: 0;
+
+    .section-subtitle {
+      line-height: 1.6;
+    }
   }
 
   .sidebar-suggestion-title {
@@ -102,7 +106,7 @@ export const sugerenciasStyles = `
     }
 
     textarea {
-      min-height: 86px;
+      min-height: 140px;
       resize: vertical;
     }
   }

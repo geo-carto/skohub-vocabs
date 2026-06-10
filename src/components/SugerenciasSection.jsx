@@ -13,7 +13,7 @@ const SugerenciasSection = ({
 }) => {
   return (
     <section
-      className="home-section home-suggestion-card content-right"
+      className="home-section home-suggestion-card"
       style={{
         backgroundImage: `linear-gradient(to right, transparent 0%, #e2e2e2 42%), url(${withPrefix(
           "/img/sec-voc.png"
@@ -47,24 +47,64 @@ const SugerenciasSection = ({
         </div>
       </div>
       <div className="sidebar-suggestion">
+        <div className="sidebar-suggestion-content">
+          <p
+            className="section-subtitle"
+            style={{ marginBottom: "52px", marginTop: 0 }}
+          >
+            {language === "en"
+              ? "Your opinion helps us improve the repository and continue building quality semantic resources for the scientific community."
+              : "Tu opinión nos ayuda a mejorar el repositorio y a seguir construyendo recursos semánticos de calidad para la comunidad científica."}
+          </p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "14px",
+              marginBottom: "12px",
+            }}
+          >
+            <div
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "50%",
+                background: "white",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="rgb(196,95,40)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <polyline points="2,4 12,13 22,4" />
+              </svg>
+            </div>
+            <div className="sidebar-suggestion-title">
+              {language === "en"
+                ? "Write to us and contact us"
+                : "Escribe y contacta con nosotros"}
+            </div>
+          </div>
+        </div>
         <img
           src={withPrefix("/img/sugerencias.png")}
           alt=""
           className="sidebar-suggestion-img"
           loading="lazy"
         />
-        <div className="sidebar-suggestion-content">
-          <div className="sidebar-suggestion-title">
-            {language === "en"
-              ? "Write to us and contact us"
-              : "Escribe y contacta con nosotros"}
-          </div>
-          <p>
-            {language === "en"
-              ? "Your feedback helps us improve the repository."
-              : "Tu opinión nos ayuda a mejorar el repositorio."}
-          </p>
-        </div>
         <form className="suggestion-form" onSubmit={handleSuggestionSubmit}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button
