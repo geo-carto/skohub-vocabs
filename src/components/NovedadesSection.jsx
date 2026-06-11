@@ -6,7 +6,10 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
     <section
       className="home-section content-left nov-section"
       style={{
-        backgroundColor: "rgb(76, 82, 97)",
+        backgroundImage: `url(${withPrefix("/img/sec-nov.png")})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div className="nov-panel-inner">

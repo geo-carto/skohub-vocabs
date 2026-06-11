@@ -18,6 +18,15 @@ export const novedadesStyles = `
     &::-webkit-scrollbar {
       display: none;
     }
+
+    @media (max-width: 760px) {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      scroll-snap-type: none;
+      padding-right: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
   }
 
   .home-update-card {
@@ -43,8 +52,10 @@ export const novedadesStyles = `
       flex-basis: calc((100% - 18px) / 2);
     }
 
-    @media (max-width: 700px) {
-      flex-basis: 100%;
+    @media (max-width: 760px) {
+      flex: 0 0 100% !important;
+      width: 100% !important;
+      max-width: 100% !important;
     }
   }
 

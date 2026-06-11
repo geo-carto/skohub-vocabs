@@ -32,6 +32,10 @@ export const statsBarStyles = (colors) => `
       }
     }
 
+    @media (max-width: 1024px) {
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 640px) {
       flex-wrap: wrap;
     }

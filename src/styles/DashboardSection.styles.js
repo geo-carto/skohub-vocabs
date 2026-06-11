@@ -2,6 +2,14 @@ export const dashboardStyles = `
   .home-section.dashboard-section {
     background-color: rgb(32, 42, 56) !important;
     padding: 36px 100px !important;
+
+    @media (max-width: 1024px) {
+      padding: 28px 40px !important;
+    }
+
+    @media (max-width: 760px) {
+      padding: 24px 16px !important;
+    }
   }
 
   .dashboard-stats-wrap {

@@ -24,6 +24,10 @@ export const sugerenciasStyles = `
       display: none;
     }
 
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
     @media (max-width: 760px) {
       grid-template-columns: 1fr;
       padding: 16px;
@@ -36,6 +40,11 @@ export const sugerenciasStyles = `
     height: 400px;
     object-fit: contain;
     display: block;
+
+    @media (max-width: 1024px) {
+      width: 100%;
+      height: 260px;
+    }
 
     @media (max-width: 760px) {
       width: min(100%, 260px);

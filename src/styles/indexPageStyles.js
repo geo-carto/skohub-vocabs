@@ -128,7 +128,7 @@ export const getPageStyles = (colors) => css`
     padding-top: 90px !important;
     padding-left: 150px !important;
     padding-right: 150px !important;
-    background-color: rgb(247, 245, 246) !important;
+    background-color: transparent !important;
   }
 
   .home-section.recursos-destacados > .recursos-grid {
@@ -243,6 +243,55 @@ export const getPageStyles = (colors) => css`
     }
   }
 
+  @media (max-width: 1024px) {
+    .home-section.cat-panel {
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+    }
+
+    .home-section.recursos-destacados {
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+    }
+
+    .nov-panel-content {
+      padding: 50px 40px 80px 40px;
+    }
+
+    .home-section.home-suggestion-card {
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+    }
+
+    /* Cat cards */
+    .cat-card-body {
+      padding: 36px 16px 20px;
+    }
+    .cat-card-title {
+      font-size: 28px;
+    }
+
+    /* Novedades: 3 tarjetas por fila en tablet */
+    .home-update-card {
+      flex: 0 0 calc((100% - 56px) / 3) !important;
+    }
+
+    /* Dashboard: wrap stats y más espacio */
+    .dashboard-stats-wrap {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .dashboard-section .stats-bar {
+      flex-wrap: wrap;
+    }
+
+    .dashboard-section .stat-item {
+      flex: 1 1 auto;
+      min-width: 160px;
+    }
+  }
+
   @media (max-width: 760px) {
     .home-section {
       padding: 34px 14px 40px;
@@ -265,6 +314,79 @@ export const getPageStyles = (colors) => css`
     .section-title-text > h2,
     .section-title-text > div > h2 {
       font-size: 34px;
+    }
+
+    /* Hero text */
+    .hero-text h2 {
+      font-size: 26px !important;
+    }
+    .hero-text p {
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+    }
+    .hero-stats-col {
+      display: none;
+    }
+
+    /* Sections: quitar paddings horizontales grandes */
+    .home-section.cat-panel {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+      padding-top: 40px !important;
+      padding-bottom: 60px !important;
+    }
+
+    .home-section.recursos-destacados {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+
+    .nov-panel-content {
+      padding: 40px 20px 60px 20px !important;
+    }
+
+    .home-section.home-suggestion-card {
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+
+    /* Category cards */
+    .cat-list {
+      gap: 20px;
+    }
+
+    .cat-card,
+    .cat-list .cat-card:first-child {
+      flex-direction: column !important;
+    }
+
+    .cat-card::after,
+    .cat-list .cat-card:first-child::after {
+      display: none;
+    }
+
+    .cat-card-img {
+      width: 100% !important;
+      height: 160px !important;
+    }
+
+    .cat-card-body {
+      padding: 20px 16px 16px;
+    }
+    .cat-card-title {
+      font-size: 22px;
+    }
+
+    .cat-card-body > div:first-child {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .cat-card-desc,
+    .cat-card-body > div:last-child {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
     }
   }
 
@@ -367,6 +489,11 @@ export const getPageStyles = (colors) => css`
     display: flex;
     flex-direction: column;
     gap: 0;
+
+    @media (max-width: 1400px) {
+      max-width: 48%;
+    }
+
     @media (max-width: 900px) {
       max-width: 100%;
     }
@@ -401,6 +528,15 @@ export const getPageStyles = (colors) => css`
       background: rgba(248, 248, 251, 0.8);
       padding: 10px 14px 10px 0;
       border-radius: 4px;
+    }
+
+    @media (max-width: 1400px) {
+      h1 {
+        font-size: 80px;
+      }
+      h2 {
+        font-size: 36px;
+      }
     }
 
     @media (max-width: 640px) {
@@ -565,7 +701,6 @@ export const getPageStyles = (colors) => css`
     text-align: left;
     font-family: inherit;
     width: 100%;
-    max-height: 220px;
     --cat-card-title-color: rgb(35, 15, 5);
 
     &::after {
@@ -593,7 +728,8 @@ export const getPageStyles = (colors) => css`
     width: 50%;
     min-width: 0;
     flex-shrink: 0;
-    height: 220px;
+    align-self: stretch;
+    min-height: 220px;
     display: block;
     object-fit: cover;
     object-position: center;
@@ -602,6 +738,8 @@ export const getPageStyles = (colors) => css`
     @media (max-width: 640px) {
       width: 100%;
       height: 180px;
+      min-height: 0;
+      align-self: auto;
     }
   }
 

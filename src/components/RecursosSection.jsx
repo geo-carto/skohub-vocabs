@@ -73,7 +73,15 @@ const ICONS = [
 
 const RecursosSection = ({ enlaces, language }) => {
   return (
-    <section className="home-section recursos-destacados content-left">
+    <section
+      className="home-section recursos-destacados content-left"
+      style={{
+        backgroundImage: `url(${withPrefix("/img/sec-rec.png")})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="section-title-block">
         <span className="section-title-icon-wrap">
           <svg
