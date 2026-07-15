@@ -179,11 +179,6 @@ const Header = ({ siteTitle, transparent = false }) => {
                 alt="Logo"
               />
             )}
-            <img
-              className="skohubImg"
-              src={`${withPrefix("/img/logo-voc.png")}`}
-              alt="Logo Vocabularios"
-            />
           </Link>
         </div>
         {languages && languages.length > 1 && (

@@ -9,6 +9,7 @@ const SEO = ({ description, lang = "es", keywords = [], title }) => {
           description
           author
           customDomain
+          logo
         }
       }
     }
@@ -18,9 +19,10 @@ const SEO = ({ description, lang = "es", keywords = [], title }) => {
     description: siteDescription,
     author,
     customDomain,
+    logo,
   } = site.siteMetadata
   const metaDescription = description || siteDescription
-  const ogImage = `${customDomain}img/logo-voc.png`
+  const ogImage = `${customDomain}img/${logo}`
 
   return (
     <>

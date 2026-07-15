@@ -815,7 +815,7 @@ function EgoDepthBtns({ label, value, max, onChange }) {
           display: "flex",
           justifyContent: "space-between",
           gap: 8,
-          fontSize: 11,
+          fontSize: 12,
           color: "rgb(100,80,60)",
           whiteSpace: "nowrap",
         }}
@@ -843,7 +843,7 @@ function EgoDepthBtns({ label, value, max, onChange }) {
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${safeMax + 1}, 1fr)`,
-          fontSize: 9,
+          fontSize: 10,
           color: "rgb(130,110,90)",
           lineHeight: 1,
           marginTop: -2,
@@ -870,7 +870,7 @@ const FONT_SIZE_OPTIONS = Array.from({ length: 23 }, (_, i) => i + 8)
 function FontSizeSelect({ value, onChange, disabled = false, label }) {
   const [open, setOpen] = useState(false)
   return (
-    <div style={{ position: "relative", width: 68 }}>
+    <div style={{ position: "relative", width: 72 }}>
       <button
         type="button"
         disabled={disabled}
@@ -878,7 +878,7 @@ function FontSizeSelect({ value, onChange, disabled = false, label }) {
         onClick={() => setOpen((v) => !v)}
         style={{
           width: "100%",
-          fontSize: "13px",
+          fontSize: "14px",
           color: disabled ? "rgb(150,145,160)" : "rgb(40,35,50)",
           border: "1px solid rgb(225,222,232)",
           borderRadius: "8px",
@@ -898,7 +898,7 @@ function FontSizeSelect({ value, onChange, disabled = false, label }) {
             top: "50%",
             transform: "translateY(-50%)",
             color: "rgb(130,125,145)",
-            fontSize: 10,
+            fontSize: 11,
           }}
         >
           ▾
@@ -936,7 +936,7 @@ function FontSizeSelect({ value, onChange, disabled = false, label }) {
                 color: size === value ? "rgb(196,95,40)" : "rgb(40,35,50)",
                 cursor: "pointer",
                 fontFamily: "inherit",
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: size === value ? 700 : 400,
               }}
             >
@@ -2414,14 +2414,14 @@ const GraphModal = ({
   }
 
   const sidePanelLabelStyle = {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
     color: "rgb(120,115,130)",
     textTransform: "uppercase",
     letterSpacing: "0.08em",
   }
   const sideSelectStyle = {
-    fontSize: "13px",
+    fontSize: "14px",
     color: "rgb(40,35,50)",
     border: "1px solid rgb(225,222,232)",
     borderRadius: "8px",
@@ -3420,7 +3420,7 @@ const GraphModal = ({
                         color: active ? "white" : "rgb(70,65,85)",
                         cursor: "pointer",
                         fontFamily: "inherit",
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: active ? 700 : 400,
                         lineHeight: 1,
                         whiteSpace: "nowrap",
@@ -3478,7 +3478,7 @@ const GraphModal = ({
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "rgb(110,105,125)",
                       }}
                     >
@@ -3508,7 +3508,7 @@ const GraphModal = ({
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "rgb(110,105,125)",
                       }}
                     >
@@ -3549,7 +3549,7 @@ const GraphModal = ({
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "rgb(110,105,125)",
                       }}
                     >
@@ -3682,7 +3682,7 @@ const GraphModal = ({
                           display: "flex",
                           justifyContent: "space-between",
                           gap: 8,
-                          fontSize: 11,
+                          fontSize: 12,
                           color: "rgb(110,105,125)",
                           whiteSpace: "nowrap",
                         }}
@@ -3736,7 +3736,7 @@ const GraphModal = ({
                             color: checked
                               ? "rgb(40,35,50)"
                               : "rgb(140,135,155)",
-                            fontSize: 12,
+                            fontSize: 13,
                             cursor: "pointer",
                             background: checked
                               ? "rgb(248,246,255)"
@@ -3793,7 +3793,7 @@ const GraphModal = ({
                               color: checked
                                 ? "rgb(40,35,50)"
                                 : "rgb(140,135,155)",
-                              fontSize: 12,
+                              fontSize: 13,
                               cursor: "pointer",
                               background: checked
                                 ? "rgb(248,246,255)"

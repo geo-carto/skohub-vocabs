@@ -5,8 +5,9 @@ import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes.js"
 import { useSkoHubContext } from "../context/Context.jsx"
 import { i18n, getDomId, getFilePath } from "../common"
 import ConceptURI from "./ConceptURI.jsx"
-import GraphModal from "./GraphModal.jsx"
-import { useEffect, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
+
+const GraphModal = lazy(() => import("./GraphModal.jsx"))
 
 const Concept = ({
   pageContext: { node: concept, collections, customDomain },
@@ -119,16 +120,18 @@ const Concept = ({
         <JsonLink to={getFilePath(concept.id, "json", customDomain)} />
       </div>
       {graphOpen && currentVocabId && (
-        <GraphModal
-          vocabId={currentVocabId}
-          customDomain={customDomain}
-          language={language}
-          onClose={() => setGraphOpen(false)}
-          initialLayout="ego"
-          initialFocalId={concept.id}
-          schemes={schemeOptions}
-          onVocabChange={setCurrentVocabId}
-        />
+        <Suspense fallback={null}>
+          <GraphModal
+            vocabId={currentVocabId}
+            customDomain={customDomain}
+            language={language}
+            onClose={() => setGraphOpen(false)}
+            initialLayout="ego"
+            initialFocalId={concept.id}
+            schemes={schemeOptions}
+            onVocabChange={setCurrentVocabId}
+          />
+        </Suspense>
       )}
       {concept.isReplacedBy && concept.isReplacedBy.length > 0 && (
         <div>

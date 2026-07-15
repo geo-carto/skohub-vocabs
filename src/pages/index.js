@@ -8,13 +8,14 @@ import { useVocabFilter } from "../hooks/useVocabFilter"
 
 import Layout from "../components/Layout"
 import SEO from "../components/Seo"
-import GraphModal from "../components/GraphModal"
 import VocabIcon from "../components/VocabIcon"
 import { getPageStyles } from "../styles/indexPageStyles"
 import DashboardSection from "../components/DashboardSection"
 import NovedadesSection from "../components/NovedadesSection"
 import SugerenciasSection from "../components/SugerenciasSection"
 import RecursosSection from "../components/RecursosSection"
+
+const GraphModal = React.lazy(() => import("../components/GraphModal"))
 
 const CATEGORIES = {
   GE: {
@@ -882,7 +883,11 @@ const IndexPage = ({ location }) => {
             >
               <div className="hero">
                 <div className="hero-text">
-                  <h1>{config.title || "Repositorio de Vocabularios"}</h1>
+                  <h1>
+                    {language === "en"
+                      ? "Geoscientific Vocabularies"
+                      : config.title || "Repositorio de Vocabularios"}
+                  </h1>
                   {homeConfig.subtitle && (
                     <h2>
                       {language === "en" && homeConfig.subtitle_en
@@ -984,8 +989,8 @@ const IndexPage = ({ location }) => {
                       </div>
                       <p className="section-subtitle">
                         {language === "en"
-                          ? "Access controlled vocabularies that structure and standardize geoscientific knowledge. Available in Spanish and English and in multiple formats for download."
-                          : "Accede a vocabularios controlados que estructuran y normalizan el conocimiento geocientífico. Disponibles en español e inglés y en múltiples formatos para su descarga."}
+                          ? "Access more than 35 controlled vocabularies divided in two categories, Geology and Technical, that structure and standardize geoscientific knowledge. Available in two languages, Spanish and English. Multiple formats for download."
+                          : "Accede a más de 35 vocabularios controlados divididos en dos categorías, Geología y Técnicos, que estructuran y normalizan el conocimiento geocientífico. Disponibles en dos idiomas, español e inglés. Múltiples formatos para descarga."}
                       </p>
                     </div>
                   </div>
@@ -1149,22 +1154,24 @@ const IndexPage = ({ location }) => {
         )}
       </div>
       {graphVocab && (
-        <GraphModal
-          vocabId={graphVocab.id}
-          customDomain={customDomain}
-          language={language}
-          title={getTitle(graphVocab)}
-          onClose={() => setGraphVocab(null)}
-          schemes={sortedGraphSchemeOptions}
-          onVocabChange={(id) => {
-            const cs = conceptSchemes.find(
-              (c) =>
-                c.id === id &&
-                (!graphVocab?.theme || c.theme === graphVocab.theme)
-            )
-            if (cs) setGraphVocab(cs)
-          }}
-        />
+        <React.Suspense fallback={null}>
+          <GraphModal
+            vocabId={graphVocab.id}
+            customDomain={customDomain}
+            language={language}
+            title={getTitle(graphVocab)}
+            onClose={() => setGraphVocab(null)}
+            schemes={sortedGraphSchemeOptions}
+            onVocabChange={(id) => {
+              const cs = conceptSchemes.find(
+                (c) =>
+                  c.id === id &&
+                  (!graphVocab?.theme || c.theme === graphVocab.theme)
+              )
+              if (cs) setGraphVocab(cs)
+            }}
+          />
+        </React.Suspense>
       )}
     </Layout>
   )

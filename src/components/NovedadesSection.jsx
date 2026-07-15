@@ -1,6 +1,30 @@
 import React, { useRef } from "react"
 import { withPrefix } from "gatsby"
 
+const DATE_MONTHS_EN = {
+  enero: "January",
+  febrero: "February",
+  marzo: "March",
+  abril: "April",
+  mayo: "May",
+  junio: "June",
+  julio: "July",
+  agosto: "August",
+  septiembre: "September",
+  octubre: "October",
+  noviembre: "November",
+  diciembre: "December",
+}
+
+function formatUpdateDate(date, language) {
+  if (language !== "en" || !date) return date
+  return Object.entries(DATE_MONTHS_EN).reduce(
+    (formatted, [monthEs, monthEn]) =>
+      formatted.replace(new RegExp(`\\b${monthEs}\\b`, "i"), monthEn),
+    date
+  )
+}
+
 const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
   return (
     <section
@@ -64,7 +88,9 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
                       </span>
                     )}
                     {item.fecha && (
-                      <div className="home-update-date">{item.fecha}</div>
+                      <div className="home-update-date">
+                        {formatUpdateDate(item.fecha, language)}
+                      </div>
                     )}
                     <div className="home-update-title">
                       {language === "en" && item.titulo_en

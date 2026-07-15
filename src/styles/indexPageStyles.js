@@ -25,7 +25,8 @@ export const getPageStyles = (colors) => css`
     margin-left: -22px;
     margin-right: -22px;
     padding-top: 0;
-    min-height: 0;
+    height: clamp(370px, 24vw, 450px);
+    min-height: 370px;
     max-height: none;
     overflow: hidden;
     background: none;
@@ -35,13 +36,15 @@ export const getPageStyles = (colors) => css`
   .cat-hero-img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
   }
 
   .cat-hero-overlay {
     position: absolute !important;
     inset: 0;
-    padding-top: 110px !important;
+    padding-top: 128px !important;
     min-height: 0 !important;
   }
 
@@ -79,10 +82,33 @@ export const getPageStyles = (colors) => css`
   .home-section.home-suggestion-card {
     background-color: #e2e2e2 !important;
     padding-top: 90px !important;
+    padding-left: 60px !important;
+    padding-right: 60px !important;
   }
 
   .home-suggestion-card .section-title-block {
     margin-bottom: 0;
+  }
+
+  .home-section.cat-panel > .section-title-block,
+  .home-section.home-suggestion-card > .section-title-block,
+  .home-section.cat-panel .section-title-text,
+  .home-section.home-suggestion-card .section-title-text,
+  .home-section.cat-panel .home-section-title,
+  .home-section.home-suggestion-card .home-section-title,
+  .home-section.cat-panel .section-subtitle,
+  .home-section.home-suggestion-card .section-subtitle {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .home-section.cat-panel .section-subtitle {
+    max-width: none;
+  }
+
+  .home-section.nov-section .section-subtitle,
+  .home-section.recursos-destacados .section-subtitle {
+    max-width: none;
   }
 
   .nov-panel-inner {
@@ -177,6 +203,12 @@ export const getPageStyles = (colors) => css`
     margin-right: auto;
   }
 
+  .home-section.home-suggestion-card > .section-title-block,
+  .home-section.home-suggestion-card > .sidebar-suggestion {
+    width: min(75vw, 1180px);
+    max-width: calc(100vw - 120px);
+  }
+
   .section-title-block {
     display: flex;
     align-items: flex-end;
@@ -198,7 +230,7 @@ export const getPageStyles = (colors) => css`
   }
 
   .section-subtitle {
-    font-size: 17px;
+    font-size: 19px;
     line-height: 1.6;
     color: rgb(80, 60, 40);
     margin: 42px 0 0 0;
@@ -565,6 +597,93 @@ export const getPageStyles = (colors) => css`
     max-width: 46%;
   }
 
+  @media (max-width: 1100px) {
+    .cat-page .home-top-band {
+      height: 390px;
+      min-height: 390px;
+    }
+
+    .cat-page .cat-hero-img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+    }
+
+    .cat-page .cat-hero-overlay {
+      padding-top: 104px !important;
+      padding-left: 40px !important;
+      padding-right: 40px !important;
+    }
+
+    .cat-page .hero-text {
+      max-width: 72%;
+    }
+
+    .cat-page .hero-text h1 {
+      font-size: 54px;
+      margin-bottom: 12px;
+    }
+
+    .cat-page .hero-text p {
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .cat-page .hero-text > div {
+      gap: 12px !important;
+    }
+
+    .cat-page .hero-text > div > img {
+      max-height: 112px !important;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .cat-page .home-top-band {
+      height: 430px;
+      min-height: 430px;
+    }
+
+    .cat-page .cat-hero-img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+    }
+
+    .cat-page .cat-hero-overlay {
+      padding-top: 96px !important;
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+      justify-content: flex-start;
+    }
+
+    .cat-page .hero-text {
+      max-width: 100%;
+    }
+
+    .cat-page .hero-text h1 {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .cat-page .hero-text > div {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 10px !important;
+    }
+
+    .cat-page .hero-text p {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+      padding-right: 8px;
+    }
+
+    .cat-page .hero-text > div > img {
+      max-height: 82px !important;
+      align-self: flex-start !important;
+    }
+  }
+
   /* ── Stats ── */
 
   .hero-stats-col {
@@ -708,7 +827,7 @@ export const getPageStyles = (colors) => css`
       position: absolute;
       top: 0;
       left: 0;
-      width: 50%;
+      width: 34%;
       height: 100%;
       background: linear-gradient(to right, transparent 30%, white 100%);
       pointer-events: none;
@@ -725,7 +844,7 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-img {
-    width: 50%;
+    width: 34%;
     min-width: 0;
     flex-shrink: 0;
     align-self: stretch;
@@ -743,16 +862,6 @@ export const getPageStyles = (colors) => css`
     }
   }
 
-  .cat-list .cat-card:first-child {
-    flex-direction: row-reverse;
-
-    &::after {
-      left: auto;
-      right: 0;
-      background: linear-gradient(to left, transparent 30%, white 100%);
-    }
-  }
-
   .cat-card-body {
     flex: 1;
     padding: 52px 24px 36px;
@@ -763,14 +872,14 @@ export const getPageStyles = (colors) => css`
   }
 
   .cat-card-title {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 700;
     margin: 0;
     color: rgb(35, 15, 5);
   }
 
   .cat-card-desc {
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.82;
     color: rgb(80, 60, 40);
     margin: 0;
@@ -1479,6 +1588,65 @@ export const getPageStyles = (colors) => css`
     }
   }
 
+  @media (max-width: 1100px) {
+    .cat-sidebar-col.explore-wide > .sidebar-panel {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .cat-sidebar-col.explore-wide .sidebar-panel-header {
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .explore-image-box {
+      width: 100%;
+      min-height: 210px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 8px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .explore-graph-img {
+      width: 100%;
+      height: 210px;
+      max-height: none;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .explore-img-label,
+    .explore-img-sublabel,
+    .explore-img-btn {
+      position: absolute;
+      z-index: 2;
+    }
+
+    .explore-img-label {
+      top: 28px;
+      left: 20px;
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    .explore-img-sublabel {
+      top: 58px;
+      left: 20px;
+      max-width: 240px;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .explore-img-btn {
+      bottom: 18px;
+      left: 20px;
+      margin-top: 0;
+      pointer-events: auto;
+    }
+  }
+
   @media (max-width: 760px) {
     .cat-sidebar-col.explore-wide > .sidebar-panel {
       grid-template-columns: 1fr;
@@ -1491,19 +1659,63 @@ export const getPageStyles = (colors) => css`
 
     .explore-image-box {
       width: 100%;
-      min-height: 175px;
+      min-height: 210px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 8px 0;
+      overflow: hidden;
+      position: relative;
     }
 
     .explore-graph-img {
       width: 100%;
-      height: 175px;
+      height: 210px;
+      max-height: none;
       object-fit: cover;
       object-position: center;
     }
 
+    .explore-img-label,
+    .explore-img-sublabel,
+    .explore-img-btn {
+      position: absolute;
+      z-index: 2;
+    }
+
+    .explore-img-label {
+      top: 28px;
+      left: 20px;
+      font-size: 18px;
+      pointer-events: none;
+    }
+
     .explore-img-sublabel {
-      max-width: calc(65% - 20px);
-      font-size: 12px;
+      top: 58px;
+      left: 20px;
+      max-width: 240px;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .explore-img-btn {
+      bottom: 18px;
+      left: 20px;
+      margin-top: 0;
+      pointer-events: auto;
+    }
+  }
+
+  @media (max-width: 320px) {
+    .cat-sidebar-col.explore-wide .panel-title {
+      font-size: 34px;
+    }
+
+    .explore-panel-desc {
+      font-size: 13px;
+    }
+
+    .explore-graph-img {
+      height: 190px;
     }
   }
 

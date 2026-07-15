@@ -32,10 +32,10 @@ export const novedadesStyles = `
   .home-update-card {
     position: relative;
     flex: 1 0 calc((100% - 84px) / 4);
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto 1fr 190px;
     gap: 16px;
-    min-height: 280px;
+    min-height: 480px;
     padding: 22px 24px;
     border-radius: 8px;
     background: rgb(234, 234, 234);
@@ -60,30 +60,31 @@ export const novedadesStyles = `
   }
 
   .home-update-date {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 700;
     color: rgb(168, 78, 28);
   }
 
   .home-update-title {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     line-height: 1.25;
     color: rgb(35, 15, 5);
   }
 
   .home-update-desc {
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.55;
     color: rgb(80, 60, 40);
     margin: 0;
+    min-height: 120px;
   }
 
   .home-update-new {
     position: absolute;
     top: 16px;
     right: 16px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.03em;
     color: white;
@@ -93,12 +94,18 @@ export const novedadesStyles = `
   }
 
   .home-update-img {
-    width: 100%;
-    height: 150px;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 185px;
     object-fit: contain;
     object-position: center;
-    margin-top: auto;
+    margin-top: 0;
+    align-self: center;
+    justify-self: center;
     display: block;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(35, 15, 5, 0.18);
   }
 
   .nov-section .home-section-title,

@@ -94,7 +94,7 @@ const SugerenciasSection = ({
             </div>
             <div className="sidebar-suggestion-title">
               {language === "en"
-                ? "Write to us and contact us"
+                ? "Write and contact us"
                 : "Escribe y contacta con nosotros"}
             </div>
           </div>

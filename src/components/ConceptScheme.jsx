@@ -3,11 +3,12 @@ import Concept from "./Concept"
 import { i18n, getDomId, getFilePath } from "../common"
 import JsonLink from "./JsonLink"
 import ConceptURI from "./ConceptURI"
-import GraphModal from "./GraphModal"
 import { useSkoHubContext } from "../context/Context"
-import { useEffect, useState } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { useLocation } from "@gatsbyjs/reach-router"
 import { withPrefix } from "gatsby"
+
+const GraphModal = lazy(() => import("./GraphModal"))
 
 const ConceptScheme = ({
   pageContext: { node: conceptScheme, embed, customDomain },
@@ -111,15 +112,17 @@ const ConceptScheme = ({
             />
           </div>
           {graphOpen && (
-            <GraphModal
-              vocabId={currentVocabId}
-              customDomain={customDomain}
-              language={language}
-              title={title && i18n(language)(title)}
-              onClose={() => setGraphOpen(false)}
-              schemes={schemeOptions}
-              onVocabChange={setCurrentVocabId}
-            />
+            <Suspense fallback={null}>
+              <GraphModal
+                vocabId={currentVocabId}
+                customDomain={customDomain}
+                language={language}
+                title={title && i18n(language)(title)}
+                onClose={() => setGraphOpen(false)}
+                schemes={schemeOptions}
+                onVocabChange={setCurrentVocabId}
+              />
+            </Suspense>
           )}
           {description && (
             <div className="markdown">
