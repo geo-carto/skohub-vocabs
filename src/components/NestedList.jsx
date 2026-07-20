@@ -54,10 +54,6 @@ const NestedList = ({
         padding-bottom: 10px;
       }
 
-      > button + div {
-        margin-bottom: 10px;
-      }
-
       > div {
         flex: 1;
         display: flex;
@@ -68,7 +64,8 @@ const NestedList = ({
     &::before {
       content: "";
       position: absolute;
-      height: 100%;
+      top: 0;
+      bottom: 14px;
       background-color: ${config.colors.skoHubMiddleGrey};
       width: 1px;
       left: -16px;
@@ -92,6 +89,7 @@ const NestedList = ({
       width: 24px;
       height: 24px;
       margin-right: 4px;
+      flex: 0 0 24px;
       font-weight: bold;
       position: relative;
       top: -2px;
@@ -127,6 +125,15 @@ const NestedList = ({
           display: none;
         }
       }
+    }
+
+    .treeItemIconPlaceholder {
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
+      flex: 0 0 24px;
+      visibility: hidden;
     }
   `
   const { data, _ } = useSkoHubContext()
@@ -307,12 +314,15 @@ const NestedList = ({
 
   return (
     <ul css={style}>
-      {(filteredItems || []).map((item) => (
-        <li key={item.id}>
-          {item.narrower &&
-            (queryFilter
-              ? item.narrower.length > 0
-              : item.narrower.filter((n) => !n.deprecated).length > 0) && (
+      {(filteredItems || []).map((item) => {
+        const hasVisibleChildren =
+          item.narrower &&
+          (queryFilter
+            ? item.narrower.length > 0
+            : item.narrower.filter((n) => !n.deprecated).length > 0)
+        return (
+          <li key={item.id}>
+            {hasVisibleChildren ? (
               <button
                 aria-expanded={isExpanded(item, "true", "false")}
                 className={`treeItemIcon inputStyle${isExpanded(
@@ -328,27 +338,30 @@ const NestedList = ({
                   )
                 }}
               ></button>
+            ) : (
+              <span className="treeItemIconPlaceholder" aria-hidden="true" />
             )}
-          <div>
-            {renderItemLink(item)}
-            {item.narrower && item.narrower.length > 0 && (
-              <NestedList
-                items={
-                  queryFilter
-                    ? item.narrower
-                    : item.narrower.filter((n) => !n.deprecated)
-                }
-                current={current}
-                queryFilter={queryFilter}
-                highlight={highlight}
-                language={language}
-                customDomain={customDomain}
-                collectionFilterIds={collectionFilterIds}
-              />
-            )}
-          </div>
-        </li>
-      ))}
+            <div>
+              {renderItemLink(item)}
+              {item.narrower && item.narrower.length > 0 && (
+                <NestedList
+                  items={
+                    queryFilter
+                      ? item.narrower
+                      : item.narrower.filter((n) => !n.deprecated)
+                  }
+                  current={current}
+                  queryFilter={queryFilter}
+                  highlight={highlight}
+                  language={language}
+                  customDomain={customDomain}
+                  collectionFilterIds={collectionFilterIds}
+                />
+              )}
+            </div>
+          </li>
+        )
+      })}
     </ul>
   )
 }
