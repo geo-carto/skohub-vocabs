@@ -90,6 +90,62 @@ export const getConfigAndConceptSchemes = () => {
             subtitle_en
             description
             description_en
+            categories_intro {
+              eyebrow
+              eyebrow_en
+              title
+              title_en
+              subtitle
+              subtitle_en
+            }
+            updates_intro {
+              eyebrow
+              eyebrow_en
+              title
+              title_en
+              subtitle
+              subtitle_en
+            }
+            suggestions_intro {
+              eyebrow
+              eyebrow_en
+              title
+              title_en
+              subtitle
+              subtitle_en
+              contact_title
+              contact_title_en
+            }
+            resources_intro {
+              eyebrow
+              eyebrow_en
+              title
+              title_en
+              subtitle
+              subtitle_en
+            }
+            listing_explore {
+              title
+              title_en
+              description
+              description_en
+              graph_title
+              graph_title_en
+              graph_description
+              graph_description_en
+              graph_button
+              graph_button_en
+            }
+            categories {
+              id
+              label
+              label_en
+              description
+              description_en
+              long_description
+              long_description_en
+              image
+            }
             novedades {
               titulo
               titulo_en

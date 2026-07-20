@@ -34,7 +34,7 @@ const CATEGORIES = {
     label: { es: "Técnicos", en: "Technical" },
     description: {
       es: "Vocabularios controlados de propiedades técnicas y administrativas del modelo de datos estandarizados de cartografía geológica.",
-      en: "Controlled vocabularies of technical and administrative propierties of the geological mapping standardized data model.",
+      en: "Controlled vocabularies of technical and administrative properties of the geological mapping standardized data model.",
     },
     longDescription: {
       es: "Vocabularios controlados de propiedades técnicas y administrativas del modelo de datos estandarizados de cartografía geológica. Cada vocabulario contiene el listado de términos, descripciones y jerarquía, si aplica, junto con información relevante sobre su gestión. Están disponibles para descarga en formatos TTL, RDF/XML o JSON-LD.",
@@ -42,6 +42,14 @@ const CATEGORIES = {
     },
     image: "categoria-tecnicos.png",
   },
+}
+
+const getConfigText = (source, key, language, fallback = "") => {
+  if (!source) return fallback
+  if (language === "en") {
+    return source[`${key}_en`] || source[key] || fallback
+  }
+  return source[key] || source[`${key}_en`] || fallback
 }
 
 const IndexPage = ({ location }) => {
@@ -59,6 +67,8 @@ const IndexPage = ({ location }) => {
   const pageStyles = getPageStyles(config.colors)
   const customDomain = config.customDomain
   const homeConfig = config?.home || {}
+  const categoriesIntro = homeConfig.categories_intro || {}
+  const listingExplore = homeConfig.listing_explore || {}
 
   const updatesSliderRef = useRef(null)
   const filterColRef = useRef(null)
@@ -232,18 +242,35 @@ const IndexPage = ({ location }) => {
   ])
 
   const getCategoryLabel = (code) => {
+    const configCat = (homeConfig.categories || []).find(
+      (item) => item.id === code
+    )
+    if (configCat) return getConfigText(configCat, "label", language, code)
     const cat = CATEGORIES[code]
     if (!cat) return code
     return cat.label[language] || cat.label["es"] || code
   }
 
   const getCategoryDescription = (code) => {
+    const configCat = (homeConfig.categories || []).find(
+      (item) => item.id === code
+    )
+    if (configCat) return getConfigText(configCat, "description", language, "")
     const cat = CATEGORIES[code]
     if (!cat || !cat.description) return ""
     return cat.description[language] || cat.description["es"] || ""
   }
 
   const getCategoryLongDescription = (code) => {
+    const configCat = (homeConfig.categories || []).find(
+      (item) => item.id === code
+    )
+    if (configCat) {
+      return (
+        getConfigText(configCat, "long_description", language, "") ||
+        getConfigText(configCat, "description", language, "")
+      )
+    }
     const cat = CATEGORIES[code]
     if (!cat) return ""
     const src = cat.longDescription || cat.description
@@ -618,28 +645,42 @@ const IndexPage = ({ location }) => {
                                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                 </svg>
                               </div>
-                              {language === "en"
-                                ? "Explore Vocabularies"
-                                : "Explora Vocabularios"}
+                              {getConfigText(
+                                listingExplore,
+                                "title",
+                                language,
+                                language === "en"
+                                  ? "Explore Vocabularies"
+                                  : "Explora Vocabularios"
+                              )}
                             </span>
                             <div className="explore-copy-row">
                               <p className="explore-panel-desc">
-                                {language === "en"
-                                  ? "Browse the vocabulary list to discover all topics. Search and filter vocabularies, explore their terms, learn their meaning and visualize their relationships."
-                                  : "Navega por el listado de vocabularios para descubrir todas las temáticas. Busca y filtra vocabularios, explora sus términos, aprende su significado y visualiza sus relaciones."}
+                                {getConfigText(
+                                  listingExplore,
+                                  "description",
+                                  language
+                                )}
                               </p>
                             </div>
                           </div>
                           <div className="explore-image-box">
                             <span className="explore-img-label">
-                              {language === "en"
-                                ? "Visualize Relationships"
-                                : "Visualiza Relaciones"}
+                              {getConfigText(
+                                listingExplore,
+                                "graph_title",
+                                language,
+                                language === "en"
+                                  ? "Visualize Relationships"
+                                  : "Visualiza Relaciones"
+                              )}
                             </span>
                             <span className="explore-img-sublabel">
-                              {language === "en"
-                                ? "Explore the hierarchies and relationships between terms"
-                                : "Profundiza en las jerarquías y las relaciones entre términos"}
+                              {getConfigText(
+                                listingExplore,
+                                "graph_description",
+                                language
+                              )}
                             </span>
                             <button
                               type="button"
@@ -649,9 +690,14 @@ const IndexPage = ({ location }) => {
                                 setGraphVocab(exploreCs)
                               }}
                             >
-                              {language === "en"
-                                ? "Open graph →"
-                                : "Ver grafo →"}
+                              {getConfigText(
+                                listingExplore,
+                                "graph_button",
+                                language,
+                                language === "en"
+                                  ? "Open graph →"
+                                  : "Ver grafo →"
+                              )}
                             </button>
                             <img
                               className="explore-graph-img"
@@ -980,17 +1026,23 @@ const IndexPage = ({ location }) => {
                     </span>
                     <div className="section-title-text">
                       <span className="section-eyebrow">
-                        {language === "en" ? "EXPLORE" : "EXPLORA"}
+                        {getConfigText(
+                          categoriesIntro,
+                          "eyebrow",
+                          language,
+                          language === "en" ? "EXPLORE" : "EXPLORA"
+                        )}
                       </span>
                       <div className="home-section-title">
-                        {language === "en"
-                          ? "Discover and consult the vocabularies"
-                          : "Descubre y consulta los vocabularios"}
+                        {getConfigText(
+                          categoriesIntro,
+                          "title",
+                          language,
+                          language === "en" ? "Explore" : "Explora"
+                        )}
                       </div>
                       <p className="section-subtitle">
-                        {language === "en"
-                          ? "Access more than 35 controlled vocabularies divided in two categories, Geology and Technical, that structure and standardize geoscientific knowledge. Available in two languages, Spanish and English. Multiple formats for download."
-                          : "Accede a más de 35 vocabularios controlados divididos en dos categorías, Geología y Técnicos, que estructuran y normalizan el conocimiento geocientífico. Disponibles en dos idiomas, español e inglés. Múltiples formatos para descarga."}
+                        {getConfigText(categoriesIntro, "subtitle", language)}
                       </p>
                     </div>
                   </div>
@@ -1123,6 +1175,7 @@ const IndexPage = ({ location }) => {
               {!selectedCategory && homeConfig.novedades?.length > 0 && (
                 <NovedadesSection
                   novedades={homeConfig.novedades}
+                  intro={homeConfig.updates_intro}
                   language={language}
                   updatesSliderRef={updatesSliderRef}
                 />
@@ -1132,6 +1185,7 @@ const IndexPage = ({ location }) => {
               {!selectedCategory && (
                 <SugerenciasSection
                   language={language}
+                  intro={homeConfig.suggestions_intro}
                   handleSuggestionSubmit={handleSuggestionSubmit}
                   suggestionName={suggestionName}
                   setSuggestionName={setSuggestionName}
@@ -1146,6 +1200,7 @@ const IndexPage = ({ location }) => {
               {!selectedCategory && homeConfig.enlaces?.length > 0 && (
                 <RecursosSection
                   enlaces={homeConfig.enlaces}
+                  intro={homeConfig.resources_intro}
                   language={language}
                 />
               )}

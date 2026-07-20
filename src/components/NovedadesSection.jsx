@@ -25,7 +25,15 @@ function formatUpdateDate(date, language) {
   )
 }
 
-const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
+const getConfigText = (source, key, language, fallback = "") => {
+  if (!source) return fallback
+  if (language === "en") {
+    return source[`${key}_en`] || source[key] || fallback
+  }
+  return source[key] || source[`${key}_en`] || fallback
+}
+
+const NovedadesSection = ({ novedades, intro, language, updatesSliderRef }) => {
   return (
     <section
       className="home-section content-left nov-section"
@@ -55,15 +63,23 @@ const NovedadesSection = ({ novedades, language, updatesSliderRef }) => {
             </span>
             <div className="section-title-text">
               <span className="section-eyebrow">
-                {language === "en" ? "UPDATES" : "ACTUALIDAD"}
+                {getConfigText(
+                  intro,
+                  "eyebrow",
+                  language,
+                  language === "en" ? "UPDATES" : "ACTUALIDAD"
+                )}
               </span>
               <h2 className="home-section-title">
-                {language === "en" ? "News" : "Novedades"}
+                {getConfigText(
+                  intro,
+                  "title",
+                  language,
+                  language === "en" ? "News" : "Novedades"
+                )}
               </h2>
               <p className="section-subtitle">
-                {language === "en"
-                  ? "Stay up to date with the latest updates and changes in the repository and news of interest related to semantics, knowledge systems and linked data."
-                  : "Manténte al día de las últimas actualizaciones y cambios en el repositorio y de novedades de interés relacionados con la semántica, los sistemas de conocimiento y los datos enlazados."}
+                {getConfigText(intro, "subtitle", language)}
               </p>
             </div>
           </div>

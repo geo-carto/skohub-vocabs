@@ -71,7 +71,15 @@ const ICONS = [
   </svg>,
 ]
 
-const RecursosSection = ({ enlaces, language }) => {
+const getConfigText = (source, key, language, fallback = "") => {
+  if (!source) return fallback
+  if (language === "en") {
+    return source[`${key}_en`] || source[key] || fallback
+  }
+  return source[key] || source[`${key}_en`] || fallback
+}
+
+const RecursosSection = ({ enlaces, intro, language }) => {
   return (
     <section
       className="home-section recursos-destacados content-left"
@@ -98,15 +106,23 @@ const RecursosSection = ({ enlaces, language }) => {
         </span>
         <div className="section-title-text">
           <span className="section-eyebrow">
-            {language === "en" ? "RECOMMENDED" : "RECOMENDADO"}
+            {getConfigText(
+              intro,
+              "eyebrow",
+              language,
+              language === "en" ? "RECOMMENDED" : "RECOMENDADO"
+            )}
           </span>
           <h2 className="home-section-title">
-            {language === "en" ? "Featured Resources" : "Recursos Destacados"}
+            {getConfigText(
+              intro,
+              "title",
+              language,
+              language === "en" ? "Featured Resources" : "Recursos Destacados"
+            )}
           </h2>
           <p className="section-subtitle">
-            {language === "en"
-              ? "Expand your knowledge of geoscientific vocabularies by exploring other sources of information."
-              : "Amplia tus conocimientos sobre vocabularios geocientíficos explorando otras fuentes de información."}
+            {getConfigText(intro, "subtitle", language)}
           </p>
         </div>
       </div>

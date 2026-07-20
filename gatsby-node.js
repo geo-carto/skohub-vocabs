@@ -289,12 +289,46 @@ exports.createSchemaCustomization = ({ actions }) => {
       target: String
       rel: String
     }
+    type SiteHomeSectionText {
+      eyebrow: String
+      eyebrow_en: String
+      title: String
+      title_en: String
+      subtitle: String
+      subtitle_en: String
+      description: String
+      description_en: String
+      contact_title: String
+      contact_title_en: String
+      graph_title: String
+      graph_title_en: String
+      graph_description: String
+      graph_description_en: String
+      graph_button: String
+      graph_button_en: String
+    }
+    type SiteHomeCategory {
+      id: String
+      label: String
+      label_en: String
+      description: String
+      description_en: String
+      long_description: String
+      long_description_en: String
+      image: String
+    }
     type SiteHome {
       subtitle: String
       subtitle_en: String
       description: String
       description_en: String
       ultima_actualizacion: String
+      categories_intro: SiteHomeSectionText
+      updates_intro: SiteHomeSectionText
+      suggestions_intro: SiteHomeSectionText
+      resources_intro: SiteHomeSectionText
+      listing_explore: SiteHomeSectionText
+      categories: [SiteHomeCategory]
       novedades: [SiteHomeNovedades]
       carrusel: [SiteHomeCarrusel]
       destacados: [SiteHomeDestacados]

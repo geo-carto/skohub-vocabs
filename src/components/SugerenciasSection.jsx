@@ -1,8 +1,17 @@
 import React from "react"
 import { withPrefix } from "gatsby"
 
+const getConfigText = (source, key, language, fallback = "") => {
+  if (!source) return fallback
+  if (language === "en") {
+    return source[`${key}_en`] || source[key] || fallback
+  }
+  return source[key] || source[`${key}_en`] || fallback
+}
+
 const SugerenciasSection = ({
   language,
+  intro,
   handleSuggestionSubmit,
   suggestionName,
   setSuggestionName,
@@ -39,10 +48,20 @@ const SugerenciasSection = ({
         </span>
         <div className="section-title-text">
           <span className="section-eyebrow">
-            {language === "en" ? "PARTICIPATE" : "PARTICIPA"}
+            {getConfigText(
+              intro,
+              "eyebrow",
+              language,
+              language === "en" ? "PARTICIPATE" : "PARTICIPA"
+            )}
           </span>
           <h2 className="home-section-title">
-            {language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"}
+            {getConfigText(
+              intro,
+              "title",
+              language,
+              language === "en" ? "Suggestions?" : "¿Tienes sugerencias?"
+            )}
           </h2>
         </div>
       </div>
@@ -52,9 +71,7 @@ const SugerenciasSection = ({
             className="section-subtitle"
             style={{ marginBottom: "52px", marginTop: 0 }}
           >
-            {language === "en"
-              ? "Your opinion helps us improve the repository and continue building quality semantic resources for the scientific community."
-              : "Tu opinión nos ayuda a mejorar el repositorio y a seguir construyendo recursos semánticos de calidad para la comunidad científica."}
+            {getConfigText(intro, "subtitle", language)}
           </p>
           <div
             style={{
@@ -93,9 +110,14 @@ const SugerenciasSection = ({
               </svg>
             </div>
             <div className="sidebar-suggestion-title">
-              {language === "en"
-                ? "Write and contact us"
-                : "Escribe y contacta con nosotros"}
+              {getConfigText(
+                intro,
+                "contact_title",
+                language,
+                language === "en"
+                  ? "Write and contact us"
+                  : "Escribe y contacta con nosotros"
+              )}
             </div>
           </div>
         </div>
