@@ -1,0 +1,92 @@
+---
+# see https://github.com/nextapps-de/flexsearch#tokenizer-prefix-search for options
+tokenizer: "full" # strict, forward, reverse, full
+custom_domain: "https://geo-carto.github.io/vocabularios/"
+fail_on_validation: false
+searchableAttributes:
+  - "prefLabel" # you should not delete this one
+  - "notation"
+  - "altLabel"
+  - "hiddenLabel"
+  - "example"
+  - "definition"
+ui:
+  title: "Vocabularios Geocientíficos" # Title is mandatory
+  logo: "logo.png" # Path
+  colors:
+    skoHubWhite: "rgb(255, 255, 255)"
+    skoHubDarkColor: "rgb(35, 15, 5)"
+    skoHubMiddleColor: "rgb(140, 90, 50)"
+    skoHubLightColor: "rgb(235, 215, 190)"
+    skoHubThinColor: "rgb(248, 242, 232)"
+    skoHubBlackColor: "rgb(20, 10, 0)"
+    skoHubAction: "rgb(196, 95, 40)"
+    skoHubNotice: "rgb(45, 140, 80)"
+    skoHubDarkGrey: "rgb(130, 110, 90)"
+    skoHubMiddleGrey: "rgb(195, 180, 160)"
+    skoHubLightGrey: "rgb(245, 240, 232)"
+  fonts:
+    regular:
+      font_family: "roboto"
+      font_style: "normal"
+      font_weight: 400
+      name: "roboto-regular"
+    bold:
+      font_family: "roboto"
+      font_style: "normal"
+      font_weight: 700
+      name: "special-gothic-condensed-one-regular"
+  footer:
+    links:
+      - title: "IGME-CSIC"
+        url: "https://www.igme.es"
+        target: "_blank"
+        rel: "noopener noreferrer"
+      - title: "Contacto"
+        url: "mailto:vocabularios.cientificos@igme.es"
+        target: "_blank"
+        rel: "noopener noreferrer"
+  home:
+    subtitle: "Recursos semánticos para compartir conocimiento geológico"
+    subtitle_en: "Semantic resources for sharing geological knowledge"
+    description: "Repositorio de vocabularios geológicos desarrollados por el CN IGME-CSIC, alineados con estándares internacionales y destinados a la descripción normalizada de la cartografía geológica y la información geocientífica. Recoge recursos semánticos en formato SKOS para describir, organizar y relacionar conceptos, favoreciendo la interoperabilidad, la búsqueda y reutilización de información y el intercambio de conocimiento científico entre personas, sistemas y aplicaciones."
+    description_en: "Repository of geological vocabularies developed by CN IGME-CSIC. Vocabularies are aligned with international standards for the standardized description of geological maps and geoscientific information. They provide SKOS-based semantic resources to describe, organize and relate concepts, enabling interoperability, information discovery and reuse, as well as the exchange of scientific knowledge among people, systems, and applications."
+    novedades:
+      - titulo: "Primera versión del Repositorio de Vocabularios"
+        titulo_en: "First version of the Vocabulary Repository"
+        fecha: "1 junio 2026"
+        descripcion: "La primera versión del Repositorio de Vocabularios Geocientíficos se publicará oficialmente. Después de unos meses de trabajo intenso el repositorio verá la luz esperando generar un recurso valioso para toda la comunidad científica."
+        descripcion_en: "The first version of the Geoscientific Vocabulary Repository will be officially released. After months of intensive work, the repository is now ready to be made publicly available, with the aim of becoming a valuable resource for the wider scientific community."
+        imagen: "publicacion.png"
+        nuevo: true
+      - titulo: "Añadida vista de grafos"
+        titulo_en: "Graph view added"
+        fecha: "20 mayo 2026"
+        descripcion: "Ahora puedes explorar visualmente los vocabularios. Descubre sus jerarquías usando distintos tipos de grafos. Accede al visor de grafos desde cualquiera de las categorías."
+        descripcion_en: "You can now explore vocabularies visually. Discover their hierarchies using different types of graphs. Access the graph viewer from any of the categories."
+        imagen: "grafo-2.png"
+        nuevo: true
+      - titulo: "Nuevas opciones de filtros de búsqueda"
+        titulo_en: "New search filter options"
+        fecha: "9 mayo 2026"
+        descripcion: "Para facilitar la localización de vocabularios se han añadido distintas opciones de filtros de búsqueda. Puedes filtrar por nombre de vocabulario, idioma o formato, así como, ordenar el listado alfabéticamente o por número de términos."
+        descripcion_en: "Multiple search filter options have been added to make it easier to find vocabularies. You can filter by vocabulary name, language or format, as well as sort the list alphabetically or by number of terms."
+        imagen: "filtros.png"
+        nuevo: true
+    enlaces:
+      - titulo: "W3C - SKOS Home Page"
+        url: "https://www.w3.org/2004/02/skos/"
+        target: "_blank"
+        rel: "noopener noreferrer"
+      - titulo: "Vocabularios GeoSciML"
+        url: "https://geosciml.org/resource/"
+        target: "_blank"
+        rel: "noopener noreferrer"
+      - titulo: "INSPIRE Registry"
+        url: "https://inspire.ec.europa.eu/registry"
+        target: "_blank"
+        rel: "noopener noreferrer"
+      - titulo: "EGDI - Project Vocabularies"
+        url: "https://voc.europe-geology.eu/"
+        target: "_blank"
+        rel: "noopener noreferrer"
