@@ -350,11 +350,11 @@ export const getPageStyles = (colors) => css`
 
     /* Hero text */
     .hero-text h2 {
-      font-size: 26px !important;
+      font-size: 28px !important;
     }
     .hero-text p {
-      font-size: 14px !important;
-      line-height: 1.6 !important;
+      font-size: 16px !important;
+      line-height: 1.65 !important;
     }
     .hero-stats-col {
       display: none;
@@ -557,7 +557,7 @@ export const getPageStyles = (colors) => css`
       color: rgb(80, 60, 40);
       max-width: 100%;
       text-align: justify;
-      background: rgba(248, 248, 251, 0.8);
+      background: rgba(242, 239, 240, 0.8);
       padding: 10px 14px 10px 0;
       border-radius: 4px;
     }
