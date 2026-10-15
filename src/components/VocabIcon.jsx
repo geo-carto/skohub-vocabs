@@ -7,22 +7,23 @@ const VOCAB_ICONS = {
   "alteracion-tipo": "/img/vocab-alteracion-tipo.png",
   "coleccion-tipo": "/img/vocab-coleccion-tipo.png",
   "contacto-tipo": "/img/vocab-contacto-tipo.png",
-  "edad-geologica": "/img/vocab-edad-geologica.png",
+  "edad-geologica-igme": "/img/vocab-edad-geologica-igme.png",
+  "elemento-cartografico-auxiliar":
+    "/img/vocab-elemento-cartografico-auxiliar.png",
   "estratificacion-grosor": "/img/vocab-estratificacion-grosor.png",
   "estratificacion-patron": "/img/vocab-estratificacion-patron.png",
   "estratificacion-patron-estilo":
     "/img/vocab-estratificacion-patron-estilo.png",
   "evento-proceso": "/img/vocab-evento-proceso.png",
   "geomorfologia-actividad": "/img/vocab-geomorfologia-actividad.png",
-  "geomorfologia-tipo-antropogenico":
-    "/img/vocab-geomorfologia-tipo-antropogenico.png",
+  "geomorfologia-tipo-antropico": "/img/vocab-geomorfologia-tipo-antropico.png",
   "geomorfologia-tipo-natural": "/img/vocab-geomorfologia-tipo-natural.png",
   "geomorfologia-tipo-natural-amp":
     "/img/vocab-geomorfologia-tipo-natural-amp.png",
   "metodo-observacion-objeto-cartografiado":
     "/img/vocab-metodo-observacion-objeto-cartografiado.png",
   "marco-de-cartografiado": "/img/vocab-marco-de-cartografiado.png",
-  "material-igme": "/img/vocab-material-igme.png",
+  "litologia-igme": "/img/vocab-litologia-igme.png",
   "medida-estructural": "/img/vocab-medida-estructural.png",
   "metamorfismo-facies": "/img/vocab-metamorfismo-facies.png",
   "metamorfismo-grado": "/img/vocab-metamorfismo-grado.png",
@@ -32,6 +33,8 @@ const VOCAB_ICONS = {
   "falla-tipo": "/img/vocab-falla-tipo.png",
   "superficies-de-estratificacion":
     "/img/vocab-superficies-de-estratificacion.png",
+  "simbologia-cuaternaria-auxiliar":
+    "/img/vocab-simbologia-cuaternaria-auxiliar.png",
   "evento-ambiente": "/img/vocab-evento-ambiente.png",
   "unidad-geologica-tipo": "/img/vocab-unidad-geologica-tipo.png",
   "unidad-geologica-composicion": "/img/vocab-unidad-geologica-composicion.png",
