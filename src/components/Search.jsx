@@ -3,6 +3,7 @@ import { css } from "@emotion/react"
 import GearIcon from "../icons/Gear"
 import Modal from "./Modal"
 import LabelFilter from "../components/LabelFilter"
+import { uiText } from "../uiTranslations"
 
 const Search = ({ handleQueryInput, labels, onLabelClick, language }) => {
   const style = css`
@@ -56,8 +57,9 @@ const Search = ({ handleQueryInput, labels, onLabelClick, language }) => {
           openModal={modal}
           closeModal={() => setModal(false)}
           id="settingsModal"
+          closeLabel={uiText(language, "close")}
         >
-          <p>Which fields do you want to include in the search?</p>
+          <p>{uiText(language, "searchFields")}</p>
           <LabelFilter labels={labels} toggleClick={onLabelClick} />
         </Modal>
       </div>

@@ -41,6 +41,7 @@ module.exports = (languages) => `
     historyNote: LanguageMapArray,
     scopeNote: LanguageMapArray,
     notation: [String],
+    notationDetails: [Notation],
     example: LanguageMap,
     topConceptOf: [ConceptScheme] @link(from: "topConceptOf___NODE"),
     narrower: [Concept] @link(from: "narrower___NODE"),
@@ -61,6 +62,12 @@ module.exports = (languages) => `
     created: String,
     modified: String,
     status: String
+  }
+
+  type Notation {
+    value: String,
+    datatype: String,
+    system: String
   }
 
   type LanguageMap {

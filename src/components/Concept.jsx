@@ -6,6 +6,7 @@ import { useSkoHubContext } from "../context/Context.jsx"
 import { i18n, getDomId, getFilePath } from "../common"
 import ConceptURI from "./ConceptURI.jsx"
 import { lazy, Suspense, useEffect, useState } from "react"
+import { uiText } from "../uiTranslations"
 
 const GraphModal = lazy(() => import("./GraphModal.jsx"))
 
@@ -21,6 +22,9 @@ const Concept = ({
   const definition =
     concept?.definition || concept?.description || concept?.dcdescription
   const title = concept?.prefLabel || concept?.title || concept?.dctitle
+  const notationDetails = concept.notationDetails?.length
+    ? concept.notationDetails
+    : (concept.notation || []).map((value) => ({ value }))
 
   const rawScheme = concept.inSchemeAll
   const vocabId = (
@@ -115,7 +119,7 @@ const Concept = ({
             <line x1="8" y1="11" x2="16" y2="6" />
             <line x1="8" y1="13" x2="16" y2="18" />
           </svg>
-          {language === "en" ? "View graph" : "Ver grafo"}
+          {uiText(language, "viewGraph")}
         </button>
         <JsonLink to={getFilePath(concept.id, "json", customDomain)} />
       </div>
@@ -135,7 +139,7 @@ const Concept = ({
       )}
       {concept.isReplacedBy && concept.isReplacedBy.length > 0 && (
         <div>
-          <h3>Is replaced by</h3>
+          <h3>{uiText(language, "replacedBy")}</h3>
           <ul>
             {concept.isReplacedBy.map((isReplacedBy) => (
               <li key={isReplacedBy.id}>
@@ -149,16 +153,16 @@ const Concept = ({
       )}
       {definition && (
         <div className="markdown">
-          <h3>Definition</h3>
+          <h3>{uiText(language, "definition")}</h3>
           <Markdown>
             {i18n(language)(definition) ||
-              `*No definition in language "${language}" provided.*`}
+              `*${uiText(language, "noDefinition", language)}*`}
           </Markdown>
         </div>
       )}
       {concept.note && i18n(language)(concept.note) !== "" && (
         <div className="markdown">
-          <h3 id="note">Note</h3>
+          <h3 id="note">{uiText(language, "note")}</h3>
           <ul aria-labelledby="note">
             {i18n(language)(concept.note).map((note, i) => (
               <li key={i}>
@@ -170,7 +174,7 @@ const Concept = ({
       )}
       {concept.changeNote && i18n(language)(concept.changeNote) !== "" && (
         <div className="markdown">
-          <h3 id="changenote">Change Note</h3>
+          <h3 id="changenote">{uiText(language, "changeNote")}</h3>
           <ul aria-labelledby="changenote">
             {i18n(language)(concept.changeNote).map((changeNote, i) => (
               <li key={i}>
@@ -183,7 +187,7 @@ const Concept = ({
       {concept.editorialNote &&
         i18n(language)(concept.editorialNote) !== "" && (
           <div className="markdown">
-            <h3 id="editorialnote">Editorial Note</h3>
+            <h3 id="editorialnote">{uiText(language, "editorialNote")}</h3>
             <ul aria-labelledby="editorialnote">
               {i18n(language)(concept.editorialNote).map((editorialNote, i) => (
                 <li key={i}>
@@ -195,7 +199,7 @@ const Concept = ({
         )}
       {concept.historyNote && i18n(language)(concept.historyNote) !== "" && (
         <div className="markdown">
-          <h3 id="historynote">History Note</h3>
+          <h3 id="historynote">{uiText(language, "historyNote")}</h3>
           <ul aria-labelledby="historynote">
             {i18n(language)(concept.historyNote).map((historyNote, i) => (
               <li key={i}>
@@ -207,7 +211,7 @@ const Concept = ({
       )}
       {concept.scopeNote && i18n(language)(concept.scopeNote) !== "" && (
         <div className="markdown">
-          <h3 id="scopenote">Scope Note</h3>
+          <h3 id="scopenote">{uiText(language, "scopeNote")}</h3>
           <ul aria-labelledby="scopenote">
             {i18n(language)(concept.scopeNote).map((scopeNote, i) => (
               <li key={i}>
@@ -219,7 +223,7 @@ const Concept = ({
       )}
       {concept.altLabel && i18n(language)(concept.altLabel) !== "" && (
         <div>
-          <h3 id="alt-label">Alt Label</h3>
+          <h3 id="alt-label">{uiText(language, "altLabel")}</h3>
           <ul aria-labelledby="alt-label">
             {i18n(language)(concept.altLabel).map((altLabel, i) => (
               <li key={i}>{altLabel}</li>
@@ -229,7 +233,7 @@ const Concept = ({
       )}
       {concept.hiddenLabel && i18n(language)(concept.hiddenLabel) !== "" && (
         <div>
-          <h3 id="hidden-label">Hidden Label</h3>
+          <h3 id="hidden-label">{uiText(language, "hiddenLabel")}</h3>
           <ul aria-labelledby="hidden-label">
             {i18n(language)(concept.hiddenLabel).map((hiddenLabel, i) => (
               <li key={i}>{hiddenLabel}</li>
@@ -239,10 +243,10 @@ const Concept = ({
       )}
       {concept.example && (
         <div className="markdown">
-          <h3>Example</h3>
+          <h3>{uiText(language, "example")}</h3>
           <Markdown>
             {i18n(language)(concept.example) ||
-              `*No example in language "${language}" provided.*`}
+              `*${uiText(language, "noExample", language)}*`}
           </Markdown>
         </div>
       )}
@@ -332,7 +336,7 @@ const Concept = ({
       )}
       {concept.status && (
         <div>
-          <h3>Status</h3>
+          <h3>{uiText(language, "status")}</h3>
           {concept.status.startsWith("http") ? (
             <a target="_blank" rel="noreferrer" href={concept.status}>
               {concept.status.split("/").pop()}
@@ -344,35 +348,40 @@ const Concept = ({
       )}
       {concept.created && (
         <div>
-          <h3>Created</h3>
+          <h3>{uiText(language, "created")}</h3>
           <p>{concept.created}</p>
         </div>
       )}
       {concept.modified && (
         <div>
-          <h3>Modified</h3>
+          <h3>{uiText(language, "modified")}</h3>
           <p>{concept.modified}</p>
         </div>
       )}
-      {concept.notation && concept.notation.length > 0 && (
+      {notationDetails.length > 0 && (
         <div>
-          <h3>Notation</h3>
+          <h3>{uiText(language, "notation")}</h3>
           <ul>
-            {concept.notation.map((notation, i) => (
-              <li key={i}>{notation}</li>
+            {notationDetails.map(({ value, system, datatype }, i) => (
+              <li key={`${datatype || "notation"}-${value}-${i}`}>
+                {system && <strong>{system}: </strong>}
+                <span title={!system && datatype ? datatype : undefined}>
+                  {value}
+                </span>
+              </li>
             ))}
           </ul>
         </div>
       )}
       {collections && collections.length > 0 && (
         <div className="collections">
-          <h3>in Collections</h3>
+          <h3>{uiText(language, "collections")}</h3>
           <ul>
             {collections.map((collection) => (
               <li key={collection.id}>
                 <Link to={getFilePath(collection.id, `html`, customDomain)}>
                   {i18n(language)(collection.prefLabel) ||
-                    `*No label in language "${language}" provided.*`}
+                    `*${uiText(language, "noLabel", language)}*`}
                 </Link>
               </li>
             ))}
@@ -381,7 +390,7 @@ const Concept = ({
       )}
       {concept.inSchemeAll && (
         <div>
-          <h3 id="in-scheme">In Scheme</h3>
+          <h3 id="in-scheme">{uiText(language, "inScheme")}</h3>
           <ul aria-labelledby="in-scheme">
             {concept.inSchemeAll.map((inScheme) => (
               <li key={inScheme.id}>

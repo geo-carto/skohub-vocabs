@@ -522,6 +522,10 @@ export const getPageStyles = (colors) => css`
     flex-direction: column;
     gap: 0;
 
+    @media (max-width: 1700px) and (min-width: 1401px) {
+      max-width: 44%;
+    }
+
     @media (max-width: 1400px) {
       max-width: 48%;
     }
@@ -540,6 +544,19 @@ export const getPageStyles = (colors) => css`
       line-height: 1.05;
       margin: 0 0 52px 0;
       color: ${colors.skoHubDarkColor};
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
+
+      span {
+        display: block;
+      }
+    }
+
+    @media (max-width: 1700px) and (min-width: 1401px) {
+      h1 {
+        font-size: 92px;
+      }
     }
 
     h2 {

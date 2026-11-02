@@ -7,6 +7,7 @@ import { useSkoHubContext } from "../context/Context"
 import { lazy, Suspense, useEffect, useState } from "react"
 import { useLocation } from "@gatsbyjs/reach-router"
 import { withPrefix } from "gatsby"
+import { uiText } from "../uiTranslations"
 
 const GraphModal = lazy(() => import("./GraphModal"))
 
@@ -105,7 +106,7 @@ const ConceptScheme = ({
                 <line x1="8" y1="11" x2="16" y2="6" />
                 <line x1="8" y1="13" x2="16" y2="18" />
               </svg>
-              {language === "en" ? "View graph" : "Ver grafo"}
+              {uiText(language, "viewGraph")}
             </button>
             <JsonLink
               to={getFilePath(conceptScheme.id, "json", customDomain)}
@@ -131,7 +132,7 @@ const ConceptScheme = ({
           )}
           {conceptScheme.publisher && (
             <div>
-              <h3>Publisher</h3>
+              <h3>{uiText(language, "editor")}</h3>
               <a href={conceptScheme.publisher.id}>
                 {conceptScheme.publisher.id}
               </a>
@@ -139,25 +140,25 @@ const ConceptScheme = ({
           )}
           {conceptScheme.issued && (
             <div>
-              <h3>Issued</h3>
+              <h3>{uiText(language, "issued")}</h3>
               <p>{conceptScheme.issued}</p>
             </div>
           )}
           {conceptScheme.created && (
             <div>
-              <h3>Created</h3>
+              <h3>{uiText(language, "created")}</h3>
               <p>{conceptScheme.created}</p>
             </div>
           )}
           {conceptScheme.modified && (
             <div>
-              <h3>Modified</h3>
+              <h3>{uiText(language, "modified")}</h3>
               <p>{conceptScheme.modified}</p>
             </div>
           )}
           {conceptScheme.creator && (
             <div>
-              <h3>Creator</h3>
+              <h3>{uiText(language, "creator")}</h3>
               {conceptScheme.creator.startsWith("http") ? (
                 <a
                   target="_blank"
@@ -173,7 +174,7 @@ const ConceptScheme = ({
           )}
           {conceptScheme.contributor && (
             <div>
-              <h3>Contributor</h3>
+              <h3>{uiText(language, "contributor")}</h3>
               {conceptScheme.contributor.startsWith("http") ? (
                 <a
                   target="_blank"
@@ -189,13 +190,13 @@ const ConceptScheme = ({
           )}
           {conceptScheme.versionInfo && (
             <div>
-              <h3>Version</h3>
+              <h3>{uiText(language, "version")}</h3>
               <p>{conceptScheme.versionInfo}</p>
             </div>
           )}
           {conceptScheme.source && (
             <div>
-              <h3>Source</h3>
+              <h3>{uiText(language, "source")}</h3>
               {conceptScheme.source.startsWith("http") ? (
                 <a target="_blank" rel="noreferrer" href={conceptScheme.source}>
                   {conceptScheme.source}
@@ -207,25 +208,25 @@ const ConceptScheme = ({
           )}
           {conceptScheme.provenance && (
             <div>
-              <h3>Provenance</h3>
+              <h3>{uiText(language, "provenance")}</h3>
               <p>{conceptScheme.provenance}</p>
             </div>
           )}
           {conceptScheme.license && (
             <div>
-              <h3>License</h3>
+              <h3>{uiText(language, "license")}</h3>
               <a href={conceptScheme.license.id}>{conceptScheme.license.id}</a>
             </div>
           )}
           {conceptScheme.preferredNamespaceUri && (
             <div>
-              <h3>Preferred Namespace URI</h3>
+              <h3>{uiText(language, "preferredNamespaceUri")}</h3>
               <p>{conceptScheme.preferredNamespaceUri}</p>
             </div>
           )}
           {conceptScheme.preferredNamespacePrefix && (
             <div>
-              <h3>Preferred Namespace Prefix</h3>
+              <h3>{uiText(language, "preferredNamespacePrefix")}</h3>
               <p>{conceptScheme.preferredNamespacePrefix}</p>
             </div>
           )}

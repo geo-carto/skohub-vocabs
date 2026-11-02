@@ -65,6 +65,11 @@ module.exports.allConcept = (inScheme, languages) => `
             ${[...languages].join(" ")}
           }
           notation
+          notationDetails {
+            value
+            datatype
+            system
+          }
           example {
             ${[...languages].join(" ")}
           }

@@ -43,6 +43,31 @@ const inverses = {
     "http://www.w3.org/2004/02/skos/core#hasTopConcept",
 }
 
+const getNotationSystem = (datatype) => {
+  if (!datatype) return null
+  if (/\/classifier\/ics\/ischart\/?$/i.test(datatype)) return "ICS"
+  if (/\/edad-geologica-igme\/?$/i.test(datatype)) return "IGME"
+  return null
+}
+
+const normalizeNotations = (notation) =>
+  (Array.isArray(notation) ? notation : notation ? [notation] : [])
+    .map((entry) => {
+      if (entry && typeof entry === "object") {
+        const datatype = entry.type || entry["@type"] || null
+        const value = entry["@value"] ?? entry.value
+        return value === undefined || value === null
+          ? null
+          : {
+              value: String(value),
+              datatype,
+              system: getNotationSystem(datatype),
+            }
+      }
+      return { value: String(entry), datatype: null, system: null }
+    })
+    .filter(Boolean)
+
 jsonld.registerRDFParser("text/turtle", (ttlString) => {
   const quads = new n3.Parser().parse(ttlString)
   const store = new n3.Store()
@@ -161,6 +186,7 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         versionInfo,
         status,
         theme,
+        notation,
         ...properties
       } = graph
       const type = Array.isArray(properties.type)
@@ -177,9 +203,12 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
       const inSchemeFiltered = inSchemeNodes.filter(
         ({ id }, index) => !nodeIds.includes(id, index + 1)
       )
+      const notationDetails = normalizeNotations(notation)
       const node = {
         ...properties,
         type,
+        notation: notationDetails.map(({ value }) => value),
+        notationDetails,
         children: (narrower || hasTopConcept || []).map(
           (narrower) => narrower.id
         ),
@@ -441,8 +470,14 @@ exports.createPages = async ({ graphql, actions: { createPage } }) => {
         ]
 
         conceptsInScheme.data.allConcept.edges.forEach(({ node: concept }) => {
-          const json = omitEmpty(Object.assign({}, concept, context.jsonld))
-          const jsonld = omitEmpty(Object.assign({}, concept, context.jsonld))
+          const { notationDetails: _notationDetails, ...exportConcept } =
+            concept
+          const json = omitEmpty(
+            Object.assign({}, exportConcept, context.jsonld)
+          )
+          const jsonld = omitEmpty(
+            Object.assign({}, exportConcept, context.jsonld)
+          )
 
           if (getFilePath(concept.id) === getFilePath(conceptScheme.id)) {
             /**

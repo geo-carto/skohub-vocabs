@@ -930,9 +930,12 @@ const IndexPage = ({ location }) => {
               <div className="hero">
                 <div className="hero-text">
                   <h1>
-                    {language === "en"
-                      ? "Geoscientific Vocabularies"
-                      : config.title || "Repositorio de Vocabularios"}
+                    {(language === "en"
+                      ? ["Geoscientific", "Vocabularies"]
+                      : ["Vocabularios", "Geocientíficos"]
+                    ).map((line) => (
+                      <span key={line}>{line}</span>
+                    ))}
                   </h1>
                   {homeConfig.subtitle && (
                     <h2>

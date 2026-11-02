@@ -29,7 +29,13 @@ function useOnClickOutside(ref, handler) {
   }, [ref, handler])
 }
 
-const Modal = ({ openModal, closeModal, id, children }) => {
+const Modal = ({
+  openModal,
+  closeModal,
+  id,
+  children,
+  closeLabel = "Close",
+}) => {
   const style = css`
     dialog {
       border: none;
@@ -54,7 +60,7 @@ const Modal = ({ openModal, closeModal, id, children }) => {
         {children}
         <br />
         <button id="closeModal" className="close" onClick={closeModal}>
-          Close
+          {closeLabel}
         </button>
       </dialog>
     </div>
