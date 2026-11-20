@@ -132,13 +132,28 @@ function loadConfig(configFile, defaultFile) {
   no values provided
   */
 
+  const configuredFonts = userConfig.ui.fonts || defaults.ui.fonts
+  const legacyDisplayFont =
+    configuredFonts.bold?.name?.includes("special-gothic")
+  const fonts = {
+    ...configuredFonts,
+    bold: legacyDisplayFont
+      ? {
+          ...configuredFonts.regular,
+          font_weight: configuredFonts.bold.font_weight,
+          name: "roboto-bold",
+        }
+      : configuredFonts.bold,
+    display: configuredFonts.display || configuredFonts.bold,
+  }
+
   /** @type Config */
   const config = {
     title: userConfig.ui.title,
     logo: userConfig.ui.logo || "",
     tokenizer: userConfig.tokenizer || defaults.tokenizer,
     colors: userConfig.ui.colors || defaults.ui.colors,
-    fonts: userConfig.ui.fonts || defaults.ui.fonts,
+    fonts,
     footer: userConfig.ui.footer || defaults.ui.footer,
     home: userConfig.ui.home || null,
     searchableAttributes:

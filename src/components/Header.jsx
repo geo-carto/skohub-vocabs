@@ -58,6 +58,7 @@ const Header = ({ siteTitle, transparent = false }) => {
         font-size: 38px;
         line-height: 24px;
         font-weight: 700;
+        font-family: var(--font-display);
 
         @media only screen and (max-width: 800px) {
           padding: 0 0 0 8px;

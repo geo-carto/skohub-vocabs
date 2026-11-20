@@ -64,6 +64,7 @@ export const sugerenciasStyles = `
   .sidebar-suggestion-title {
     font-size: 28px;
     font-weight: 700;
+    font-family: var(--font-display);
     line-height: 1.3;
     color: rgb(35, 15, 5);
     margin: 0 0 16px;

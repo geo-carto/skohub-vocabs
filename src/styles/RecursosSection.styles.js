@@ -104,6 +104,7 @@ export const recursosStyles = `
     .recurso-title {
       font-size: 21px;
       font-weight: 700;
+      font-family: var(--font-display);
       line-height: 1.3;
       color: rgb(35, 15, 5);
       margin: 0 0 4px;

@@ -16,6 +16,8 @@ import Footer from "./Footer.jsx"
 
 const Layout = ({ children, topBackground = false }) => {
   const { config } = getConfigAndConceptSchemes()
+  const boldFont = config.fonts.bold
+  const displayFont = config.fonts.display
   const style = css`
     height: ${topBackground ? "auto" : "100vh"};
     min-height: 100vh;
@@ -100,14 +102,25 @@ const Layout = ({ children, topBackground = false }) => {
              at font-weight 700 automatically uses this font */
           @font-face {
             font-family: ${config.fonts.regular.font_family};
-            font-style: ${config.fonts.bold.font_style};
-            font-weight: ${config.fonts.bold.font_weight};
+            font-style: ${boldFont.font_style};
+            font-weight: ${boldFont.font_weight};
             font-display: block;
-            ${config.fonts.bold.font_stretch ? `font-stretch: ${config.fonts.bold.font_stretch};` : ""}
+            ${boldFont.font_stretch ? `font-stretch: ${boldFont.font_stretch};` : ""}
             src:
-              url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff2")}) format("woff2"),
-              url(${withPrefix("/fonts/" + config.fonts.bold.name + ".woff")}) format("woff"),
-              url(${withPrefix("/fonts/" + config.fonts.bold.name + ".ttf")}) format("truetype");
+              url(${withPrefix("/fonts/" + boldFont.name + ".woff2")}) format("woff2"),
+              url(${withPrefix("/fonts/" + boldFont.name + ".woff")}) format("woff"),
+              url(${withPrefix("/fonts/" + boldFont.name + ".ttf")}) format("truetype");
+          }
+
+          @font-face {
+            font-family: ${displayFont.font_family};
+            font-style: ${displayFont.font_style};
+            font-weight: ${displayFont.font_weight};
+            font-display: block;
+            src:
+              url(${withPrefix("/fonts/" + displayFont.name + ".woff2")}) format("woff2"),
+              url(${withPrefix("/fonts/" + displayFont.name + ".woff")}) format("woff"),
+              url(${withPrefix("/fonts/" + displayFont.name + ".ttf")}) format("truetype");
           }
 
           html {
@@ -136,6 +149,7 @@ const Layout = ({ children, topBackground = false }) => {
           }
 
           body {
+            --font-display: ${displayFont.font_family}, ${config.fonts.regular.font_family}, sans-serif;
             padding: 0;
             margin: 0;
             border: 0 none;

@@ -257,6 +257,7 @@ export const getPageStyles = (colors) => css`
     font-size: 54px;
     line-height: 1.15;
     font-weight: 700;
+    font-family: var(--font-display);
     letter-spacing: 0;
     text-transform: none;
     color: rgb(20, 10, 0);
@@ -541,6 +542,7 @@ export const getPageStyles = (colors) => css`
     h1 {
       font-size: 112px;
       font-weight: 700;
+      font-family: var(--font-display);
       line-height: 1.05;
       margin: 0 0 52px 0;
       color: ${colors.skoHubDarkColor};
@@ -562,6 +564,7 @@ export const getPageStyles = (colors) => css`
     h2 {
       font-size: 44px;
       font-weight: 700;
+      font-family: var(--font-display);
       line-height: 1.35;
       margin: 0 0 30px 0;
       color: rgb(178, 84, 30);
@@ -891,6 +894,7 @@ export const getPageStyles = (colors) => css`
   .cat-card-title {
     font-size: 38px;
     font-weight: 700;
+    font-family: var(--font-display);
     margin: 0;
     color: rgb(35, 15, 5);
   }
@@ -930,6 +934,7 @@ export const getPageStyles = (colors) => css`
     h2 {
       font-size: 30px;
       font-weight: 700;
+      font-family: var(--font-display);
       margin: 0 0 8px 0;
       text-transform: uppercase;
     }
@@ -966,6 +971,7 @@ export const getPageStyles = (colors) => css`
       gap: 8px;
       font-size: 16px;
       font-weight: 700;
+      font-family: var(--font-display);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: rgb(35, 15, 5);
@@ -1330,6 +1336,7 @@ export const getPageStyles = (colors) => css`
     .vocab-title-link {
       font-size: 24px;
       font-weight: 700;
+      font-family: var(--font-display);
       line-height: 1.2;
       color: rgb(35, 15, 5);
       text-decoration: none;
@@ -1376,6 +1383,7 @@ export const getPageStyles = (colors) => css`
 
       .btn-ver-grafo {
         display: inline-flex;
+        font-family: var(--font-display);
         align-items: center;
         gap: 4px;
         font-size: 13px;
@@ -1569,6 +1577,7 @@ export const getPageStyles = (colors) => css`
     z-index: 2;
     font-size: 18px;
     font-weight: 700;
+    font-family: var(--font-display);
     color: rgb(35, 15, 5);
     pointer-events: none;
   }
@@ -1596,7 +1605,7 @@ export const getPageStyles = (colors) => css`
     border-radius: 20px;
     padding: 6px 16px;
     font-size: 15px;
-    font-family: inherit;
+    font-family: var(--font-display);
     cursor: pointer;
     font-weight: 700;
 

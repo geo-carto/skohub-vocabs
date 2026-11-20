@@ -30,6 +30,12 @@ import { useStaticQuery, graphql } from "gatsby"
  *         font_style: string,
  *         font_weight: string,
  *         name: string
+ *       },
+ *       display?: {
+ *         font_family: string,
+ *         font_style: string,
+ *         font_weight: string,
+ *         name: string
  *       }
  *     },
  *     searchableAttributes: string[],
@@ -68,6 +74,12 @@ export const getConfigAndConceptSchemes = () => {
               name
             }
             regular {
+              font_family
+              font_style
+              font_weight
+              name
+            }
+            display {
               font_family
               font_style
               font_weight

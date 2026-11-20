@@ -68,6 +68,7 @@ export const novedadesStyles = `
   .home-update-title {
     font-size: 26px;
     font-weight: 700;
+    font-family: var(--font-display);
     line-height: 1.25;
     color: rgb(35, 15, 5);
   }

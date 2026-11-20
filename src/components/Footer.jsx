@@ -123,6 +123,7 @@ const Footer = () => {
         margin: 0;
         font-size: 20px;
         font-weight: 700;
+        font-family: var(--font-display);
         color: rgb(35, 15, 5);
       }
 

@@ -75,6 +75,7 @@ export const statsBarStyles = (colors) => `
     .stat-value {
       font-size: 32px;
       font-weight: 700;
+      font-family: var(--font-display);
       line-height: 1;
       color: ${colors.skoHubDarkColor};
     }
@@ -88,6 +89,7 @@ export const statsBarStyles = (colors) => `
     .stat-date {
       font-size: 25px;
       font-weight: 700;
+      font-family: var(--font-display);
       color: rgb(35, 15, 5);
       line-height: 1.15;
       white-space: nowrap;

@@ -114,6 +114,7 @@ export const conceptStyle = (colors) => css`
       font-size: 30px;
       line-height: 32px;
       font-weight: 700;
+      font-family: var(--font-display);
 
       @media only screen and (max-width: 800px) {
         font-size: 24px;
@@ -127,6 +128,7 @@ export const conceptStyle = (colors) => css`
       font-size: 24px;
       line-height: 28px;
       font-weight: 700;
+      font-family: var(--font-display);
 
       @media only screen and (max-width: 800px) {
         font-size: 20px;
@@ -146,6 +148,16 @@ export const conceptStyle = (colors) => css`
 
   .markdown {
     padding-top: 10px;
+  }
+
+  .content h3 {
+    font-family: var(--font-display);
+  }
+
+  .notation-system {
+    color: ${colors.skoHubAction};
+    font-family: inherit;
+    font-weight: 400;
   }
 
   .conceptURI {
