@@ -23,6 +23,7 @@ module.exports = (languages) => `
     provenance: String,
     versionInfo: String,
     source: String,
+    changeNote: LanguageMapArray,
     theme: String,
     preferredNamespaceUri: String,
     preferredNamespacePrefix: String,

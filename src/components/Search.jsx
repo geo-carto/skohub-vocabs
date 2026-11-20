@@ -60,7 +60,11 @@ const Search = ({ handleQueryInput, labels, onLabelClick, language }) => {
           closeLabel={uiText(language, "close")}
         >
           <p>{uiText(language, "searchFields")}</p>
-          <LabelFilter labels={labels} toggleClick={onLabelClick} />
+          <LabelFilter
+            labels={labels}
+            toggleClick={onLabelClick}
+            language={language}
+          />
         </Modal>
       </div>
     </div>

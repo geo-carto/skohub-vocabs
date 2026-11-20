@@ -1,11 +1,8 @@
 import { css } from "@emotion/react"
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
+import { uiText } from "../uiTranslations"
 
-function UnderlinedText(props) {
-  return <span style={{ textDecoration: "underline" }}>{props.children}</span>
-}
-
-const LabelFilter = ({ labels, toggleClick }) => {
+const LabelFilter = ({ labels, toggleClick, language }) => {
   const { config } = getConfigAndConceptSchemes()
   const style = css`
     display: grid;
@@ -84,6 +81,11 @@ const LabelFilter = ({ labels, toggleClick }) => {
   const handleClick = (e) => {
     toggleClick(e)
   }
+  const fieldLabel = (field) =>
+    uiText(
+      language,
+      `searchField${field.charAt(0).toUpperCase()}${field.slice(1)}`
+    )
   const labelBoxes = Object.entries(labels).map((label) => (
     <div className="slider-wrapper" key={label[0]}>
       <label className="switch" id={label[0] + "CheckBox"}>
@@ -94,8 +96,7 @@ const LabelFilter = ({ labels, toggleClick }) => {
         />
         <span className="slider round"></span>
       </label>
-      <UnderlinedText>{label[0][0]}</UnderlinedText>
-      {label[0].slice(1)}
+      <span>{fieldLabel(label[0])}</span>
     </div>
   ))
 

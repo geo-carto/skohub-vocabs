@@ -258,7 +258,10 @@ exports.onPreBootstrap = async ({ createContentDigest, actions, getNode }) => {
         creator,
         contributor,
         provenance,
-        source,
+        source:
+          source && typeof source === "object" && source.id
+            ? source.id
+            : source || null,
         versionInfo,
         status:
           status && typeof status === "object" && status.id

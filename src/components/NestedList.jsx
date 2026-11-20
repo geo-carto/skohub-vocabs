@@ -5,6 +5,7 @@ import { Link as GatsbyLink } from "gatsby"
 
 import { getConfigAndConceptSchemes } from "../hooks/configAndConceptSchemes"
 import { useSkoHubContext } from "../context/Context"
+import { uiText } from "../uiTranslations"
 
 const getNestedItems = (item) => {
   let ids = [item.id]
@@ -79,9 +80,11 @@ const NestedList = ({
       word-break: normal;
     }
 
-    span > strong {
-      display: inline-flex;
-      color: ${config.colors.skoHubDarkColor};
+    span > mark {
+      color: ${config.colors.skoHubAction};
+      background: transparent;
+      font-family: inherit;
+      font-weight: 400;
     }
 
     .treeItemIcon {
@@ -216,7 +219,7 @@ const NestedList = ({
           ? `<span style="color: ${config.colors.skoHubAction} ">(DEPRECATED)</span> ${text}`
           : text
         if (highlight) {
-          return text.replace(highlight, (str) => `<strong>${str}</strong>`)
+          return text.replace(highlight, (str) => `<mark>${str}</mark>`)
         } else {
           return text
         }
@@ -228,10 +231,10 @@ const NestedList = ({
         const testLabelAndPush = (label, labelAttribute) => {
           if (highlight.test(label)) {
             hints.push(
-              `${capitalize(labelAttribute)}: ${handleHighlight(
-                label,
-                highlight
-              )}`
+              `${uiText(
+                language,
+                `searchField${capitalize(labelAttribute)}`
+              )}: ${handleHighlight(label, highlight)}`
             )
           }
         }

@@ -179,6 +179,9 @@ module.exports.allConceptScheme = (languages) => `
           contributor
           provenance
           source
+          changeNote {
+            ${[...languages].join(" ")}
+          }
           versionInfo
           theme
           license {

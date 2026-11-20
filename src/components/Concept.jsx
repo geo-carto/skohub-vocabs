@@ -93,7 +93,8 @@ const Concept = ({
             background: "white",
             cursor: "pointer",
             fontSize: "13px",
-            fontFamily: "inherit",
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
             color: "rgb(80,60,40)",
           }}
           onMouseEnter={(e) => {
@@ -252,7 +253,7 @@ const Concept = ({
       )}
       {concept.related && concept.related.length > 0 && (
         <div>
-          <h3>Related</h3>
+          <h3>{uiText(language, "related")}</h3>
           <ul>
             {concept.related.map((related) => (
               <li key={related.id}>
@@ -266,7 +267,7 @@ const Concept = ({
       )}
       {concept.narrowMatch && concept.narrowMatch.length > 0 && (
         <div>
-          <h3>Narrow Match</h3>
+          <h3>{uiText(language, "narrowMatch")}</h3>
           <ul>
             {concept.narrowMatch.map((narrowMatch) => (
               <li key={narrowMatch.id}>
@@ -280,7 +281,7 @@ const Concept = ({
       )}
       {concept.broadMatch && concept.broadMatch.length > 0 && (
         <div>
-          <h3>Broad Match</h3>
+          <h3>{uiText(language, "broadMatch")}</h3>
           <ul>
             {concept.broadMatch.map((broadMatch) => (
               <li key={broadMatch.id}>
@@ -294,7 +295,7 @@ const Concept = ({
       )}
       {concept.exactMatch && concept.exactMatch.length > 0 && (
         <div>
-          <h3>Exact Match</h3>
+          <h3>{uiText(language, "exactMatch")}</h3>
           <ul>
             {concept.exactMatch.map((exactMatch) => (
               <li key={exactMatch.id}>
@@ -308,7 +309,7 @@ const Concept = ({
       )}
       {concept.closeMatch && concept.closeMatch.length > 0 && (
         <div>
-          <h3>Close Match</h3>
+          <h3>{uiText(language, "closeMatch")}</h3>
           <ul>
             {concept.closeMatch.map((closeMatch) => (
               <li key={closeMatch.id}>
@@ -322,7 +323,7 @@ const Concept = ({
       )}
       {concept.relatedMatch && concept.relatedMatch.length > 0 && (
         <div>
-          <h3>Related Match</h3>
+          <h3>{uiText(language, "relatedMatch")}</h3>
           <ul>
             {concept.relatedMatch.map((relatedMatch) => (
               <li key={relatedMatch.id}>
@@ -364,7 +365,7 @@ const Concept = ({
           <ul>
             {notationDetails.map(({ value, system, datatype }, i) => (
               <li key={`${datatype || "notation"}-${value}-${i}`}>
-                {system && <strong>{system}: </strong>}
+                {system && <span className="notation-system">{system}: </span>}
                 <span title={!system && datatype ? datatype : undefined}>
                   {value}
                 </span>

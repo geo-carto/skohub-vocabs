@@ -80,7 +80,8 @@ const ConceptScheme = ({
                 background: "white",
                 cursor: "pointer",
                 fontSize: "13px",
-                fontFamily: "inherit",
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
                 color: "rgb(80,60,40)",
               }}
               onMouseEnter={(e) => {
@@ -130,6 +131,21 @@ const ConceptScheme = ({
               <Markdown>{i18n(language)(description)}</Markdown>
             </div>
           )}
+          {conceptScheme.changeNote &&
+            i18n(language)(conceptScheme.changeNote) !== "" && (
+              <div className="markdown">
+                <h3 id="scheme-change-note">
+                  {uiText(language, "changeNote")}
+                </h3>
+                <ul aria-labelledby="scheme-change-note">
+                  {i18n(language)(conceptScheme.changeNote).map((note, i) => (
+                    <li key={i}>
+                      <Markdown>{note}</Markdown>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           {conceptScheme.publisher && (
             <div>
               <h3>{uiText(language, "editor")}</h3>
